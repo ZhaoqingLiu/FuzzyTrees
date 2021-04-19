@@ -1,2 +1,2 @@
 # Fuzzy Decision Trees
-A algorithm frameword intergrating fuzzy decision trees and fuzzy ensemble trees.
+An algorithm framework integrating fuzzy decision trees and fuzzy ensemble trees.
