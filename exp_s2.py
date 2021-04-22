@@ -22,7 +22,6 @@ from fuzzy_trees.util_data_processing_funcs import extract_fuzzy_features
 
 
 def exec_exp_clf(comparing_mode=ComparisionMode.FUZZY, dataset_name="Vehicle"):
-    print(comparing_mode, ", ", dataset_name)
     result_df = pd.DataFrame()
 
     # Load all data sets.
