@@ -4,6 +4,7 @@
 @date  : 21/4/21 11:29 am
 @desc  :
 """
+import multiprocessing
 import time
 
 import numpy as np
@@ -14,6 +15,7 @@ from sklearn.model_selection import KFold
 from sklearn.tree import DecisionTreeClassifier
 
 from exp_fuzzy_v1 import ComparisionMode
+from exp_params import NUM_CPU_CORES, DATASET_NAMES
 from fuzzy_trees.fuzzy_decision_tree import FuzzyDecisionTreeClassifier
 from fuzzy_trees.fuzzy_decision_tree_api import FuzzificationParams, FuzzyDecisionTreeClassifierAPI, CRITERIA_FUNC_CLF, \
     CRITERIA_FUNC_REG
@@ -22,13 +24,16 @@ from fuzzy_trees.util_data_processing_funcs import extract_fuzzy_features
 
 
 def exec_exp_clf(comparing_mode=ComparisionMode.FUZZY, dataset_name="Vehicle"):
+    print("******** Task - ", dataset_name, " ********")
+
     result_df = pd.DataFrame()
 
     # Load all data sets.
     X_list, y_list, dataset_name_list = load_dataset_classification(dataset_name)
     # Iterate all data sets, and execute the function of the experiment in each iteration.
     for X, y, dataset_name in zip(X_list, y_list, dataset_name_list):
-        fuzzy_accuracy_list, naive_accuracy_list = get_exp_results_clf(X, y, comparing_mode=comparing_mode)
+        fuzzy_accuracy_list, naive_accuracy_list = get_exp_results_clf(X, y, comparing_mode=comparing_mode,
+                                                                       dataset_name=dataset_name)
 
         fuzzy_mean = np.mean(fuzzy_accuracy_list)
         fuzzy_std = np.std(fuzzy_accuracy_list)
@@ -40,7 +45,7 @@ def exec_exp_clf(comparing_mode=ComparisionMode.FUZZY, dataset_name="Vehicle"):
     result_df.to_csv("exp_results_" + comparing_mode.value + "_" + dataset_name + ".csv")
 
 
-def get_exp_results_clf(X, y, comparing_mode=ComparisionMode.FUZZY):
+def get_exp_results_clf(X, y, comparing_mode=ComparisionMode.FUZZY, dataset_name="Vehicle"):
     fuzzy_accuracy_list = []
     naive_accuracy_list = []
 
@@ -90,9 +95,10 @@ def get_exp_results_clf(X, y, comparing_mode=ComparisionMode.FUZZY):
             naive_accuracy_list.append(accuracy)
 
     print("========================================================================================")
-    print(comparing_mode.value, "-FDT's mean accuracy:", np.mean(fuzzy_accuracy_list), "   std:",
+    print(comparing_mode.value, " - ", dataset_name)
+    print("Fuzzy:  10-round-mean accuracy:", np.mean(fuzzy_accuracy_list), "  std:",
           np.std(fuzzy_accuracy_list))
-    print(comparing_mode.value, "-NDT's mean accuracy:", np.mean(naive_accuracy_list), "   std:",
+    print("Non-fuzzy:  10-round-mean accuracy:", np.mean(naive_accuracy_list), "  std:",
           np.std(naive_accuracy_list))
     print("========================================================================================")
 
@@ -216,10 +222,45 @@ def load_dataset_classification(dataset_name):
 
 
 if __name__ == '__main__':
+    # 1st method: Using multiprocessing.Pool.
     time_start = time.time()
-    exec_exp_clf(ComparisionMode.FUZZY, "Iris")
-    print("Elapsed time: {:.5}s".format(time.time() - time_start))
 
-    time_start = time.time()
-    exec_exp_clf(ComparisionMode.FUZZY, "Wine")
-    print("Elapsed time: {:.5}s".format(time.time() - time_start))
+    # Create a pool containing n processes. Make sure that n is <= the number of CPU cores available.
+    # The parameters to the Pool indicate how many parallel processes are called to run the program.
+    # The default size of the Pool is the number of compute cores on the CPU, i.e. multiprocessing.cpu_count().
+    pool = multiprocessing.Pool(NUM_CPU_CORES)
+
+    # Complete all tasks by the pool.
+    # !!! NB: If you want to complete the experiment faster, you can use distributed computing. Or you can divide
+    # the task into k groups to execute in k py programs, and then run one on each of k clusters simultaneously.
+    for ds_name in DATASET_NAMES:
+        # Add a process into the pool. apply_async() is asynchronous equivalent of "apply()" builtin.
+        pool.apply_async(exec_exp_clf, args=(ComparisionMode.FUZZY, ds_name,))
+    pool.close()
+    pool.join()
+
+    print("Total elapsed time: {:.5}s".format(time.time() - time_start))
+
+    # =====================================================================================================
+    # # 2nd method: Using multiprocessing.Process purely, not multiprocessing.Pool.
+    # # Create multiple worker processes (The system marks __main__ as the master process by default),
+    # # and each process execute an experiment on one dataset.
+    # p1 = multiprocessing.Process(target=exec_exp_clf, args=(ComparisionMode.FUZZY, "Iris",))
+    # p2 = multiprocessing.Process(target=exec_exp_clf, args=(ComparisionMode.FUZZY, "Wine",))
+    # p3 = multiprocessing.Process(target=exec_exp_clf, args=(ComparisionMode.FUZZY, "Vehicle",))
+    # p4 = multiprocessing.Process(target=exec_exp_clf, args=(ComparisionMode.FUZZY, "German_Credit",))
+    # p5 = multiprocessing.Process(target=exec_exp_clf, args=(ComparisionMode.FUZZY, "Diabetes",))
+    #
+    # # Start all processes.
+    # p1.start()
+    # p2.start()
+    # p3.start()
+    # p4.start()
+    # p5.start()
+    #
+    # # Join all processes to the system resource request queue.
+    # p1.join()
+    # p2.join()
+    # p3.join()
+    # p4.join()
+    # p5.join()

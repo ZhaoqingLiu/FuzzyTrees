@@ -18,11 +18,14 @@ class ComparisionMode(Enum):
     MIXED = "mfgbdt_vs_nfgbdt"
 
 
-# The maximum number of available CPU cores per cluster.
+# Gets the maximum number of CPU cores available for the current cluster.
 # For example, the maximum number of available CPU cores per Mars cluster is 16 for UTS,
 # 30 for each Laureate cluster, 26 for each Mercury cluster, and 8 for each Venus cluster.
-# You should check the maximum number of CPU cores available for the other clusters.
 NUM_CPU_CORES = multiprocessing.cpu_count()
 
-# The datasets' names on which you want to run experiments.
+# The data sets on which you want to run experiments.
 DATASET_NAMES = ["Vehicle", "German_Credit", "Diabetes", "Iris", "Wine"]
+# # The following is just to verify that multiple threads can use all the CPU power.
+# DATASET_NAMES = []
+# for i in range(NUM_CPU_CORES):
+#     DATASET_NAMES.append("Iris")
