@@ -16,5 +16,5 @@ class MyManager(BaseManager):
 if __name__ == '__main__':
     # print("Number of CPU cores of this server: ", multiprocessing.cpu_count())
 
-    send_queue = queue.Queue()
-    receive_queue = queue.Queue()
+    task_queue = queue.Queue()
+    result_queue = queue.Queue()
