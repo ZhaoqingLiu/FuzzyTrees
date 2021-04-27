@@ -23,14 +23,13 @@ from fuzzy_trees.util_data_processing_funcs import extract_fuzzy_features
 
 
 def exec_exp_clf(comparing_mode=ComparisionMode.FUZZY, dataset_name="Vehicle"):
-    print("******** Task - ", dataset_name, " ********")
-
     result_df = pd.DataFrame()
 
     # Load all data sets.
     X_list, y_list, dataset_name_list = load_dataset_classification(dataset_name)
     # Iterate all data sets, and execute the function of the experiment in each iteration.
-    for X, y, dataset_name in zip(X_list, y_list, dataset_name_list):
+    for i, (X, y, dataset_name) in enumerate(zip(X_list, y_list, dataset_name_list)):
+        print("******** Start training on dataset", i, ":", dataset_name)
         fuzzy_accuracy_list, naive_accuracy_list = get_exp_results_clf(X, y, comparing_mode=comparing_mode,
                                                                        dataset_name=dataset_name)
 

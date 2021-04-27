@@ -68,6 +68,13 @@ def degree_of_membership_build(X_df, r_seed, conv_k):
         x_new[:, idx] = 1 - x_new[:, idx] / item
     x_new[x_new < 0] = 0
 
+    # TODO: Prepare a parameter for searching optimum fuzzy threshold
+    # x_new[x_new <= fuzzy_tol] = 0
+    # x_new[x_new >= (1 - fuzzy_tol)] = 1
+    print("++++++++++++++++++++++++++++++++++++++")
+    print(x_new)
+    print("++++++++++++++++++++++++++++++++++++++")
+
     return x_new, centriods, degree_of_membership_theta
 
 

@@ -24,7 +24,8 @@ class ComparisionMode(Enum):
 NUM_CPU_CORES = multiprocessing.cpu_count()
 
 # The data sets on which you want to run experiments.
-DATASET_NAMES = ["Vehicle", "German_Credit", "Diabetes", "Iris", "Wine"]
+DATASET_NAMES = ["Iris"]
+# DATASET_NAMES = ["Vehicle", "German_Credit", "Diabetes", "Iris", "Wine"]
 # # The following is just to verify that multiple threads can use all the CPU power.
 # DATASET_NAMES = []
 # for i in range(NUM_CPU_CORES):
