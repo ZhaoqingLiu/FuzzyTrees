@@ -25,6 +25,8 @@ from scipy.io import arff
 
 
 # Change it to your folder path.
+from sklearn import datasets
+
 DATA_FOLDER_PATH = '/home/zhaoqliu/Datasets/'
 
 
@@ -118,6 +120,28 @@ def load_diabetes():
     return df
 
 
+def load_iris():
+    dataset = datasets.load_iris()
+    X = dataset.data
+    y = dataset.target
+
+    y = np.expand_dims(y, axis=1)
+    ds = np.concatenate((X, y), axis=1)
+
+    return pd.DataFrame(ds)
+
+
+def load_wine():
+    dataset = datasets.load_wine()
+    X = dataset.data
+    y = dataset.target
+
+    y = np.expand_dims(y, axis=1)
+    ds = np.concatenate((X, y), axis=1)
+
+    return pd.DataFrame(ds)
+
+
 if __name__ == "__main__":
     print('Loading Vehicle')
     data_vehicle = load_vehicle()
@@ -138,3 +162,11 @@ if __name__ == "__main__":
     print('Loading Diabetes')
     data_diabetes = load_diabetes()
     print('Loading Diabetes, shape', data_diabetes.shape)
+
+    print('Loading Iris')
+    data_iris = load_iris()
+    print('Loading Iris, shape', data_iris.shape)
+
+    print('Loading Wine')
+    data_wine = load_wine()
+    print('Loading Wine, shape', data_wine.shape)

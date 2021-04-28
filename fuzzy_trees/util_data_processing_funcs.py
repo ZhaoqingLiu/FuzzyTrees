@@ -15,7 +15,7 @@ from sklearn.metrics import pairwise_distances
 # Fuzzy-related functions
 # =============================================================================
 
-def degree_of_membership_build(X_df, r_seed, conv_k):
+def degree_of_membership_build(X_df, r_seed, conv_k, fuzzy_th):
     """
     Build the degree of membership set of a feature. That set maps to
     the specified number of fuzzy sets of the feature.
@@ -66,19 +66,21 @@ def degree_of_membership_build(X_df, r_seed, conv_k):
     # convert distance to degree of membership
     for idx, item in enumerate(degree_of_membership_theta):
         x_new[:, idx] = 1 - x_new[:, idx] / item
-    x_new[x_new < 0] = 0
+    # x_new[x_new < 0] = 0
 
-    # TODO: Prepare a parameter for searching optimum fuzzy threshold
-    # x_new[x_new <= fuzzy_tol] = 0
-    # x_new[x_new >= (1 - fuzzy_tol)] = 1
-    print("++++++++++++++++++++++++++++++++++++++")
-    print(x_new)
-    print("++++++++++++++++++++++++++++++++++++++")
+    # TODO: Searching an optimum fuzzy threshold by a loop according the specified stride.
+    # np.where(x_new > fuzzy_th, x_new, 0.0)
+    # np.where(x_new > fuzzy_th and x_new <= (1 - fuzzy_th), x_new, 1.0)
+    x_new[x_new <= fuzzy_th] = 0
+    x_new[x_new >= (1 - fuzzy_th)] = 1
+    # print("++++++++++++++++++++++++++++++++++++++")
+    # print(x_new)
+    # print("++++++++++++++++++++++++++++++++++++++")
 
     return x_new, centriods, degree_of_membership_theta
 
 
-def extract_fuzzy_features(X, conv_k=5):
+def extract_fuzzy_features(X, conv_k=5, fuzzy_th=0.0):
     """
     Extract fuzzy features in feature fuzzification to generate degree of
     membership sets of each feature.
@@ -89,14 +91,15 @@ def extract_fuzzy_features(X, conv_k=5):
     TODO: To be deprecated in version 1.0.
     TODO: To be verified by experiment: When using cross validation, which performance is better doing this before or after the partition of the data sets?
     """
-    print("************* X's shape:", np.shape(X))
+    # print("************* X's shape:", np.shape(X))
     n_samples, n_features = np.shape(X)
     X_fuzzy_dms = np.empty([n_samples, 0])
     for feature_idx in range(n_features):
-        X_fuzzy_dm, _, _ = degree_of_membership_build(r_seed=0, X_df=pd.DataFrame(X[:, feature_idx]), conv_k=conv_k)
+        X_fuzzy_dm, _, _ = degree_of_membership_build(r_seed=0, X_df=pd.DataFrame(X[:, feature_idx]), conv_k=conv_k,fuzzy_th=fuzzy_th)
         X_fuzzy_dms = np.concatenate((X_fuzzy_dms, X_fuzzy_dm), axis=1)
-    print("************* X_fuzzy_dms's shape:", np.shape(X_fuzzy_dms))
+    # print("************* X_fuzzy_dms's shape:", np.shape(X_fuzzy_dms))
     return X_fuzzy_dms
+
     # X_df = pd.DataFrame(X)
     # X_fuzzy_dms, _, _ = degree_of_membership_build(r_seed=0, X_df=X_df.iloc[:, 0], conv_k=5)
 

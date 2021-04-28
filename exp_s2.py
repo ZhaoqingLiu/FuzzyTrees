@@ -14,7 +14,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.model_selection import KFold
 from sklearn.tree import DecisionTreeClassifier
 
-from exp_params import ComparisionMode, NUM_CPU_CORES, DATASET_NAMES
+from exp_params import ComparisionMode, NUM_CPU_CORES, DS_LOAD_FUNC_CLF, FUZZY_TOL, FUZZY_STRIDE
 from fuzzy_trees.fuzzy_decision_tree import FuzzyDecisionTreeClassifier
 from fuzzy_trees.fuzzy_decision_tree_api import FuzzificationParams, FuzzyDecisionTreeClassifierAPI, CRITERIA_FUNC_CLF, \
     CRITERIA_FUNC_REG
@@ -22,16 +22,64 @@ from fuzzy_trees.fuzzy_gbdt import FuzzyGBDTClassifier
 from fuzzy_trees.util_data_processing_funcs import extract_fuzzy_features
 
 
-def exec_exp_clf(comparing_mode=ComparisionMode.FUZZY, dataset_name="Vehicle"):
+# 1st task: Searching an optimum fuzzy threshold by a loop according the specified stride.
+fuzzy_th_list = []
+accuracy_accuracy_list = []
+
+
+def search_optimum_fuzzy_th(comparing_mode, dataset_name, fuzzy_th):
+    result_df = pd.DataFrame()
+
+    # Load all data sets.
+    ds_df = load_dataset_clf(dataset_name)
+
+    # Execute the experiment according to the parameters.
+    X = ds_df.iloc[:, :-1].values
+    y = ds_df.iloc[:, -1].values
+    fuzzy_accuracy_list, naive_accuracy_list = get_exp_results_clf(X, y, comparing_mode=comparing_mode, dataset_name=dataset_name, fuzzy_th=fuzzy_th)
+    fuzzy_th_list.append(fuzzy_th)
+    accuracy_accuracy_list.append(np.mean(fuzzy_accuracy_list))
+
+    # TODO: Change to communication by Queue
+    print("fuzzy_th_list:", fuzzy_th_list)
+    print("accuracy_list:", accuracy_accuracy_list)
+
+    # Sort fuzzy_th_list in ascending order, and sort accuracy_list in the same order as fuzzy_th_list.
+    # Because multiple processes may not return results in an ascending order of fuzzy thresholds.
+
+    # Plot fuzzy thresholds versus accuracies.
+
+
+def load_dataset_clf(dataset_name):
+    """
+    Load data by a dataset name.
+
+    Parameters
+    ----------
+    dataset_name: a key in exp.params.DS_LOAD_FUNC_CLF
+
+    Returns
+    -------
+    data: DataFrame
+    """
+    ds_load_func = None
+
+    if dataset_name in DS_LOAD_FUNC_CLF.keys():
+        ds_load_func = DS_LOAD_FUNC_CLF[dataset_name]
+
+    return None if ds_load_func is None else ds_load_func()
+
+
+
+def exec_exp_clf(comparing_mode, dataset_name, fuzzy_th):
     result_df = pd.DataFrame()
 
     # Load all data sets.
     X_list, y_list, dataset_name_list = load_dataset_classification(dataset_name)
     # Iterate all data sets, and execute the function of the experiment in each iteration.
-    for i, (X, y, dataset_name) in enumerate(zip(X_list, y_list, dataset_name_list)):
-        print("******** Start training on dataset", i, ":", dataset_name)
+    for X, y, dataset_name in zip(X_list, y_list, dataset_name_list):
         fuzzy_accuracy_list, naive_accuracy_list = get_exp_results_clf(X, y, comparing_mode=comparing_mode,
-                                                                       dataset_name=dataset_name)
+                                                                       dataset_name=dataset_name, fuzzy_th=fuzzy_th)
 
         fuzzy_mean = np.mean(fuzzy_accuracy_list)
         fuzzy_std = np.std(fuzzy_accuracy_list)
@@ -43,7 +91,7 @@ def exec_exp_clf(comparing_mode=ComparisionMode.FUZZY, dataset_name="Vehicle"):
     result_df.to_csv("exp_results_" + comparing_mode.value + "_" + dataset_name + ".csv")
 
 
-def get_exp_results_clf(X, y, comparing_mode=ComparisionMode.FUZZY, dataset_name="Vehicle"):
+def get_exp_results_clf(X, y, comparing_mode, dataset_name, fuzzy_th):
     fuzzy_accuracy_list = []
     naive_accuracy_list = []
 
@@ -66,7 +114,7 @@ def get_exp_results_clf(X, y, comparing_mode=ComparisionMode.FUZZY, dataset_name
         # X_fuzzy_pre[:, :] -= X_fuzzy_pre[:, :].min()
         # X_fuzzy_pre[:, :] /= X_fuzzy_pre[:, :].max()
         # - Step 2: Extract fuzzy features.
-        X_dms = extract_fuzzy_features(X_fuzzy_pre, conv_k=5)
+        X_dms = extract_fuzzy_features(X_fuzzy_pre, conv_k=5, fuzzy_th=fuzzy_th)
     X_plus_dms = np.concatenate((X, X_dms), axis=1)
     print("************* X_plus_dms's shape:", np.shape(X_plus_dms))
 
@@ -231,9 +279,12 @@ if __name__ == '__main__':
     # Complete all tasks by the pool.
     # !!! NB: If you want to complete the experiment faster, you can use distributed computing. Or you can divide
     # the task into k groups to execute in k py programs, and then run one on each of k clusters simultaneously.
-    for ds_name in DATASET_NAMES:
-        # Add a process into the pool. apply_async() is asynchronous equivalent of "apply()" builtin.
-        pool.apply_async(exec_exp_clf, args=(ComparisionMode.FUZZY, ds_name,))
+    for ds_name in DS_LOAD_FUNC_CLF.keys():
+        # TODO: 1st task: Searching an optimum fuzzy threshold by a loop according the specified stride.
+        while FUZZY_TOL < 0.5:
+            # Add a process into the pool. apply_async() is asynchronous equivalent of "apply()" builtin.
+            pool.apply_async(search_optimum_fuzzy_th, args=(ComparisionMode.FUZZY, ds_name, FUZZY_TOL + FUZZY_STRIDE,))
+            FUZZY_TOL += FUZZY_STRIDE
     pool.close()
     pool.join()
 
