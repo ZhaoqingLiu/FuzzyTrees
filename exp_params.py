@@ -33,7 +33,7 @@ DS_LOAD_FUNC_REG = {}
 
 
 # Searching an optimum fuzzy threshold by a loop according the specified stride.
-FUZZY_TOL = 0.0
+FUZZY_TH = 0.0
 FUZZY_STRIDE = 0.01
 
 

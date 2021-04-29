@@ -15,7 +15,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.model_selection import KFold
 from sklearn.tree import DecisionTreeClassifier
 
-from exp_params import ComparisionMode, NUM_CPU_CORES, DS_LOAD_FUNC_CLF, FUZZY_TOL, FUZZY_STRIDE
+from exp_params import ComparisionMode, NUM_CPU_CORES, DS_LOAD_FUNC_CLF, FUZZY_TH, FUZZY_STRIDE
 from fuzzy_trees.fuzzy_decision_tree import FuzzyDecisionTreeClassifier
 from fuzzy_trees.fuzzy_decision_tree_api import FuzzificationParams, FuzzyDecisionTreeClassifierAPI, CRITERIA_FUNC_CLF, \
     CRITERIA_FUNC_REG
@@ -29,7 +29,7 @@ fuzzy_th_list = []
 accuracy_accuracy_list = []
 
 
-def search_optimum_fuzzy_th(queue, comparing_mode, dataset_name, fuzzy_th):
+def search_optimum_fuzzy_th(q, comparing_mode, dataset_name, fuzzy_th):
     result_df = pd.DataFrame()
 
     # Load all data sets.
@@ -44,7 +44,7 @@ def search_optimum_fuzzy_th(queue, comparing_mode, dataset_name, fuzzy_th):
 
     # Put the result in "queue" and send it to the plotting process.
     if not q.full():
-        queue.put([[fuzzy_th, fuzzy_accuracy_mean], [fuzzy_th, naive_accuracy_mean]])
+        q.put([[fuzzy_th, fuzzy_accuracy_mean], [fuzzy_th, naive_accuracy_mean]])
 
 
 def load_dataset_clf(dataset_name):
@@ -116,12 +116,12 @@ def get_exp_results_clf(X, y, comparing_mode, dataset_name, fuzzy_th):
     print("************* X_plus_dms's shape:", np.shape(X_plus_dms))
 
     for i in range(10):
-        print("%ith comparison" % i)
+        print("%ith comparison on %s" % (i, dataset_name))
 
         # Split training and test sets by hold-out partition method.
         # X_train, X_test, y_train, y_test = train_test_split(X_fuzzy_pre, y, test_size=0.4)
 
-        kf = KFold(n_splits=10, random_state=i, shuffle=True)
+        kf = KFold(n_splits=2, random_state=i, shuffle=True)
         for train_index, test_index in kf.split(X):
             y_train, y_test = y[train_index], y[test_index]
 
@@ -287,14 +287,14 @@ if __name__ == '__main__':
     err = None
     for ds_name in DS_LOAD_FUNC_CLF.keys():
         # TODO: 1st task: Searching an optimum fuzzy threshold by a loop according the specified stride.
-        while FUZZY_TOL < 0.5:
+        while FUZZY_TH < 0.5:
             # Add a process into the pool. apply_async() is asynchronous equivalent of "apply()" builtin.
-            err = pool.apply_async(search_optimum_fuzzy_th, args=(q, ComparisionMode.FUZZY, ds_name, (FUZZY_TOL + FUZZY_STRIDE),))
-            FUZZY_TOL += FUZZY_STRIDE
+            err = pool.apply_async(search_optimum_fuzzy_th, args=(q, ComparisionMode.FUZZY, ds_name, (FUZZY_TH + FUZZY_STRIDE),))
+            FUZZY_TH += FUZZY_STRIDE
 
     # Plot the comparison of training error versus test error, and both curves are fuzzy thresholds versus accuracies.
     # Illustrate how the performance on unseen data (test data) is different from the performance on training data.
-    pool.apply_async(plotter.plot_multi_curves, args=(q,
+    err = pool.apply_async(plotter.plot_multi_curves, args=(q,
                                                       "Training Error vs Test Error",
                                                       "Fuzzy threshold",
                                                       "Performance",
