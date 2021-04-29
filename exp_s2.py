@@ -5,6 +5,7 @@
 @desc  :
 """
 import multiprocessing
+import os
 import time
 
 import numpy as np
@@ -20,6 +21,7 @@ from fuzzy_trees.fuzzy_decision_tree_api import FuzzificationParams, FuzzyDecisi
     CRITERIA_FUNC_REG
 from fuzzy_trees.fuzzy_gbdt import FuzzyGBDTClassifier
 from fuzzy_trees.util_data_processing_funcs import extract_fuzzy_features
+import fuzzy_trees.util_plotter as plotter
 
 
 # 1st task: Searching an optimum fuzzy threshold by a loop according the specified stride.
@@ -27,7 +29,7 @@ fuzzy_th_list = []
 accuracy_accuracy_list = []
 
 
-def search_optimum_fuzzy_th(comparing_mode, dataset_name, fuzzy_th):
+def search_optimum_fuzzy_th(queue, comparing_mode, dataset_name, fuzzy_th):
     result_df = pd.DataFrame()
 
     # Load all data sets.
@@ -37,17 +39,12 @@ def search_optimum_fuzzy_th(comparing_mode, dataset_name, fuzzy_th):
     X = ds_df.iloc[:, :-1].values
     y = ds_df.iloc[:, -1].values
     fuzzy_accuracy_list, naive_accuracy_list = get_exp_results_clf(X, y, comparing_mode=comparing_mode, dataset_name=dataset_name, fuzzy_th=fuzzy_th)
-    fuzzy_th_list.append(fuzzy_th)
-    accuracy_accuracy_list.append(np.mean(fuzzy_accuracy_list))
+    fuzzy_accuracy_mean = np.mean(fuzzy_accuracy_list)
+    naive_accuracy_mean = np.mean(naive_accuracy_list)
 
-    # TODO: Change to communication by Queue
-    print("fuzzy_th_list:", fuzzy_th_list)
-    print("accuracy_list:", accuracy_accuracy_list)
-
-    # Sort fuzzy_th_list in ascending order, and sort accuracy_list in the same order as fuzzy_th_list.
-    # Because multiple processes may not return results in an ascending order of fuzzy thresholds.
-
-    # Plot fuzzy thresholds versus accuracies.
+    # Put the result in "queue" and send it to the plotting process.
+    if not q.full():
+        queue.put([[fuzzy_th, fuzzy_accuracy_mean], [fuzzy_th, naive_accuracy_mean]])
 
 
 def load_dataset_clf(dataset_name):
@@ -268,10 +265,18 @@ def load_dataset_classification(dataset_name):
 
 
 if __name__ == '__main__':
-    # 1st method: Using multiprocessing.Pool.
     time_start = time.time()
 
-    # Create a pool containing n processes. Make sure that n is <= the number of CPU cores available.
+    # 1st method: Using multiprocessing.Pool.
+    print("Main Process (%s) has started." % os.getpid())
+
+    # NB: When using Pool create processes, use multiprocessing.Manager().Queue()
+    # instead of multiprocessing.Queue().
+    q = multiprocessing.Manager().Queue()
+
+    # Create a pool containing n (0 - infinity) processes.
+    # If the parameter "processes" is None then the number returned by os.cpu_count() is used.
+    # Make sure that n is <= the number of CPU cores available.
     # The parameters to the Pool indicate how many parallel processes are called to run the program.
     # The default size of the Pool is the number of compute cores on the CPU, i.e. multiprocessing.cpu_count().
     pool = multiprocessing.Pool(NUM_CPU_CORES)
@@ -279,16 +284,37 @@ if __name__ == '__main__':
     # Complete all tasks by the pool.
     # !!! NB: If you want to complete the experiment faster, you can use distributed computing. Or you can divide
     # the task into k groups to execute in k py programs, and then run one on each of k clusters simultaneously.
+    err = None
     for ds_name in DS_LOAD_FUNC_CLF.keys():
         # TODO: 1st task: Searching an optimum fuzzy threshold by a loop according the specified stride.
         while FUZZY_TOL < 0.5:
             # Add a process into the pool. apply_async() is asynchronous equivalent of "apply()" builtin.
-            pool.apply_async(search_optimum_fuzzy_th, args=(ComparisionMode.FUZZY, ds_name, FUZZY_TOL + FUZZY_STRIDE,))
+            err = pool.apply_async(search_optimum_fuzzy_th, args=(q, ComparisionMode.FUZZY, ds_name, (FUZZY_TOL + FUZZY_STRIDE),))
             FUZZY_TOL += FUZZY_STRIDE
+
+    # Plot the comparison of training error versus test error, and both curves are fuzzy thresholds versus accuracies.
+    # Illustrate how the performance on unseen data (test data) is different from the performance on training data.
+    pool.apply_async(plotter.plot_multi_curves, args=(q,
+                                                      "Training Error vs Test Error",
+                                                      "Fuzzy threshold",
+                                                      "Performance",
+                                                      (0, 0.5),
+                                                      (0, 1.2),))
+
+    # Just for checking error info if there are any exceptions.
+    if err is not None:
+        err.get()
+
     pool.close()
     pool.join()
 
     print("Total elapsed time: {:.5}s".format(time.time() - time_start))
+
+    # TODO: Sort fuzzy_th_list in ascending order, and sort accuracy_list in the same order as fuzzy_th_list.
+    # Because multiple processes may not return results in an ascending order of fuzzy thresholds.
+
+    print("Main Process (%s) has ended." % os.getpid())
+
 
     # =====================================================================================================
     # # 2nd method: Using multiprocessing.Process purely, not multiprocessing.Pool.
