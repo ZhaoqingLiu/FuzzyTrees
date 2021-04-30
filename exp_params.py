@@ -27,7 +27,7 @@ NUM_CPU_CORES = multiprocessing.cpu_count()
 
 
 # The data sets on which you want to run experiments.
-DS_LOAD_FUNC_CLF = {"Iris": load_iris}
+DS_LOAD_FUNC_CLF = {"Diabetes": load_diabetes}
 # DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle, "German_Credit": load_German_credit, "Diabetes": load_diabetes, "Iris": load_iris, "Wine": load_wine}
 DS_LOAD_FUNC_REG = {}
 

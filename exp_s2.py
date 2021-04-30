@@ -24,27 +24,19 @@ from fuzzy_trees.util_data_processing_funcs import extract_fuzzy_features
 import fuzzy_trees.util_plotter as plotter
 
 
-# 1st task: Searching an optimum fuzzy threshold by a loop according the specified stride.
-fuzzy_th_list = []
-accuracy_accuracy_list = []
-
-
-def search_optimum_fuzzy_th(q, comparing_mode, dataset_name, fuzzy_th):
-    result_df = pd.DataFrame()
-
+def search_optimum_fuzzy_th(conn_send, comparing_mode, dataset_name, fuzzy_th):
     # Load all data sets.
     ds_df = load_dataset_clf(dataset_name)
 
     # Execute the experiment according to the parameters.
     X = ds_df.iloc[:, :-1].values
     y = ds_df.iloc[:, -1].values
-    fuzzy_accuracy_list, naive_accuracy_list = get_exp_results_clf(X, y, comparing_mode=comparing_mode, dataset_name=dataset_name, fuzzy_th=fuzzy_th)
-    fuzzy_accuracy_mean = np.mean(fuzzy_accuracy_list)
-    naive_accuracy_mean = np.mean(naive_accuracy_list)
+    accuracy_train_list, accuracy_test_list = get_exp_results_clf(X, y, comparing_mode=comparing_mode, dataset_name=dataset_name, fuzzy_th=fuzzy_th)
+    accuracy_train_mean = np.mean(accuracy_train_list)
+    accuracy_test_mean = np.mean(accuracy_test_list)
 
-    # Put the result in "queue" and send it to the plotting process.
-    if not q.full():
-        q.put([[fuzzy_th, fuzzy_accuracy_mean], [fuzzy_th, naive_accuracy_mean]])
+    # Put the result in "queue".
+    conn_send.send([[fuzzy_th, accuracy_train_mean], [fuzzy_th, accuracy_test_mean]])
 
 
 def load_dataset_clf(dataset_name):
@@ -67,30 +59,9 @@ def load_dataset_clf(dataset_name):
     return None if ds_load_func is None else ds_load_func()
 
 
-
-def exec_exp_clf(comparing_mode, dataset_name, fuzzy_th):
-    result_df = pd.DataFrame()
-
-    # Load all data sets.
-    X_list, y_list, dataset_name_list = load_dataset_classification(dataset_name)
-    # Iterate all data sets, and execute the function of the experiment in each iteration.
-    for X, y, dataset_name in zip(X_list, y_list, dataset_name_list):
-        fuzzy_accuracy_list, naive_accuracy_list = get_exp_results_clf(X, y, comparing_mode=comparing_mode,
-                                                                       dataset_name=dataset_name, fuzzy_th=fuzzy_th)
-
-        fuzzy_mean = np.mean(fuzzy_accuracy_list)
-        fuzzy_std = np.std(fuzzy_accuracy_list)
-        naive_mean = np.mean(naive_accuracy_list)
-        naive_std = np.std(naive_accuracy_list)
-        result_df[dataset_name] = [fuzzy_mean, naive_mean, fuzzy_std, naive_std]
-
-    # Finally, output the results of the experiment.
-    result_df.to_csv("exp_results_" + comparing_mode.value + "_" + dataset_name + ".csv")
-
-
 def get_exp_results_clf(X, y, comparing_mode, dataset_name, fuzzy_th):
-    fuzzy_accuracy_list = []
-    naive_accuracy_list = []
+    accuracy_train_list = []
+    accuracy_test_list = []
 
     # Preprocess features for using fuzzy decision tree.
     X_fuzzy_pre = X.copy()
@@ -98,13 +69,13 @@ def get_exp_results_clf(X, y, comparing_mode, dataset_name, fuzzy_th):
     X_dms = None
     if comparing_mode is ComparisionMode.FF3:
         fuzzification_params = FuzzificationParams(conv_k=3)
-        X_dms = extract_fuzzy_features(X_fuzzy_pre, conv_k=3)
+        X_dms = extract_fuzzy_features(X_fuzzy_pre, conv_k=3, fuzzy_th=fuzzy_th)
     elif comparing_mode is ComparisionMode.FF4:
         fuzzification_params = FuzzificationParams(conv_k=4)
-        X_dms = extract_fuzzy_features(X_fuzzy_pre, conv_k=4)
+        X_dms = extract_fuzzy_features(X_fuzzy_pre, conv_k=4, fuzzy_th=fuzzy_th)
     elif comparing_mode is ComparisionMode.FF5:
         fuzzification_params = FuzzificationParams(conv_k=5)
-        X_dms = extract_fuzzy_features(X_fuzzy_pre, conv_k=5)
+        X_dms = extract_fuzzy_features(X_fuzzy_pre, conv_k=5, fuzzy_th=fuzzy_th)
     else:
         fuzzification_params = FuzzificationParams(conv_k=5)
         # - Step 1: Standardise feature scaling.
@@ -127,25 +98,20 @@ def get_exp_results_clf(X, y, comparing_mode, dataset_name, fuzzy_th):
 
             # Using a fuzzy decision tree. =============================================================================
             X_train, X_test = X_plus_dms[train_index], X_plus_dms[test_index]
-            accuracy = use_fuzzy_trees(comparing_mode=comparing_mode, X_train=X_train, X_test=X_test, y_train=y_train,
+            accuracy_train, accuracy_test = use_fuzzy_trees(comparing_mode=comparing_mode, X_train=X_train, X_test=X_test, y_train=y_train,
                                        y_test=y_test, fuzzification_params=fuzzification_params)
-            fuzzy_accuracy_list.append(accuracy)
-
-            # Using a naive decision tree. =============================================================================
-            X_train, X_test = X[train_index], X[test_index]
-            accuracy = use_naive_trees(comparing_mode=comparing_mode, X_train=X_train, X_test=X_test, y_train=y_train,
-                                       y_test=y_test)
-            naive_accuracy_list.append(accuracy)
+            accuracy_train_list.append(accuracy_train)
+            accuracy_test_list.append(accuracy_test)
 
     print("========================================================================================")
     print(comparing_mode.value, " - ", dataset_name)
-    print("Fuzzy:  10-round-mean accuracy:", np.mean(fuzzy_accuracy_list), "  std:",
-          np.std(fuzzy_accuracy_list))
-    print("Non-fuzzy:  10-round-mean accuracy:", np.mean(naive_accuracy_list), "  std:",
-          np.std(naive_accuracy_list))
+    print("Fuzzy:  10-round-mean accuracy:", np.mean(accuracy_train_list), "  std:",
+          np.std(accuracy_train_list))
+    print("Non-fuzzy:  10-round-mean accuracy:", np.mean(accuracy_test_list), "  std:",
+          np.std(accuracy_test_list))
     print("========================================================================================")
 
-    return fuzzy_accuracy_list, naive_accuracy_list
+    return accuracy_train_list, accuracy_test_list
 
 
 def use_fuzzy_trees(comparing_mode, X_train, X_test, y_train, y_test, fuzzification_params):
@@ -180,99 +146,35 @@ def use_fuzzy_trees(comparing_mode, X_train, X_test, y_train, y_test, fuzzificat
                                   max_depth=5)  # TODO: Add one more argument "is_trees_mixed", default=False.
     clf.fit(X_train, y_train)
     # clf.print_tree()
-    y_pred = clf.predict(X_test)
-    accuracy = accuracy_score(y_test, y_pred)
-    print("    Fuzzy accuracy:", accuracy)
-
+    y_pred_train = clf.predict(X_train)
+    accuracy_train = accuracy_score(y_train, y_pred_train)
+    y_pred_test = clf.predict(X_test)
+    accuracy_test = accuracy_score(y_test, y_pred_test)
+    print("    Fuzzy accuracy train:", accuracy_train)
+    print("    Fuzzy accuracy test:", accuracy_test)
     print('    Elapsed time (FDT-based):', time.time() - time_start, 's')  # Display the time of training a model.
 
-    return accuracy
+    return accuracy_train, accuracy_test
 
 
-def use_naive_trees(comparing_mode, X_train, X_test, y_train, y_test):
-    time_start = time.time()  # Record the start time.
-
-    clf = None
-    if comparing_mode is ComparisionMode.NAIVE:
-        # My NDT vs. sklearn NDT
-        clf = DecisionTreeClassifier(criterion="gini", max_depth=5)
-    elif comparing_mode is ComparisionMode.FF3 or comparing_mode is ComparisionMode.FF4 or comparing_mode is ComparisionMode.FF5:
-        # With only Feature Fuzzification vs. NDT
-        clf = FuzzyDecisionTreeClassifierAPI(fdt_class=FuzzyDecisionTreeClassifier, disable_fuzzy=True,
-                                             criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
-    elif comparing_mode is ComparisionMode.FUZZY:
-        # FDT vs. NDT
-        clf = FuzzyDecisionTreeClassifierAPI(fdt_class=FuzzyDecisionTreeClassifier, disable_fuzzy=True,
-                                             criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
-    elif comparing_mode is ComparisionMode.BOOSTING:
-        # Gradient boosting FDT vs. Gradient boosting NDT
-        clf = FuzzyGBDTClassifier(disable_fuzzy=True, criterion_func=CRITERIA_FUNC_REG["mse"], learning_rate=0.1,
-                                  n_estimators=100, max_depth=5)
-    elif comparing_mode is ComparisionMode.MIXED:
-        # Gradient boosting Mixture of FDT and NDT vs. Gradient boosting NDT
-        clf = FuzzyGBDTClassifier(disable_fuzzy=True, is_trees_mixed=True, criterion_func=CRITERIA_FUNC_REG["mse"],
-                                  learning_rate=0.1, n_estimators=100,
-                                  max_depth=5)
-    clf.fit(X_train, y_train)
-    # clf.print_tree()
-    y_pred = clf.predict(X_test)
-    accuracy = accuracy_score(y_test, y_pred)
-    print("    Naive accuracy:", accuracy)
-
-    print('    Elapsed time (NDT-based):', time.time() - time_start, 's')  # Display the time of training a model.
-
-    return accuracy
-
-
-def load_dataset_classification(dataset_name):
-    """
-    Load all data sets for classification experiments.
-
-    NB: Before version 1.0 (upgraded by Cython to speed up), use data sets Iris, Wine,
-        don't use Breast Cancer (spending nearly 17s/model), Digits (spending nearly 10s/model).
-
-    Returns
-    -------
-    X_list: list of {array-like, sparse matrix} of shape (n_samples, n_features)
-        A list of the features of samples.
-
-    y_list: list of {array-like, sparse matrix} of shape (n_samples, 1)
-        A list of the labels of samples.
-
-    dataset_name_list: list of shape (n_data_sets, 1)
-        A list of the names of data sets.
-    """
-    X_list = []
-    y_list = []
-    dataset_name_list = []
-
-    if dataset_name == "Iris":
-        dataset = datasets.load_iris()
-        X = dataset.data
-        y = dataset.target
-        X_list.append(X)
-        y_list.append(y)
-        dataset_name_list.append("Iris")
-    elif dataset_name == "Wine":
-        dataset = datasets.load_wine()
-        X = dataset.data
-        y = dataset.target
-        X_list.append(X)
-        y_list.append(y)
-        dataset_name_list.append("Wine")
-
-    return X_list, y_list, dataset_name_list
-
-
+"""
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+In master-worker mode, if an execution in the master process depends on the
+results of all the child processes, place its code after either Pool().join() 
+or Process().join(). 
+Never put it in a child process because the child Processes are parallel to 
+each other, so you don't know if the other child processes are terminated if
+you are in one of the child processes.
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+"""
 if __name__ == '__main__':
     time_start = time.time()
+    print("Main Process (%s) started." % os.getpid())
 
-    # 1st method: Using multiprocessing.Pool.
-    print("Main Process (%s) has started." % os.getpid())
-
+    # Create a connection between processes.
     # NB: When using Pool create processes, use multiprocessing.Manager().Queue()
-    # instead of multiprocessing.Queue().
-    q = multiprocessing.Manager().Queue()
+    # instead of multiprocessing.Queue() to create connection.
+    conn_recv, conn_send = multiprocessing.Pipe()
 
     # Create a pool containing n (0 - infinity) processes.
     # If the parameter "processes" is None then the number returned by os.cpu_count() is used.
@@ -284,58 +186,61 @@ if __name__ == '__main__':
     # Complete all tasks by the pool.
     # !!! NB: If you want to complete the experiment faster, you can use distributed computing. Or you can divide
     # the task into k groups to execute in k py programs, and then run one on each of k clusters simultaneously.
-    err = None
     for ds_name in DS_LOAD_FUNC_CLF.keys():
         # TODO: 1st task: Searching an optimum fuzzy threshold by a loop according the specified stride.
-        while FUZZY_TH < 0.5:
+        while FUZZY_TH <= 0.5:
             # Add a process into the pool. apply_async() is asynchronous equivalent of "apply()" builtin.
-            err = pool.apply_async(search_optimum_fuzzy_th, args=(q, ComparisionMode.FUZZY, ds_name, (FUZZY_TH + FUZZY_STRIDE),))
+            err = pool.apply_async(search_optimum_fuzzy_th, args=(conn_send, ComparisionMode.FUZZY, ds_name, FUZZY_TH,))
             FUZZY_TH += FUZZY_STRIDE
-
-    # Plot the comparison of training error versus test error, and both curves are fuzzy thresholds versus accuracies.
-    # Illustrate how the performance on unseen data (test data) is different from the performance on training data.
-    err = pool.apply_async(plotter.plot_multi_curves, args=(q,
-                                                      "Training Error vs Test Error",
-                                                      "Fuzzy threshold",
-                                                      "Performance",
-                                                      (0, 0.5),
-                                                      (0, 1.2),))
-
-    # Just for checking error info if there are any exceptions.
-    if err is not None:
-        err.get()
 
     pool.close()
     pool.join()
 
-    print("Total elapsed time: {:.5}s".format(time.time() - time_start))
+    # Read the result and prepare the data for plotting.
+    # Read result from the queue "q" and save them.
+    x_list_train = []
+    y_list_train = []
+    x_list_test = []
+    y_list_test = []
+    while conn_recv.poll():
+        res_list = conn_recv.recv()
+        x_list_train.append(res_list[0][0])
+        y_list_train.append(res_list[0][1])
+        x_list_test.append(res_list[1][0])
+        y_list_test.append(res_list[1][1])
+        print(x_list_train)
+        print(y_list_train)
+        print(x_list_test)
+        print(y_list_test)
+        print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+        print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
 
-    # TODO: Sort fuzzy_th_list in ascending order, and sort accuracy_list in the same order as fuzzy_th_list.
+    # TODO: If needed, sort fuzzy_th_list in ascending order, and then sort accuracy_list in the same order as fuzzy_th_list.
     # Because multiple processes may not return results in an ascending order of fuzzy thresholds.
+    print("before sorting:")
+    print(x_list_train)
+    x_train = sorted(x_list_train)
+    y_train = [y for _, y in sorted(zip(x_list_train, y_list_train))]
+    print("after sorting:")
+    print(y_train)
+    x_test = sorted(x_list_test)
+    y_test = [y for _, y in sorted(zip(x_list_test, y_list_test))]
 
-    print("Main Process (%s) has ended." % os.getpid())
+    # TODO: Plot the comparison of training error versus test error, and both curves are fuzzy thresholds versus accuracies.
+    # Illustrate how the performance on unseen data (test data) is different from the performance on training data.
+    assert (len(x_train) > 0 and len(y_train) > 0)
+    x_lower_limit, x_upper_limit = np.min(x_train), np.max(x_train)
+    y_lower_limit = np.min(y_train) if np.min(y_train) < np.min(y_test) else np.min(y_test)
+    y_upper_limit = np.max(y_train) if np.max(y_train) > np.max(y_test) else np.max(y_test)
+    print("x_limits and y_limits are:", x_lower_limit, x_upper_limit, y_lower_limit, y_upper_limit)
+    plotter.plot_multi_curves(x=[x_train, x_test],
+                              y=[y_train, y_test],
+                              title="Training Error vs Test Error",
+                              x_label="Fuzzy threshold",
+                              y_label="Performance",
+                              x_limit=(x_lower_limit, x_upper_limit),
+                              y_limit=(y_lower_limit - (y_lower_limit / 100), y_upper_limit + (y_upper_limit / 100)),
+                              legends=["Train", "Test"])
 
-
-    # =====================================================================================================
-    # # 2nd method: Using multiprocessing.Process purely, not multiprocessing.Pool.
-    # # Create multiple worker processes (The system marks __main__ as the master process by default),
-    # # and each process execute an experiment on one dataset.
-    # p1 = multiprocessing.Process(target=exec_exp_clf, args=(ComparisionMode.FUZZY, "Iris",))
-    # p2 = multiprocessing.Process(target=exec_exp_clf, args=(ComparisionMode.FUZZY, "Wine",))
-    # p3 = multiprocessing.Process(target=exec_exp_clf, args=(ComparisionMode.FUZZY, "Vehicle",))
-    # p4 = multiprocessing.Process(target=exec_exp_clf, args=(ComparisionMode.FUZZY, "German_Credit",))
-    # p5 = multiprocessing.Process(target=exec_exp_clf, args=(ComparisionMode.FUZZY, "Diabetes",))
-    #
-    # # Start all processes.
-    # p1.start()
-    # p2.start()
-    # p3.start()
-    # p4.start()
-    # p5.start()
-    #
-    # # Join all processes to the system resource request queue.
-    # p1.join()
-    # p2.join()
-    # p3.join()
-    # p4.join()
-    # p5.join()
+    print("Total elapsed time: {:.5}s".format(time.time() - time_start))
+    print("Main Process (%s) ended." % os.getpid())
