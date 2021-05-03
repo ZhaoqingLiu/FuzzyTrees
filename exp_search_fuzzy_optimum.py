@@ -21,12 +21,14 @@ from fuzzy_trees.util_data_processing_funcs import extract_fuzzy_features
 import fuzzy_trees.util_plotter as plotter
 
 
+DS_PLOTTING = {}
+
+
 def search_fuzzy_optimum():
     """
     Task 1: Searching an optimum of fuzzy thresholds by a loop according the specified stride.
-    TODO:
-        1. Move the multi-process mode here to all algorithms in fuzzy_decision_tree_api.py
-        2. Add pre-train to the algorithm to help developers set the super-parameter "fuzzy_threshold" or add post-
+
+    2nd method: Use Pool and Pipe, and get results by Pipe.
     """
     # Create a connection between processes.
     # NB: When using Pool create processes, use multiprocessing.Manager().Queue()
@@ -46,86 +48,55 @@ def search_fuzzy_optimum():
     fuzzy_th = 0
     for ds_name in DS_LOAD_FUNC_CLF.keys():
         while fuzzy_th <= 0.5:
-            # Add a process into the pool. apply_async() is asynchronous equivalent of "apply()" builtin.
-            res = pool.apply_async(search_fuzzy_optimum_on_one_ds,
-                                   args=(conn_send, ComparisionMode.FUZZY, ds_name, fuzzy_th,))
+            # Add a process into the pool. apply_async() is asynchronous equivalent of "apply()".
+            pool.apply_async(search_fuzzy_optimum_on_one_ds, args=(conn_send, ComparisionMode.FUZZY, ds_name, fuzzy_th,))
             fuzzy_th += FUZZY_STRIDE
 
     pool.close()
     pool.join()
 
-    # Read the result and prepare the data for plotting.
-    # Read result from the queue "q" and save them.
-    x_list_train = []
-    y_list_train = []
-    x_list_test = []
-    y_list_test = []
-    while conn_recv.poll():
-        res_list = conn_recv.recv()
-        dataset_name = res_list[0][0]  # TODO: prepare a dataset_name_list, and then uniques()
-        x_list_train.append(res_list[0][0])
-        y_list_train.append(res_list[0][1])
-        x_list_test.append(res_list[1][0])
-        y_list_test.append(res_list[1][1])
-        print(x_list_train)
-        print(y_list_train)
-        print(x_list_test)
-        print(y_list_test)
-
-    # Sort fuzzy_th_list in ascending order, and then sort accuracy_list in the same order as fuzzy_th_list.
-    # Because multiple processes may not return results in an ascending order of fuzzy thresholds.
-    print("before sorting:")
-    print(x_list_train)
-    x_train = sorted(x_list_train)
-    y_train = [y for _, y in sorted(zip(x_list_train, y_list_train))]  # Default to the ascending order of 1st list in zip().
-    print("after sorting:")
-    print(y_train)
-    x_test = sorted(x_list_test)
-    y_test = [y for _, y in sorted(zip(x_list_test, y_list_test))]
+    # Encapsulate each process's result into a data set preparing for plotting.
+    ds_plotting = encapsulate_result(conn_recv)
 
     # Plot the comparison of training error versus test error, and both curves are fuzzy thresholds versus accuracies.
     # Illustrate how the performance on unseen data (test data) is different from the performance on training data.
-    assert (len(x_train) > 0 and len(y_train) > 0)
-    x_lower_limit, x_upper_limit = np.min(x_train), np.max(x_train)
-    y_lower_limit = np.min(y_train) if np.min(y_train) < np.min(y_test) else np.min(y_test)
-    y_upper_limit = np.max(y_train) if np.max(y_train) > np.max(y_test) else np.max(y_test)
-    print("x_limits and y_limits are:", x_lower_limit, x_upper_limit, y_lower_limit, y_upper_limit)
-    plotter.plot_multi_curves(x=[x_train, x_test],
-                              y=[y_train, y_test],
-                              title="Training Error vs Test Error on {%s}".format(dataset_name),
-                              x_label="Fuzzy threshold",
-                              y_label="Performance",
-                              x_limit=(x_lower_limit, x_upper_limit),
-                              y_limit=(y_lower_limit - (y_lower_limit / 100), y_upper_limit + (y_upper_limit / 100)),
-                              legends=["Train", "Test"])
+    for (ds_name, coordinates) in ds_plotting.items():
+        # x_lower_limit, x_upper_limit = np.min(x_train), np.max(x_train)
+        # y_lower_limit = np.min(y_train) if np.min(y_train) < np.min(y_test) else np.min(y_test)
+        # y_upper_limit = np.max(y_train) if np.max(y_train) > np.max(y_test) else np.max(y_test)
+        # print("x_limits and y_limits are:", x_lower_limit, x_upper_limit, y_lower_limit, y_upper_limit)
+        plotter.plot_multi_curves(coordinates=coordinates,
+                                  title="Training Error vs Test Error -- {}".format(ds_name),
+                                  x_label="Fuzzy threshold",
+                                  y_label="Performance",
+                                  legends=["Train", "Test"])
 
 
-def search_fuzzy_optimum_on_one_ds(conn_send, comparing_mode, dataset_name, fuzzy_th):
+def search_fuzzy_optimum_on_one_ds(conn_send, comparing_mode, ds_name, fuzzy_th):
     # Load all data sets.
-    ds_df = load_dataset_clf(dataset_name)
+    ds_df = load_dataset_clf(ds_name)
 
     # Run the experiment according to the parameters.
     X = ds_df.iloc[:, :-1].values
     y = ds_df.iloc[:, -1].values
-    accuracy_train_list, accuracy_test_list = get_exp_results_clf(X, y, comparing_mode=comparing_mode, dataset_name=dataset_name, fuzzy_th=fuzzy_th)
+    accuracy_train_list, accuracy_test_list = get_exp_results_clf(X, y, comparing_mode=comparing_mode, ds_name=ds_name, fuzzy_th=fuzzy_th)
 
     # Process the result.
     accuracy_train_mean = np.mean(accuracy_train_list)
-    error_train_mean = 1 - accuracy_train_mean
     accuracy_test_mean = np.mean(accuracy_test_list)
-    error_test_mean = 1 - accuracy_test_mean
 
     # Put the result in the connection between the main process and the child processes (in master-worker mode).
-    conn_send.send([[fuzzy_th, error_train_mean], [fuzzy_th, error_test_mean]])
+    # 2nd return value should be a 2-dimensional ndarray
+    conn_send.send({ds_name: np.asarray([[fuzzy_th, 1- accuracy_train_mean, fuzzy_th, 1- accuracy_test_mean]])})
 
 
-def load_dataset_clf(dataset_name):
+def load_dataset_clf(ds_name):
     """
     Load data by a dataset name.
 
     Parameters
     ----------
-    dataset_name: a key in exp.params.DS_LOAD_FUNC_CLF
+    ds_name: a key in exp.params.DS_LOAD_FUNC_CLF
 
     Returns
     -------
@@ -133,13 +104,13 @@ def load_dataset_clf(dataset_name):
     """
     ds_load_func = None
 
-    if dataset_name in DS_LOAD_FUNC_CLF.keys():
-        ds_load_func = DS_LOAD_FUNC_CLF[dataset_name]
+    if ds_name in DS_LOAD_FUNC_CLF.keys():
+        ds_load_func = DS_LOAD_FUNC_CLF[ds_name]
 
     return None if ds_load_func is None else ds_load_func()
 
 
-def get_exp_results_clf(X, y, comparing_mode, dataset_name, fuzzy_th):
+def get_exp_results_clf(X, y, comparing_mode, ds_name, fuzzy_th):
     accuracy_train_list = []
     accuracy_test_list = []
 
@@ -168,7 +139,7 @@ def get_exp_results_clf(X, y, comparing_mode, dataset_name, fuzzy_th):
 
     # Step 2: Get training and testing result by a model.
     for i in range(10):
-        print("%ith comparison on %s" % (i, dataset_name))
+        print("%ith comparison on %s" % (i, ds_name))
 
         # Split training and test sets by hold-out partition method.
         # X_train, X_test, y_train, y_test = train_test_split(X_fuzzy_pre, y, test_size=0.4)
@@ -185,10 +156,10 @@ def get_exp_results_clf(X, y, comparing_mode, dataset_name, fuzzy_th):
             accuracy_test_list.append(accuracy_test)
 
     print("========================================================================================")
-    print(comparing_mode.value, " - ", dataset_name)
-    print("Fuzzy:  10-round-mean accuracy:", np.mean(accuracy_train_list), "  std:",
+    print(comparing_mode.value, " - ", ds_name)
+    print("Mean training accuracy:", np.mean(accuracy_train_list), "  std:",
           np.std(accuracy_train_list))
-    print("Non-fuzzy:  10-round-mean accuracy:", np.mean(accuracy_test_list), "  std:",
+    print("Mean test accuracy:", np.mean(accuracy_test_list), "  std:",
           np.std(accuracy_test_list))
     print("========================================================================================")
 
@@ -242,6 +213,24 @@ def exe_by_a_fuzzy_model(comparing_mode, X_train, X_test, y_train, y_test, fuzzi
     print('    Elapsed time (FDT-based):', time.time() - time_start, 's')  # Display the time of training a model.
 
     return accuracy_train, accuracy_test
+
+
+def encapsulate_result(conn_recv):
+    """
+    Encapsulate each process's result into a data set preparing for plotting.
+    """
+    ds_plotting = {}
+
+    while conn_recv.poll():
+        res = conn_recv.recv()
+        for (ds_name, coordinates) in res.items():
+            if ds_name not in ds_plotting:
+                ds_plotting[ds_name] = coordinates
+            else:
+                ds_plotting[ds_name] = np.concatenate((ds_plotting[ds_name], coordinates), axis=0)
+    print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++", ds_plotting)
+
+    return ds_plotting
 
 
 """

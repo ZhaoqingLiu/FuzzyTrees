@@ -26,7 +26,7 @@ class ComparisionMode(Enum):
 NUM_CPU_CORES = multiprocessing.cpu_count()
 
 # The data sets on which you want to run experiments.
-DS_LOAD_FUNC_CLF = {"Diabetes": load_diabetes}
+DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle}
 # DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle, "German_Credit": load_German_credit, "Diabetes": load_diabetes, "Iris": load_iris, "Wine": load_wine}
 DS_LOAD_FUNC_REG = {}
 
@@ -35,7 +35,7 @@ FUZZY_STRIDE = 0.01
 
 for _ in range(80): print("=", end="")
 print("")
-print("                    Configuration Information                   ")
+print("                    Experiment Configuration Information                   ")
 
 print("Comparison experiments include:")
 for k, name in ComparisionMode.__members__.items():
@@ -44,7 +44,7 @@ for k, name in ComparisionMode.__members__.items():
 print("Number of CPU cores available:")
 print("{:>80}".format(NUM_CPU_CORES))
 
-print("Data sets to train on:")
+print("Data sets for model training:")
 for ds_name in DS_LOAD_FUNC_CLF.keys():
     print("{:>80}".format((ds_name)))
 for _ in range(80): print("=", end="")
