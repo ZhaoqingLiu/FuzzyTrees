@@ -12,7 +12,7 @@ import numpy as np
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import KFold
 
-from exp_params import ComparisionMode, NUM_CPU_CORES, DS_LOAD_FUNC_CLF, FUZZY_STRIDE
+from exp_params import ComparisionMode, NUM_CPU_CORES_REQ, DS_LOAD_FUNC_CLF, FUZZY_STRIDE
 from fuzzy_trees.fuzzy_decision_tree import FuzzyDecisionTreeClassifier
 from fuzzy_trees.fuzzy_decision_tree_api import FuzzificationParams, FuzzyDecisionTreeClassifierAPI, CRITERIA_FUNC_CLF, \
     CRITERIA_FUNC_REG
@@ -21,7 +21,8 @@ from fuzzy_trees.util_data_processing_funcs import extract_fuzzy_features
 import fuzzy_trees.util_plotter as plotter
 
 
-DS_PLOTTING = {}
+# For storing data to plot figures.
+DS_PLOT = {}
 
 
 def search_fuzzy_optimum():
@@ -33,30 +34,33 @@ def search_fuzzy_optimum():
     # Create a connection between processes.
     # NB: When using Pool create processes, use multiprocessing.Manager().Queue()
     # instead of multiprocessing.Queue() to create connection.
-    conn_recv, conn_send = multiprocessing.Pipe()
+    q = multiprocessing.Manager().Queue()
 
     # Create a pool containing n (0 - infinity) processes.
     # If the parameter "processes" is None then the number returned by os.cpu_count() is used.
     # Make sure that n is <= the number of CPU cores available.
     # The parameters to the Pool indicate how many parallel processes are called to run the program.
     # The default size of the Pool is the number of compute cores on the CPU, i.e. multiprocessing.cpu_count().
-    pool = multiprocessing.Pool(NUM_CPU_CORES)
+    pool = multiprocessing.Pool(NUM_CPU_CORES_REQ)
 
     # Complete all tasks by the pool.
     # !!! NB: If you want to complete the experiment faster, you can use distributed computing. Or you can divide
     # the task into k groups to execute in k py programs, and then run one on each of k clusters simultaneously.
-    fuzzy_th = 0
+    pro_num = 0
     for ds_name in DS_LOAD_FUNC_CLF.keys():
+        fuzzy_th = 0
         while fuzzy_th <= 0.5:
             # Add a process into the pool. apply_async() is asynchronous equivalent of "apply()".
-            pool.apply_async(search_fuzzy_optimum_on_one_ds, args=(conn_send, ComparisionMode.FUZZY, ds_name, fuzzy_th,))
+            pool.apply_async(search_fuzzy_optimum_on_one_ds, args=(q, ComparisionMode.FUZZY, ds_name, fuzzy_th,))
             fuzzy_th += FUZZY_STRIDE
+            pro_num += 1
 
     pool.close()
     pool.join()
 
     # Encapsulate each process's result into a data set preparing for plotting.
-    ds_plotting = encapsulate_result(conn_recv)
+    ds_plotting = encapsulate_result(q)
+    # print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++", ds_plotting)
 
     # Plot the comparison of training error versus test error, and both curves are fuzzy thresholds versus accuracies.
     # Illustrate how the performance on unseen data (test data) is different from the performance on training data.
@@ -68,11 +72,12 @@ def search_fuzzy_optimum():
         plotter.plot_multi_curves(coordinates=coordinates,
                                   title="Training Error vs Test Error -- {}".format(ds_name),
                                   x_label="Fuzzy threshold",
-                                  y_label="Performance",
+                                  y_label="Error",
                                   legends=["Train", "Test"])
 
 
-def search_fuzzy_optimum_on_one_ds(conn_send, comparing_mode, ds_name, fuzzy_th):
+def search_fuzzy_optimum_on_one_ds(q, comparing_mode, ds_name, fuzzy_th):
+    # print("Child process (%s) started.++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" % os.getpid())
     # Load all data sets.
     ds_df = load_dataset_clf(ds_name)
 
@@ -86,8 +91,12 @@ def search_fuzzy_optimum_on_one_ds(conn_send, comparing_mode, ds_name, fuzzy_th)
     accuracy_test_mean = np.mean(accuracy_test_list)
 
     # Put the result in the connection between the main process and the child processes (in master-worker mode).
-    # 2nd return value should be a 2-dimensional ndarray
-    conn_send.send({ds_name: np.asarray([[fuzzy_th, 1- accuracy_train_mean, fuzzy_th, 1- accuracy_test_mean]])})
+    # The 2nd return value in send() should be a 2-dimensional ndarray
+    error_train_mean = 1 - accuracy_train_mean
+    error_test_mean = 1 - accuracy_test_mean
+    # !!! NB: The value in the dictionary to be returned must be a 2-d matrix.
+    if not q.full():
+        q.put({ds_name: np.asarray([[fuzzy_th, error_train_mean, fuzzy_th, error_test_mean]])})
 
 
 def load_dataset_clf(ds_name):
@@ -135,7 +144,8 @@ def get_exp_results_clf(X, y, comparing_mode, ds_name, fuzzy_th):
         # - Step 2: Extract fuzzy features.
         X_dms = extract_fuzzy_features(X_fuzzy_pre, conv_k=5, fuzzy_th=fuzzy_th)
     X_plus_dms = np.concatenate((X, X_dms), axis=1)
-    print("************* X_plus_dms's shape:", np.shape(X_plus_dms))
+    print("************* Before, original shape:", np.shape(X))
+    print("************* After, fuzzy shape:", np.shape(X_plus_dms))
 
     # Step 2: Get training and testing result by a model.
     for i in range(10):
@@ -208,29 +218,30 @@ def exe_by_a_fuzzy_model(comparing_mode, X_train, X_test, y_train, y_test, fuzzi
     y_pred_test = clf.predict(X_test)
     accuracy_test = accuracy_score(y_test, y_pred_test)
 
-    print("    Fuzzy accuracy train:", accuracy_train)
-    print("    Fuzzy accuracy test:", accuracy_test)
-    print('    Elapsed time (FDT-based):', time.time() - time_start, 's')  # Display the time of training a model.
+    # print("    Fuzzy accuracy train:", accuracy_train)
+    # print("    Fuzzy accuracy test:", accuracy_test)
+    print('    Elapsed time of a single model (FDT-based):', time.time() - time_start, 's')  # Display the time of training a single model.
 
     return accuracy_train, accuracy_test
 
 
-def encapsulate_result(conn_recv):
+def encapsulate_result(q):
     """
-    Encapsulate each process's result into a data set preparing for plotting.
+    Encapsulate each process's result into a data set, preparing for plotting.
     """
-    ds_plotting = {}
+    while not q.empty():
+        res = q.get()
 
-    while conn_recv.poll():
-        res = conn_recv.recv()
         for (ds_name, coordinates) in res.items():
-            if ds_name not in ds_plotting:
-                ds_plotting[ds_name] = coordinates
-            else:
-                ds_plotting[ds_name] = np.concatenate((ds_plotting[ds_name], coordinates), axis=0)
-    print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++", ds_plotting)
+            if len(np.shape(coordinates)) == 1:
+                coordinates = np.expand_dims(coordinates, axis=0)
 
-    return ds_plotting
+            if ds_name in DS_PLOT:
+                DS_PLOT[ds_name] = np.concatenate((DS_PLOT[ds_name], coordinates), axis=0)
+            else:
+                DS_PLOT[ds_name] = coordinates
+
+    return DS_PLOT
 
 
 """
