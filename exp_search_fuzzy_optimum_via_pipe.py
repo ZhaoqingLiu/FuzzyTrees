@@ -32,9 +32,12 @@ def search_fuzzy_optimum():
     2nd method: Use Pool and Pipe, and get results by Pipe.
     """
     # Create a connection between processes.
-    # NB: When using Pool create processes, use multiprocessing.Manager().Queue()
+    # !!! NB: When using Pipe and the size of the communication message is greater than 65537,
+    # it will block the pipe and then the main process will lock up because it will always be
+    # waiting for the child process to finish.
+    # When using Pool create processes, use multiprocessing.Manager().Queue()
     # instead of multiprocessing.Queue() to create connection.
-    conn_recv, conn_send = multiprocessing.Pipe()
+    conn_recv, conn_send = multiprocessing.Pipe()  # !!!!!!!! Deprecated method.
 
     # Create a pool containing n (0 - infinity) processes.
     # If the parameter "processes" is None then the number returned by os.cpu_count() is used.
