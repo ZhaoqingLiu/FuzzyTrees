@@ -25,7 +25,7 @@ import fuzzy_trees.util_plotter as plotter
 DS_PLOT = {}
 
 
-def search_fuzzy_optimum():
+def search_fuzzy_optimum(comparing_mode):
     """
     Task 1: Searching an optimum of fuzzy thresholds by a loop according the specified stride.
 
@@ -39,24 +39,25 @@ def search_fuzzy_optimum():
     # instead of multiprocessing.Queue() to create connection.
     q = multiprocessing.Manager().Queue()
 
-    # Create a pool containing n (0 - infinity) processes.
+    # Create an object of the class multiprocessing.pool.Pool with n (0 - infinity) processes by the function multiprocessing.Pool().
     # If the parameter "processes" is None then the number returned by os.cpu_count() is used.
     # Make sure that n is <= the number of CPU cores available.
     # The parameters to the Pool indicate how many parallel processes are called to run the program.
     # The default size of the Pool is the number of compute cores on the CPU, i.e. multiprocessing.cpu_count().
-    pool = multiprocessing.Pool(NUM_CPU_CORES_REQ)
+    pool = multiprocessing.Pool(processes=NUM_CPU_CORES_REQ)
 
     # Complete all tasks by the pool.
     # !!! NB: If you want to complete the experiment faster, you can use distributed computing. Or you can divide
     # the task into k groups to execute in k py programs, and then run one on each of k clusters simultaneously.
-    pro_num = 0
     for ds_name in DS_LOAD_FUNC_CLF.keys():
         fuzzy_th = 0
         while fuzzy_th <= 0.5:
             # Add a process into the pool. apply_async() is asynchronous equivalent of "apply()".
-            pool.apply_async(search_fuzzy_optimum_on_one_ds, args=(q, ComparisionMode.FUZZY, ds_name, fuzzy_th,))
+            pool.apply_async(search_fuzzy_optimum_on_one_ds, args=(q, comparing_mode, ds_name, fuzzy_th,))
+            # # Just to check for exception details, if any.
+            # res = pool.apply_async(search_fuzzy_optimum_on_one_ds, args=(q, comparing_mode, ds_name, fuzzy_th,))
+            # res.get()
             fuzzy_th += FUZZY_STRIDE
-            pro_num += 1
 
     pool.close()
     pool.join()
@@ -73,7 +74,7 @@ def search_fuzzy_optimum():
         # y_upper_limit = np.max(y_train) if np.max(y_train) > np.max(y_test) else np.max(y_test)
         # print("x_limits and y_limits are:", x_lower_limit, x_upper_limit, y_lower_limit, y_upper_limit)
         plotter.plot_multi_curves(coordinates=coordinates,
-                                  title="Training Error vs Test Error -- {}".format(ds_name),
+                                  title="Training Error vs Test Error on {} in {}".format(ds_name, comparing_mode.name),
                                   x_label="Fuzzy threshold",
                                   y_label="Error",
                                   legends=["Train", "Test"])
@@ -257,7 +258,10 @@ if __name__ == '__main__':
     print("Main Process (%s) started." % os.getpid())
     time_start = time.time()
 
-    search_fuzzy_optimum()
+    # search_fuzzy_optimum(ComparisionMode.FF5)  # e.g. Take 3.9857s with 32 CPU cores on dataset Iris.
+
+    search_fuzzy_optimum(ComparisionMode.FUZZY)  # e.g. Take 5.6539s with 21 CPU cores on dataset Iris.
+    # search_fuzzy_optimum(ComparisionMode.BOOSTING)  # e.g. Take 815.76s with 21 CPU cores on dataset Iris.
 
     print("Total elapsed time: {:.5}s".format(time.time() - time_start))
     print("Main Process (%s) ended." % os.getpid())

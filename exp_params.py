@@ -10,6 +10,7 @@ from enum import Enum
 from fuzzy_trees.util_data_handler import load_vehicle, load_German_credit, load_diabetes, load_iris, load_wine
 
 
+# Use Enum so that the values are not allowed to be edited and to increase the readability of the code.
 class ComparisionMode(Enum):
     NAIVE = "my_naive_vs_sklearn_naive"
     FF3 = "ff3_vs_naive"  # With only Feature Fuzzification, conv_k=3
@@ -24,14 +25,14 @@ class ComparisionMode(Enum):
 # For example, the maximum number of available CPU cores per Mars cluster is 16 for UTS,
 # 30 for each Laureate cluster, 26 for each Mercury cluster, and 8 for each Venus cluster.
 NUM_CPU_CORES_AVAL = multiprocessing.cpu_count()
-# NUM_CPU_CORES_REQ = int(NUM_CPU_CORES_AVAL / 2)
+# NUM_CPU_CORES_REQ = int(NUM_CPU_CORES_AVAL * 1 / 10)
 NUM_CPU_CORES_REQ = NUM_CPU_CORES_AVAL
 
 # The data sets on which you want to run experiments.
-# DS_LOAD_FUNC_CLF = {"Iris": load_iris}
-# DS_LOAD_FUNC_CLF = {"Iris": load_iris, "Wine": load_wine}
+DS_LOAD_FUNC_CLF = {"Iris": load_iris}
+# DS_LOAD_FUNC_CLF = {"Wine": load_wine}
 # DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle, "German_Credit": load_German_credit, "Diabetes": load_diabetes}
-DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle, "German_Credit": load_German_credit, "Diabetes": load_diabetes, "Iris": load_iris, "Wine": load_wine}
+# DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle, "German_Credit": load_German_credit, "Diabetes": load_diabetes, "Iris": load_iris, "Wine": load_wine}
 DS_LOAD_FUNC_REG = {}
 
 # Searching an optimum fuzzy threshold by a loop according the specified stride.

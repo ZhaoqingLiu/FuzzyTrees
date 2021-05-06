@@ -5,11 +5,12 @@
 @desc  :
 """
 import matplotlib.pyplot as plt
+import numpy as np
 
 
-COLOUR = ["b", "r", "g", "c", "m", "y", "k", "w"]
+COLOUR = ["b", "r", "g", "c", "y", "k", "m"]
 # The colours above are equivalent to the colours below:
-# COLOUR = ["blue", "red", "green", "cyan", "magenta", "yellow", "black", "white"]
+# COLOUR = ["blue", "red", "green", "cyan", "yellow", "black", "magenta"]
 
 
 def plot_multi_curves(coordinates, title=None, x_label=None, y_label=None, x_limit=None, y_limit=None, legends=None):
@@ -42,6 +43,18 @@ def plot_multi_curves(coordinates, title=None, x_label=None, y_label=None, x_lim
         # print(y)
 
         plt.plot(x, y, color=COLOUR[i], linewidth=1.0, linestyle="-", label=legends[i])
+
+        # Plot the minimum value indicator.
+        y_min = np.amin(y_list)
+        x_corr_min = [x for _, x in sorted(zip(y_list, x_list))][0]
+        plt.scatter(x_corr_min, y_min, s=10, color="black")
+        plt.plot([x_corr_min, x_corr_min], [0, y_min], "k--", lw=1.5)
+        # Plot the maximum value indicator.
+        y_max = np.amax(y_list)
+        x_corr_max = [x for _, x in sorted(zip(y_list, x_list))][-1]
+        plt.scatter(x_corr_max, y_max, s=10, color="magenta")
+        plt.plot([x_corr_max, x_corr_max], [0, y_max], "m--", lw=1.5)
+
     plt.legend()
     plt.title(title)
     plt.xlabel(x_label)

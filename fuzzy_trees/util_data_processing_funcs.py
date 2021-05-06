@@ -133,14 +133,29 @@ Feature encoding includes:
 """
 
 
-def one_hot_encode(y, n_col=None):
+def one_hot_encode(y, n_ohe_col=None):
     """
     One-hot encode nominal values of target values.
-    """
-    if not n_col:
-        n_col = np.amax(y) + 1
 
-    one_hot = np.zeros((y.shape[0], n_col))
+    Parameters
+    ----------
+    y: array-like, 1-dimensional, elements must be numerical value and start from 0
+    n_ohe_col: int
+
+    Returns
+    -------
+
+    """
+    y = y.astype(int)
+
+    if n_ohe_col is None:
+        n_ohe_col = np.amax(y) + 1  # np.max is just an alias for np.amax.
+        # print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+        # print(y)
+        # print(ohe_col_num)
+        # print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+
+    one_hot = np.zeros((y.shape[0], n_ohe_col))  # Can also use y.size instead of y.shape[0]
     one_hot[np.arange(y.shape[0]), y] = 1
 
     return one_hot

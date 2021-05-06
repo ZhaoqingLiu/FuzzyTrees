@@ -30,13 +30,15 @@ class FuzzyGBDT(metaclass=ABCMeta):
     _estimators: ndarray of FuzzyDecisionTreeRegressor
         The collection of fitted sub-estimators.
     """
-    def __init__(self, disable_fuzzy, X_fuzzy_dms, fuzzification_params, criterion_func, learning_rate, n_estimators, max_depth, min_samples_split, min_impurity_split, is_regression):
+    def __init__(self, disable_fuzzy, X_fuzzy_dms, fuzzification_params, criterion_func, learning_rate, n_estimators,validation_fraction, n_iter_no_change, max_depth, min_samples_split, min_impurity_split, is_regression):
         self.disable_fuzzy = disable_fuzzy
         self.X_fuzzy_dms = X_fuzzy_dms
         self.fuzzification_params = fuzzification_params
         self.criterion_func = criterion_func
         self.learning_rate = learning_rate
         self.n_estimators = n_estimators
+        self.validation_fraction = validation_fraction
+        self.n_iter_no_change = n_iter_no_change
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
         self.min_impurity_split = min_impurity_split
@@ -68,6 +70,7 @@ class FuzzyGBDT(metaclass=ABCMeta):
         # to predict values F_0(x).
         self._estimators[0].fit(X_train, y_train)
         y_pred = self._estimators[0].predict(X_train)
+        # print("0-th estimator produces an initialised constant: {}".format(y_pred))
 
         # Then use the other tree iteratively to fit the other estimators by the
         # residuals of the last predictions. The first set of residuals is the
@@ -76,6 +79,7 @@ class FuzzyGBDT(metaclass=ABCMeta):
             gradient = self._loss_func.gradient(y_train, y_pred)
             self._estimators[i].fit(X_train, gradient)
             y_pred -= np.multiply(self.learning_rate, self._estimators[i].predict(X_train))
+            # print("{sn}-th estimator produces a residual: {residual}".format(sn=i, residual=y_pred))
 
     def predict(self, X):
         """
@@ -142,6 +146,20 @@ class FuzzyGBDTClassifier(FuzzyGBDT):
     n_estimators: int, default=100
         The number of decision trees to be used.
 
+    validation_fraction : float, default=0.1
+        The proportion of training data to set aside as validation set for
+        early stopping. Must be between 0 and 1.
+        Only used if ``n_iter_no_change`` is set to an integer.
+
+    n_iter_no_change : int, default=None
+        ``n_iter_no_change`` is used to decide if early stopping will be used
+        to terminate training when validation score is not improving. By
+        default it is set to None to disable early stopping. If set to a
+        number, it will set aside ``validation_fraction`` size of the training
+        data as validation and terminate training when validation score is not
+        improving in all of the previous ``n_iter_no_change`` numbers of
+        iterations. The split is stratified.
+
     max_depth: int, default=3
         The maximum depth of the tree.
 
@@ -165,8 +183,8 @@ class FuzzyGBDTClassifier(FuzzyGBDT):
     _estimators: ndarray of FuzzyDecisionTreeRegressor
         The collection of fitted sub-estimators.
     """
-    def __init__(self, disable_fuzzy=False, X_fuzzy_dms=None, fuzzification_params=None, criterion_func=CRITERIA_FUNC_REG["mse"], learning_rate=0.1, n_estimators=100, max_depth=3, min_samples_split=2, min_impurity_split=1e-7):
-        super().__init__(disable_fuzzy=disable_fuzzy, X_fuzzy_dms=X_fuzzy_dms, fuzzification_params=fuzzification_params, criterion_func=criterion_func, learning_rate=learning_rate, n_estimators=n_estimators, max_depth=max_depth, min_samples_split=min_samples_split, min_impurity_split=min_impurity_split, is_regression=False)
+    def __init__(self, disable_fuzzy=False, X_fuzzy_dms=None, fuzzification_params=None, criterion_func=CRITERIA_FUNC_REG["mse"], learning_rate=0.1, n_estimators=100, validation_fraction=0.1, n_iter_no_change=None, max_depth=3, min_samples_split=2, min_impurity_split=1e-7):
+        super().__init__(disable_fuzzy=disable_fuzzy, X_fuzzy_dms=X_fuzzy_dms, fuzzification_params=fuzzification_params, criterion_func=criterion_func, learning_rate=learning_rate, n_estimators=n_estimators, validation_fraction=validation_fraction, n_iter_no_change=n_iter_no_change, max_depth=max_depth, min_samples_split=min_samples_split, min_impurity_split=min_impurity_split, is_regression=False)
 
     def fit(self, X_train, y_train):
         y_train = one_hot_encode(y_train)
@@ -202,6 +220,20 @@ class FuzzyGBDTRegressor(FuzzyGBDT):
     n_estimators: int, default=100
         The number of decision trees to be used.
 
+    validation_fraction : float, default=0.1
+        The proportion of training data to set aside as validation set for
+        early stopping. Must be between 0 and 1.
+        Only used if ``n_iter_no_change`` is set to an integer.
+
+    n_iter_no_change : int, default=None
+        ``n_iter_no_change`` is used to decide if early stopping will be used
+        to terminate training when validation score is not improving. By
+        default it is set to None to disable early stopping. If set to a
+        number, it will set aside ``validation_fraction`` size of the training
+        data as validation and terminate training when validation score is not
+        improving in all of the previous ``n_iter_no_change`` numbers of
+        iterations. The split is stratified.
+
     max_depth: int, default=3
         The maximum depth of the tree.
 
@@ -225,8 +257,8 @@ class FuzzyGBDTRegressor(FuzzyGBDT):
     _estimators: ndarray of FuzzyDecisionTreeRegressor
         The collection of fitted sub-estimators.
     """
-    def __init__(self, disable_fuzzy=False, X_fuzzy_dms=None, fuzzification_params=None, criterion_func=CRITERIA_FUNC_REG["mse"], learning_rate=0.1, n_estimators=100, max_depth=3, min_samples_split=2, min_impurity_split=1e-7):
-        super().__init__(disable_fuzzy=disable_fuzzy, X_fuzzy_dms=X_fuzzy_dms, fuzzification_params=fuzzification_params, criterion_func=criterion_func, learning_rate=learning_rate, n_estimators=n_estimators, max_depth=max_depth, min_samples_split=min_samples_split, min_impurity_split=min_impurity_split, is_regression=True)
+    def __init__(self, disable_fuzzy=False, X_fuzzy_dms=None, fuzzification_params=None, criterion_func=CRITERIA_FUNC_REG["mse"], learning_rate=0.1, n_estimators=100, validation_fraction=0.1, n_iter_no_change=None, max_depth=3, min_samples_split=2, min_impurity_split=1e-7):
+        super().__init__(disable_fuzzy=disable_fuzzy, X_fuzzy_dms=X_fuzzy_dms, fuzzification_params=fuzzification_params, criterion_func=criterion_func, learning_rate=learning_rate, n_estimators=n_estimators, validation_fraction=validation_fraction, n_iter_no_change=n_iter_no_change, max_depth=max_depth, min_samples_split=min_samples_split, min_impurity_split=min_impurity_split, is_regression=True)
 
 
 

@@ -37,7 +37,7 @@ def search_fuzzy_optimum():
     # waiting for the child process to finish.
     # When using Pool create processes, use multiprocessing.Manager().Queue()
     # instead of multiprocessing.Queue() to create connection.
-    conn_recv, conn_send = multiprocessing.Pipe()  # !!!!!!!! Deprecated method.
+    conn_rcv, conn_send = multiprocessing.Pipe()  # !!!!!!!! Deprecated method.
 
     # Create a pool containing n (0 - infinity) processes.
     # If the parameter "processes" is None then the number returned by os.cpu_count() is used.
@@ -62,7 +62,7 @@ def search_fuzzy_optimum():
     pool.join()
 
     # Encapsulate each process's result into a data set preparing for plotting.
-    ds_plotting = encapsulate_result(conn_recv)
+    ds_plotting = encapsulate_result(conn_rcv)
     # print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++", ds_plotting)
 
     # Plot the comparison of training error versus test error, and both curves are fuzzy thresholds versus accuracies.
@@ -227,12 +227,12 @@ def exe_by_a_fuzzy_model(comparing_mode, X_train, X_test, y_train, y_test, fuzzi
     return accuracy_train, accuracy_test
 
 
-def encapsulate_result(conn_recv):
+def encapsulate_result(conn_rcv):
     """
     Encapsulate each process's result into a data set, preparing for plotting.
     """
-    while conn_recv.poll():
-        res = conn_recv.recv()
+    while conn_rcv.poll():
+        res = conn_rcv.recv()
 
         for (ds_name, coordinates) in res.items():
             if len(np.shape(coordinates)) == 1:
