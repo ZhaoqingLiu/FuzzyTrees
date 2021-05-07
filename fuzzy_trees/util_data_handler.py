@@ -19,14 +19,126 @@ Created on Thu Nov 19 11:15:33 2020
         - (potentially) cyclical features
 
 """
+import io
+
 import numpy as np
 import pandas as pd
+import requests
+import pymysql
 from scipy.io import arff
 
-
-# Change it to your folder path.
 from sklearn import datasets
 
+
+# ==================================================================================
+# Methods to read local files:
+ds = data = pd.read_csv(r'../filename.csv')
+ds = pd.read_table(r'../filename.txt')
+ds = pd.read_excel(r'../filename.xlsx')
+
+
+"""
+General functions for reading online data, which are in the formats of:
+    1. CSV
+    2. TXT
+    3. EXCEL
+    4. MYSQL
+"""
+def read_online_csv(url):
+    """
+    Read a CSV-format online file.
+    Parameters
+    ----------
+    url: raw URL
+        URL should be a raw URL,
+        e.g. "https://raw.githubusercontent.com/hunkim/DeepLearningZeroToAll/master/data-03-diabetes.csv",
+        not "https://githubusercontent.com/hunkim/DeepLearningZeroToAll/master/data-03-diabetes.csv".
+
+    Returns
+    -------
+    ds: pandas.DataFrame
+    """
+    # ds = pd.read_csv(url, header=None)  # Equivalent to the following two lines of code.
+    s = requests.get(url).content
+    ds = pd.read_csv(io.StringIO(s.decode("utf-8")), header=None)
+    return ds
+
+
+def read_online_txt(url):
+    """
+    Read a TXT-format online file.
+
+    Parameters
+    ----------
+    url: raw URL
+        URL should be a raw URL
+
+    Returns
+    -------
+    ds: pandas.DataFrame
+    """
+    # ds = pd.read_csv(url, header=None)  # Equivalent to the following two lines of code.
+    s = requests.get(url).content
+    ds = pd.read_table(io.StringIO(s.decode("utf-8")), header=None)
+    return ds
+
+
+def read_online_excel(url):
+    """
+    Read a EXCEL-format online file.
+
+    Parameters
+    ----------
+    url: raw URL
+        URL should be a raw URL
+
+    Returns
+    -------
+    ds: pandas.DataFrame
+    """
+    # ds = pd.read_csv(url, header=None)  # Equivalent to the following two lines of code.
+    s = requests.get(url).content
+    ds = pd.read_excel(io.StringIO(s.decode("utf-8")), header=None)
+    return ds
+
+
+def read_data_mysql(host, user, passwd, db, charset):
+    # Connect to a database using your database information.
+    conn = pymysql.connect(host=host, user=user, passwd=passwd, db=db, charset=charset)
+
+    # Create a cursor.
+    cur = conn.cursor()
+
+    # Execute a SQL command.
+    cur.execute("select * from train_data limit 100")
+
+    # Fetch data.
+    data = cur.fetchall()
+
+    # Get columns.
+    cols = cur.description
+
+    # Commit the execution.
+    conn.commit()
+
+    # Close the cursor and the connection to the database.
+    cur.close()
+    conn.close()
+
+    # Encapsulate the data.
+    col = []
+    for i in cols:
+        col.append(i[0])
+    data = list(map(list, data))
+    ds = pd.DataFrame(data, columns=col)
+
+    return ds
+
+
+# ==================================================================================
+# Functions for loading specific datasets.
+
+# Change it to your folder path.
 DATA_FOLDER_PATH = '/home/zhaoqliu/Datasets/'
 
 
@@ -143,30 +255,33 @@ def load_wine():
 
 
 if __name__ == "__main__":
-    print('Loading Vehicle')
-    data_vehicle = load_vehicle()
-    print('Loading Vehicle, shape', data_vehicle.shape)
+    # print('Loading Vehicle')
+    # data_vehicle = load_vehicle()
+    # print('Loading Vehicle, shape', data_vehicle.shape)
+    #
+    # print('Loading Waveform')
+    # data_waveform = load_waveform()
+    # print('Loading Waveform, shape', data_waveform.shape)
+    #
+    # print('Loading German_credit')
+    # data_gc = load_German_credit()
+    # print('Loading German_credit, shape', data_gc.shape)
+    #
+    # print('Loading Chess')
+    # data_chess = load_chess()
+    # print('Loading Chess, shape', data_chess.shape)
+    #
+    # print('Loading Diabetes')
+    # data_diabetes = load_diabetes()
+    # print('Loading Diabetes, shape', data_diabetes.shape)
+    #
+    # print('Loading Iris')
+    # data_iris = load_iris()
+    # print('Loading Iris, shape', data_iris.shape)
+    #
+    # print('Loading Wine')
+    # data_wine = load_wine()
+    # print('Loading Wine, shape', data_wine.shape)
 
-    print('Loading Waveform')
-    data_waveform = load_waveform()
-    print('Loading Waveform, shape', data_waveform.shape)
-
-    print('Loading German_credit')
-    data_gc = load_German_credit()
-    print('Loading German_credit, shape', data_gc.shape)
-
-    print('Loading Chess')
-    data_chess = load_chess()
-    print('Loading Chess, shape', data_chess.shape)
-
-    print('Loading Diabetes')
-    data_diabetes = load_diabetes()
-    print('Loading Diabetes, shape', data_diabetes.shape)
-
-    print('Loading Iris')
-    data_iris = load_iris()
-    print('Loading Iris, shape', data_iris.shape)
-
-    print('Loading Wine')
-    data_wine = load_wine()
-    print('Loading Wine, shape', data_wine.shape)
+    url = "https://raw.githubusercontent.com/hunkim/DeepLearningZeroToAll/master/data-03-diabetes.csv"
+    # print(load_online_csv(url=url))

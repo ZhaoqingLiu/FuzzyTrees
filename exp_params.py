@@ -29,10 +29,10 @@ NUM_CPU_CORES_AVAL = multiprocessing.cpu_count()
 NUM_CPU_CORES_REQ = NUM_CPU_CORES_AVAL
 
 # The data sets on which you want to run experiments.
-DS_LOAD_FUNC_CLF = {"Iris": load_iris}
+# DS_LOAD_FUNC_CLF = {"Iris": load_iris}
 # DS_LOAD_FUNC_CLF = {"Wine": load_wine}
 # DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle, "German_Credit": load_German_credit, "Diabetes": load_diabetes}
-# DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle, "German_Credit": load_German_credit, "Diabetes": load_diabetes, "Iris": load_iris, "Wine": load_wine}
+DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle, "German_Credit": load_German_credit, "Diabetes": load_diabetes, "Iris": load_iris, "Wine": load_wine}
 DS_LOAD_FUNC_REG = {}
 
 # Searching an optimum fuzzy threshold by a loop according the specified stride.

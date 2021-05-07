@@ -11,6 +11,17 @@ from sklearn.cluster import KMeans
 from sklearn.metrics import pairwise_distances
 
 
+"""
+Functions in this module are for preprocessing data:
+    1. Transform numerical variables to fuzzy degree of membership.
+    2. Process missing values.
+    3. Process outliers.
+    4. Transform descriptive variables to numerical variables.
+    5. Partitioning training sets and testing sets.
+    6. Normalising data.
+"""
+
+
 # =============================================================================
 # Fuzzy-related functions
 # =============================================================================

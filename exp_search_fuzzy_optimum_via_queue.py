@@ -260,8 +260,8 @@ if __name__ == '__main__':
 
     # search_fuzzy_optimum(ComparisionMode.FF5)  # e.g. Take 3.9857s with 32 CPU cores on dataset Iris.
 
-    search_fuzzy_optimum(ComparisionMode.FUZZY)  # e.g. Take 5.6539s with 21 CPU cores on dataset Iris.
-    # search_fuzzy_optimum(ComparisionMode.BOOSTING)  # e.g. Take 815.76s with 21 CPU cores on dataset Iris.
+    # search_fuzzy_optimum(ComparisionMode.FUZZY)  # e.g. Take 5.6539s with 21 CPU cores on dataset Iris.
+    search_fuzzy_optimum(ComparisionMode.BOOSTING)  # e.g. Take 815.76s with 21 CPU cores on dataset Iris.
 
     print("Total elapsed time: {:.5}s".format(time.time() - time_start))
     print("Main Process (%s) ended." % os.getpid())
