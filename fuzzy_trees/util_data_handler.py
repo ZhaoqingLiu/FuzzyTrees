@@ -32,9 +32,9 @@ from sklearn import datasets
 
 # ==================================================================================
 # Methods to read local files:
-ds = data = pd.read_csv(r'../filename.csv')
-ds = pd.read_table(r'../filename.txt')
-ds = pd.read_excel(r'../filename.xlsx')
+# ds = data = pd.read_csv(r'../filename.csv')
+# ds = pd.read_table(r'../filename.txt')
+# ds = pd.read_excel(r'../filename.xlsx')
 
 
 """
@@ -233,25 +233,29 @@ def load_diabetes():
 
 
 def load_iris():
-    dataset = datasets.load_iris()
-    X = dataset.data
-    y = dataset.target
+    # dataset = datasets.load_iris()
+    # X = dataset.data
+    # y = dataset.target
+    #
+    # y = np.expand_dims(y, axis=1)
+    # ds = np.concatenate((X, y), axis=1)
+    #
+    # return pd.DataFrame(ds)
 
-    y = np.expand_dims(y, axis=1)
-    ds = np.concatenate((X, y), axis=1)
-
-    return pd.DataFrame(ds)
+    return datasets.load_iris(as_frame=True).frame
 
 
 def load_wine():
-    dataset = datasets.load_wine()
-    X = dataset.data
-    y = dataset.target
+    # dataset = datasets.load_wine()
+    # X = dataset.data
+    # y = dataset.target
+    #
+    # y = np.expand_dims(y, axis=1)
+    # ds = np.concatenate((X, y), axis=1)
+    #
+    # return pd.DataFrame(ds)
 
-    y = np.expand_dims(y, axis=1)
-    ds = np.concatenate((X, y), axis=1)
-
-    return pd.DataFrame(ds)
+    return datasets.load_wine(as_frame=True).frame
 
 
 if __name__ == "__main__":

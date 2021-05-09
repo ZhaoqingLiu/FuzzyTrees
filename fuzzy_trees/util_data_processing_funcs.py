@@ -83,7 +83,7 @@ def degree_of_membership_build(X_df, r_seed, conv_k, fuzzy_th):
     # np.where(x_new > fuzzy_th, x_new, 0.0)
     # np.where(x_new > fuzzy_th and x_new <= (1 - fuzzy_th), x_new, 1.0)
     x_new[x_new <= fuzzy_th] = 0
-    x_new[x_new >= (1 - fuzzy_th)] = 1
+    x_new[x_new > (1 - fuzzy_th)] = 1
     # print("++++++++++++++++++++++++++++++++++++++")
     # print(x_new)
     # print("++++++++++++++++++++++++++++++++++++++")

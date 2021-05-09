@@ -13,7 +13,7 @@ COLOUR = ["b", "r", "g", "c", "y", "k", "m"]
 # COLOUR = ["blue", "red", "green", "cyan", "yellow", "black", "magenta"]
 
 
-def plot_multi_curves(coordinates, title=None, x_label=None, y_label=None, x_limit=None, y_limit=None, legends=None):
+def plot_multi_curves(coordinates, title=None, x_label=None, y_label=None, x_limit=None, y_limit=None, legends=None, f_name=None):
     """
     Plot the comparison of multiple curves.
     """
@@ -25,11 +25,11 @@ def plot_multi_curves(coordinates, title=None, x_label=None, y_label=None, x_lim
     # assert len(x) <= len(COLOUR)
     # for i, v in enumerate(x):
     #     plt.plot(v, y[i], color=COLOUR[i], linewidth=1.0, linestyle="-", label=legends[i])
-    for i in range(int(coordinates.shape[1] / 2)):
+    for i in range(0, coordinates.shape[1], 2):
         # Sort fuzzy_th_list in ascending order, and then sort accuracy_list in the same order as fuzzy_th_list.
         # Because multiple processes may not return results in an ascending order of fuzzy thresholds.
-        x_list = coordinates[:, i * 2]
-        y_list = coordinates[:, i * 2 + 1]
+        x_list = coordinates[:, i]
+        y_list = coordinates[:, i + 1]
         assert (len(x_list) > 0 and len(y_list) > 0)
         # print("before sorting - x:")
         # print(x_list)
@@ -42,25 +42,45 @@ def plot_multi_curves(coordinates, title=None, x_label=None, y_label=None, x_lim
         # print("after sorting - y:")
         # print(y)
 
-        plt.plot(x, y, color=COLOUR[i], linewidth=1.0, linestyle="-", label=legends[i])
+        plt.plot(x, y, linewidth=1.0, linestyle="-", label=legends[int(i/2)])
 
-        # Plot the minimum value indicator.
-        y_min = np.amin(y_list)
-        x_corr_min = [x for _, x in sorted(zip(y_list, x_list))][0]
-        plt.scatter(x_corr_min, y_min, s=10, color="black")
-        plt.plot([x_corr_min, x_corr_min], [0, y_min], "k--", lw=1.5)
-        # Plot the maximum value indicator.
-        y_max = np.amax(y_list)
-        x_corr_max = [x for _, x in sorted(zip(y_list, x_list))][-1]
-        plt.scatter(x_corr_max, y_max, s=10, color="magenta")
-        plt.plot([x_corr_max, x_corr_max], [0, y_max], "m--", lw=1.5)
+        # Plot the minimum point and annotate it.
+        y_min = np.amin(y)
+        x_corr_min = x[int(np.argmin(y))]
+        plt.scatter(x_corr_min, y_min, s=10)  # color="black"
+        plt.plot([x_corr_min, x_corr_min], [0, y_min], linestyle="--", lw=1.5)  # color="black"
+        plt.annotate(r"$Minimum$", xy=(x_corr_min, y_min), xycoords="data", xytext=(+10, -30),
+                     textcoords="offset points",
+                     arrowprops=dict(arrowstyle="->", connectionstyle="arc3, rad=0.3"))
 
+        # Plot the maximum point and annotate it.
+        y_max = np.amax(y)
+        x_corr_max = x[int(np.argmax(y))]
+        plt.scatter(x_corr_max, y_max, s=10)  # color="magenta"
+        plt.plot([x_corr_max, x_corr_max], [0, y_max], linestyle="--", lw=1.5)  # color="magenta"
+        plt.annotate(r"$Maximum$", xy=(x_corr_max, y_max), xycoords="data", xytext=(-70, -30),
+                     textcoords="offset points",
+                     arrowprops=dict(arrowstyle="->", connectionstyle="arc3, rad=0.3"))
+
+    plt.grid(True, linestyle="--", linewidth=1, alpha=0.3)
     plt.legend()
     plt.title(title)
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.xlim(x_limit)
     plt.ylim(y_limit)
+
+    ax = plt.gca()
+    ax.spines["top"].set_color("none")
+    ax.spines["right"].set_color("none")
+    ax.xaxis.set_ticks_position("bottom")
+    ax.yaxis.set_ticks_position("left")
+    ax.spines["bottom"].set_position(("data", 0))
+    ax.spines["left"].set_position(("data", 0))
+
+    # Save the figure into a file.
+    if f_name is not None:
+        plt.savefig(fname=f_name)
 
     # 3rd step: Show the figure.
     plt.show()

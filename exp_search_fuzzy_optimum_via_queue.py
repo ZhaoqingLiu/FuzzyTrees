@@ -9,10 +9,11 @@ import os
 import time
 
 import numpy as np
+import pandas as pd
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import KFold
 
-from exp_params import ComparisionMode, NUM_CPU_CORES_REQ, DS_LOAD_FUNC_CLF, FUZZY_STRIDE
+from exp_params import ComparisionMode, NUM_CPU_CORES_REQ, DS_LOAD_FUNC_CLF, FUZZY_STRIDE, EvaluationMode
 from fuzzy_trees.fuzzy_decision_tree import FuzzyDecisionTreeClassifier
 from fuzzy_trees.fuzzy_decision_tree_api import FuzzificationParams, FuzzyDecisionTreeClassifierAPI, CRITERIA_FUNC_CLF, \
     CRITERIA_FUNC_REG
@@ -23,6 +24,7 @@ import fuzzy_trees.util_plotter as plotter
 
 # For storing data to plot figures.
 DS_PLOT = {}
+RES_DF = pd.DataFrame()
 
 
 def search_fuzzy_optimum(comparing_mode):
@@ -63,21 +65,30 @@ def search_fuzzy_optimum(comparing_mode):
     pool.join()
 
     # Encapsulate each process's result into a data set preparing for plotting.
-    ds_plotting = encapsulate_result(q)
+    encapsulate_result(q)
     # print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++", ds_plotting)
 
-    # Plot the comparison of training error versus test error, and both curves are fuzzy thresholds versus accuracies.
-    # Illustrate how the performance on unseen data (test data) is different from the performance on training data.
-    for (ds_name, coordinates) in ds_plotting.items():
+    for (ds_name, coordinates) in DS_PLOT.items():
+        # Plot the comparison of training error versus test error, and both curves are fuzzy thresholds versus accuracies.
+        # Illustrate how the performance on unseen data (test data) is different from the performance on training data.
         # x_lower_limit, x_upper_limit = np.min(x_train), np.max(x_train)
         # y_lower_limit = np.min(y_train) if np.min(y_train) < np.min(y_test) else np.min(y_test)
         # y_upper_limit = np.max(y_train) if np.max(y_train) > np.max(y_test) else np.max(y_test)
         # print("x_limits and y_limits are:", x_lower_limit, x_upper_limit, y_lower_limit, y_upper_limit)
         plotter.plot_multi_curves(coordinates=coordinates,
-                                  title="Training Error vs Test Error on {} in {}".format(ds_name, comparing_mode.name),
+                                  title="Fuzzy Threshold vs Accuracy -- {} -- {}".format(comparing_mode.name, ds_name),
                                   x_label="Fuzzy threshold",
-                                  y_label="Error",
-                                  legends=["Train", "Test"])
+                                  y_label="Accuracy",
+                                  legends=["Train", "Test"],
+                                  f_name=EvaluationMode.FUZZY_TH_VS_ACC.value + "_" + comparing_mode.name + "_" + ds_name + ".png")
+
+        # Save the experiment's results into a file.
+        column_names = []
+        for i in range(int(coordinates.shape[1] / 2)):
+            column_names.append("x_{}".format(i))
+            column_names.append("y_{}".format(i))
+        RES_DF = pd.DataFrame(data=coordinates, columns=column_names)
+        RES_DF.to_csv(EvaluationMode.FUZZY_TH_VS_ACC.value + "_" + comparing_mode.name + "_" + ds_name + ".csv")
 
 
 def search_fuzzy_optimum_on_one_ds(q, comparing_mode, ds_name, fuzzy_th):
@@ -96,11 +107,26 @@ def search_fuzzy_optimum_on_one_ds(q, comparing_mode, ds_name, fuzzy_th):
 
     # Put the result in the connection between the main process and the child processes (in master-worker mode).
     # The 2nd return value in send() should be a 2-dimensional ndarray
-    error_train_mean = 1 - accuracy_train_mean
-    error_test_mean = 1 - accuracy_test_mean
-    # !!! NB: The value in the dictionary to be returned must be a 2-d matrix.
+    # TODO
+    #   1. 给算法增加pre_train(hyper-parameters...)，返回模型群model_bunch，模型群的两个属性best_fuzzy_th和model_with_best_fuzzy_th。
+    #       pre_train()中：
+    #           将test error最低的给属性best_fuzzy_th和model_with_best_fuzzy_th；
+    #           把每个fuzzy threshold训练出来的模型都各自序列化然后放进属性__trained_models列表中；
+    #           把每个模型保存到一个file并将其路径放进属性__trained_model_file_names列表中。
+    #       模型群model_bunch提供方法
+    #           get_trained_models()：先从__trained_models中取，若它为空，再根据__trained_model_file_names读取files返回模型。
+    #           show_fuzzy_th_vs_acc()：显示所有fuzzy threshold和accuracy之间的关系图。
+    #   2. 给算法增加训练后评估功能：
+    #       mdl_complexity_vs_err(fuzzy_th)：比较不同fuzzy threshold（0-0.5, 0.5为非模糊决策树）对overfitting的影响，即，
+    #       显示不同fuzzy threshold下的model complexity和prediction error rate之间的关系图，是否有某个fuzzy threshold减轻overfitting。
     if not q.full():
-        q.put({ds_name: np.asarray([[fuzzy_th, error_train_mean, fuzzy_th, error_test_mean]])})
+        q.put({ds_name: np.asarray([[fuzzy_th, accuracy_train_mean, fuzzy_th, accuracy_test_mean]])})
+
+    # error_train_mean = 1 - accuracy_train_mean
+    # error_test_mean = 1 - accuracy_test_mean
+    # # !!! NB: The value in the dictionary to be returned must be a 2-d matrix.
+    # if not q.full():
+    #     q.put({ds_name: np.asarray([[fuzzy_th, error_train_mean, fuzzy_th, error_test_mean]])})
 
 
 def load_dataset_clf(ds_name):
@@ -231,7 +257,8 @@ def exe_by_a_fuzzy_model(comparing_mode, X_train, X_test, y_train, y_test, fuzzi
 
 def encapsulate_result(q):
     """
-    Encapsulate each process's result into a data set, preparing for plotting.
+    Encapsulate each process's result into a container for plotting
+    and saving into a file.
     """
     while not q.empty():
         res = q.get()
@@ -244,8 +271,6 @@ def encapsulate_result(q):
                 DS_PLOT[ds_name] = np.concatenate((DS_PLOT[ds_name], coordinates), axis=0)
             else:
                 DS_PLOT[ds_name] = coordinates
-
-    return DS_PLOT
 
 
 """
@@ -260,7 +285,7 @@ if __name__ == '__main__':
 
     # search_fuzzy_optimum(ComparisionMode.FF5)  # e.g. Take 3.9857s with 32 CPU cores on dataset Iris.
 
-    # search_fuzzy_optimum(ComparisionMode.FUZZY)  # e.g. Take 5.6539s with 21 CPU cores on dataset Iris.
+    search_fuzzy_optimum(ComparisionMode.FUZZY)  # e.g. Take 5.6539s with 21 CPU cores on dataset Iris.
     search_fuzzy_optimum(ComparisionMode.BOOSTING)  # e.g. Take 815.76s with 21 CPU cores on dataset Iris.
 
     print("Total elapsed time: {:.5}s".format(time.time() - time_start))

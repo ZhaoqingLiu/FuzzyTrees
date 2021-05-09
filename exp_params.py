@@ -21,6 +21,11 @@ class ComparisionMode(Enum):
     MIXED = "mfgbdt_vs_nfgbdt"
 
 
+class EvaluationMode(Enum):
+    FUZZY_TH_VS_ACC = "fuzzy_th_vs_accuracy"
+    MDL_CXTY_VS_ACC = "mdl_cxty_vs_accuracy"
+
+
 # Gets the maximum number of CPU cores available for the current cluster.
 # For example, the maximum number of available CPU cores per Mars cluster is 16 for UTS,
 # 30 for each Laureate cluster, 26 for each Mercury cluster, and 8 for each Venus cluster.
