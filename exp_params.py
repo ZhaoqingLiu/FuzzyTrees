@@ -22,8 +22,8 @@ class ComparisionMode(Enum):
 
 
 class EvaluationMode(Enum):
-    FUZZY_TH_VS_ACC = "fuzzy_th_vs_accuracy"
-    MDL_CXTY_VS_ACC = "mdl_cxty_vs_accuracy"
+    FUZZY_TH_VS_ACC = "fuzzy_th_vs_err"
+    MDL_CXTY_VS_ACC = "mdl_cxty_vs_err"
 
 
 # Gets the maximum number of CPU cores available for the current cluster.
@@ -34,13 +34,14 @@ NUM_CPU_CORES_AVAL = multiprocessing.cpu_count()
 NUM_CPU_CORES_REQ = NUM_CPU_CORES_AVAL
 
 # The data sets on which you want to run experiments.
-# DS_LOAD_FUNC_CLF = {"Iris": load_iris}
+DS_LOAD_FUNC_CLF = {"Iris": load_iris}
 # DS_LOAD_FUNC_CLF = {"Wine": load_wine}
 # DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle, "German_Credit": load_German_credit, "Diabetes": load_diabetes}
-DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle, "German_Credit": load_German_credit, "Diabetes": load_diabetes, "Iris": load_iris, "Wine": load_wine}
+# DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle, "German_Credit": load_German_credit, "Diabetes": load_diabetes, "Iris": load_iris, "Wine": load_wine}
 DS_LOAD_FUNC_REG = {}
 
 # Searching an optimum fuzzy threshold by a loop according the specified stride.
+FUZZY_LIM = 0.5
 FUZZY_STRIDE = 0.01
 
 

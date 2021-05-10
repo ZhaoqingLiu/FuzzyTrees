@@ -7,13 +7,14 @@
 import multiprocessing
 import os
 import time
+from decimal import Decimal
 
 import numpy as np
 import pandas as pd
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import KFold
 
-from exp_params import ComparisionMode, NUM_CPU_CORES_REQ, DS_LOAD_FUNC_CLF, FUZZY_STRIDE, EvaluationMode
+from exp_params import ComparisionMode, NUM_CPU_CORES_REQ, DS_LOAD_FUNC_CLF, FUZZY_STRIDE, EvaluationMode, FUZZY_LIM
 from fuzzy_trees.fuzzy_decision_tree import FuzzyDecisionTreeClassifier
 from fuzzy_trees.fuzzy_decision_tree_api import FuzzificationParams, FuzzyDecisionTreeClassifierAPI, CRITERIA_FUNC_CLF, \
     CRITERIA_FUNC_REG
@@ -24,7 +25,6 @@ import fuzzy_trees.util_plotter as plotter
 
 # For storing data to plot figures.
 DS_PLOT = {}
-RES_DF = pd.DataFrame()
 
 
 def search_fuzzy_optimum(comparing_mode):
@@ -52,14 +52,14 @@ def search_fuzzy_optimum(comparing_mode):
     # !!! NB: If you want to complete the experiment faster, you can use distributed computing. Or you can divide
     # the task into k groups to execute in k py programs, and then run one on each of k clusters simultaneously.
     for ds_name in DS_LOAD_FUNC_CLF.keys():
-        fuzzy_th = 0
-        while fuzzy_th <= 0.5:
+        fuzzy_th = 0.0
+        while fuzzy_th <= FUZZY_LIM:
             # Add a process into the pool. apply_async() is asynchronous equivalent of "apply()".
             pool.apply_async(search_fuzzy_optimum_on_one_ds, args=(q, comparing_mode, ds_name, fuzzy_th,))
             # # Just to check for exception details, if any.
             # res = pool.apply_async(search_fuzzy_optimum_on_one_ds, args=(q, comparing_mode, ds_name, fuzzy_th,))
             # res.get()
-            fuzzy_th += FUZZY_STRIDE
+            fuzzy_th = float(Decimal(str(fuzzy_th)) + Decimal(str(FUZZY_STRIDE)))
 
     pool.close()
     pool.join()
@@ -76,19 +76,20 @@ def search_fuzzy_optimum(comparing_mode):
         # y_upper_limit = np.max(y_train) if np.max(y_train) > np.max(y_test) else np.max(y_test)
         # print("x_limits and y_limits are:", x_lower_limit, x_upper_limit, y_lower_limit, y_upper_limit)
         plotter.plot_multi_curves(coordinates=coordinates,
-                                  title="Fuzzy Threshold vs Accuracy -- {} -- {}".format(comparing_mode.name, ds_name),
+                                  title="Fuzzy Threshold vs Error -- {} -- {}".format(comparing_mode.name, ds_name),
                                   x_label="Fuzzy threshold",
-                                  y_label="Accuracy",
+                                  y_label="Error Rate",
                                   legends=["Train", "Test"],
                                   f_name=EvaluationMode.FUZZY_TH_VS_ACC.value + "_" + comparing_mode.name + "_" + ds_name + ".png")
 
         # Save the experiment's results into a file.
+        res_df = pd.DataFrame()
         column_names = []
         for i in range(int(coordinates.shape[1] / 2)):
             column_names.append("x_{}".format(i))
             column_names.append("y_{}".format(i))
-        RES_DF = pd.DataFrame(data=coordinates, columns=column_names)
-        RES_DF.to_csv(EvaluationMode.FUZZY_TH_VS_ACC.value + "_" + comparing_mode.name + "_" + ds_name + ".csv")
+        res_df = pd.DataFrame(data=coordinates, columns=column_names)
+        res_df.to_csv(EvaluationMode.FUZZY_TH_VS_ACC.value + "_" + comparing_mode.name + "_" + ds_name + ".csv")
 
 
 def search_fuzzy_optimum_on_one_ds(q, comparing_mode, ds_name, fuzzy_th):
@@ -119,14 +120,13 @@ def search_fuzzy_optimum_on_one_ds(q, comparing_mode, ds_name, fuzzy_th):
     #   2. 给算法增加训练后评估功能：
     #       mdl_complexity_vs_err(fuzzy_th)：比较不同fuzzy threshold（0-0.5, 0.5为非模糊决策树）对overfitting的影响，即，
     #       显示不同fuzzy threshold下的model complexity和prediction error rate之间的关系图，是否有某个fuzzy threshold减轻overfitting。
-    if not q.full():
-        q.put({ds_name: np.asarray([[fuzzy_th, accuracy_train_mean, fuzzy_th, accuracy_test_mean]])})
-
-    # error_train_mean = 1 - accuracy_train_mean
-    # error_test_mean = 1 - accuracy_test_mean
-    # # !!! NB: The value in the dictionary to be returned must be a 2-d matrix.
     # if not q.full():
-    #     q.put({ds_name: np.asarray([[fuzzy_th, error_train_mean, fuzzy_th, error_test_mean]])})
+    #     q.put({ds_name: np.asarray([[fuzzy_th, accuracy_train_mean, fuzzy_th, accuracy_test_mean]])})
+    error_train_mean = 1 - accuracy_train_mean
+    error_test_mean = 1 - accuracy_test_mean
+    # !!! NB: The value in the dictionary to be returned must be a 2-d matrix.
+    if not q.full():
+        q.put({ds_name: np.asarray([[fuzzy_th, error_train_mean, fuzzy_th, error_test_mean]])})
 
 
 def load_dataset_clf(ds_name):
@@ -286,7 +286,7 @@ if __name__ == '__main__':
     # search_fuzzy_optimum(ComparisionMode.FF5)  # e.g. Take 3.9857s with 32 CPU cores on dataset Iris.
 
     search_fuzzy_optimum(ComparisionMode.FUZZY)  # e.g. Take 5.6539s with 21 CPU cores on dataset Iris.
-    search_fuzzy_optimum(ComparisionMode.BOOSTING)  # e.g. Take 815.76s with 21 CPU cores on dataset Iris.
+    # search_fuzzy_optimum(ComparisionMode.BOOSTING)  # e.g. Take 815.76s with 21 CPU cores on dataset Iris.
 
     print("Total elapsed time: {:.5}s".format(time.time() - time_start))
     print("Main Process (%s) ended." % os.getpid())

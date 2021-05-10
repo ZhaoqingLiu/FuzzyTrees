@@ -30,7 +30,7 @@ def plot_multi_curves(coordinates, title=None, x_label=None, y_label=None, x_lim
         # Because multiple processes may not return results in an ascending order of fuzzy thresholds.
         x_list = coordinates[:, i]
         y_list = coordinates[:, i + 1]
-        assert (len(x_list) > 0 and len(y_list) > 0)
+        assert (len(x_list) > 0 and len(y_list) > 0), "Each line should have the coordinates of at least two points"
         # print("before sorting - x:")
         # print(x_list)
         # print("before sorting - y:")
@@ -70,13 +70,14 @@ def plot_multi_curves(coordinates, title=None, x_label=None, y_label=None, x_lim
     plt.xlim(x_limit)
     plt.ylim(y_limit)
 
-    ax = plt.gca()
-    ax.spines["top"].set_color("none")
-    ax.spines["right"].set_color("none")
-    ax.xaxis.set_ticks_position("bottom")
-    ax.yaxis.set_ticks_position("left")
-    ax.spines["bottom"].set_position(("data", 0))
-    ax.spines["left"].set_position(("data", 0))
+    # # Set axes.
+    # ax = plt.gca()
+    # ax.spines["top"].set_color("none")
+    # ax.spines["right"].set_color("none")
+    # ax.xaxis.set_ticks_position("bottom")
+    # ax.yaxis.set_ticks_position("left")
+    # ax.spines["bottom"].set_position(("data", 0))
+    # ax.spines["left"].set_position(("data", 0))
 
     # Save the figure into a file.
     if f_name is not None:
