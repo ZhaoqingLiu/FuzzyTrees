@@ -16,12 +16,11 @@ from sklearn.model_selection import KFold
 
 from exp_params import ComparisionMode, NUM_CPU_CORES_REQ, DS_LOAD_FUNC_CLF, FUZZY_STRIDE, EvaluationMode, FUZZY_LIM
 from fuzzy_trees.fuzzy_decision_tree import FuzzyDecisionTreeClassifier
-from fuzzy_trees.fuzzy_decision_tree_api import FuzzificationParams, FuzzyDecisionTreeClassifierAPI, CRITERIA_FUNC_CLF, \
+from fuzzy_trees.fuzzy_decision_tree_api import FuzzificationParams, FuzzyDecisionTreeAPI, CRITERIA_FUNC_CLF, \
     CRITERIA_FUNC_REG
 from fuzzy_trees.fuzzy_gbdt import FuzzyGBDTClassifier
 from fuzzy_trees.util_data_processing_funcs import extract_fuzzy_features
 import fuzzy_trees.util_plotter as plotter
-
 
 # For storing data to plot figures.
 DS_PLOT = {}
@@ -33,7 +32,7 @@ def search_fuzzy_optimum(comparing_mode):
 
     2nd method: Use Pool and Pipe, and get results by Pipe.
     """
-    # Create a connection between processes.
+    # Create a connection used to communicate between processes.
     # !!! NB: When using Pipe and the size of the communication message is greater than 65537,
     # it will block the pipe and then the main process will lock up because it will always be
     # waiting for the child process to finish.
@@ -48,7 +47,7 @@ def search_fuzzy_optimum(comparing_mode):
     # The default size of the Pool is the number of compute cores on the CPU, i.e. multiprocessing.cpu_count().
     pool = multiprocessing.Pool(processes=NUM_CPU_CORES_REQ)
 
-    # Complete all tasks by the pool.
+    # Execute all tasks in parallel by multiprocessing.
     # !!! NB: If you want to complete the experiment faster, you can use distributed computing. Or you can divide
     # the task into k groups to execute in k py programs, and then run one on each of k clusters simultaneously.
     for ds_name in DS_LOAD_FUNC_CLF.keys():
@@ -100,7 +99,8 @@ def search_fuzzy_optimum_on_one_ds(q, comparing_mode, ds_name, fuzzy_th):
     # Run the experiment according to the parameters.
     X = ds_df.iloc[:, :-1].values
     y = ds_df.iloc[:, -1].values
-    accuracy_train_list, accuracy_test_list = get_exp_results_clf(X, y, comparing_mode=comparing_mode, ds_name=ds_name, fuzzy_th=fuzzy_th)
+    accuracy_train_list, accuracy_test_list = get_exp_results_clf(X, y, comparing_mode=comparing_mode, ds_name=ds_name,
+                                                                  fuzzy_th=fuzzy_th)
 
     # Process the result.
     accuracy_train_mean = np.mean(accuracy_train_list)
@@ -190,8 +190,10 @@ def get_exp_results_clf(X, y, comparing_mode, ds_name, fuzzy_th):
 
             # Using a fuzzy decision tree. =============================================================================
             X_train, X_test = X_plus_dms[train_index], X_plus_dms[test_index]
-            accuracy_train, accuracy_test = exe_by_a_fuzzy_model(comparing_mode=comparing_mode, X_train=X_train, X_test=X_test, y_train=y_train,
-                                                                 y_test=y_test, fuzzification_params=fuzzification_params)
+            accuracy_train, accuracy_test = exe_by_a_fuzzy_model(comparing_mode=comparing_mode, X_train=X_train,
+                                                                 X_test=X_test, y_train=y_train,
+                                                                 y_test=y_test,
+                                                                 fuzzification_params=fuzzification_params)
             accuracy_train_list.append(accuracy_train)
             accuracy_test_list.append(accuracy_test)
 
@@ -213,19 +215,19 @@ def exe_by_a_fuzzy_model(comparing_mode, X_train, X_test, y_train, y_test, fuzzi
     clf = None
     if comparing_mode is ComparisionMode.NAIVE:
         # My NDT vs. sklearn NDT
-        clf = FuzzyDecisionTreeClassifierAPI(fdt_class=FuzzyDecisionTreeClassifier, disable_fuzzy=True,
-                                             fuzzification_params=fuzzification_params,
-                                             criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
+        clf = FuzzyDecisionTreeAPI(fdt_class=FuzzyDecisionTreeClassifier, disable_fuzzy=True,
+                                   fuzzification_params=fuzzification_params,
+                                   criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
     elif comparing_mode is ComparisionMode.FF3 or comparing_mode is ComparisionMode.FF4 or comparing_mode is ComparisionMode.FF5:
         # With only Feature Fuzzification vs. NDT
-        clf = FuzzyDecisionTreeClassifierAPI(fdt_class=FuzzyDecisionTreeClassifier, disable_fuzzy=True,
-                                             fuzzification_params=fuzzification_params,
-                                             criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
+        clf = FuzzyDecisionTreeAPI(fdt_class=FuzzyDecisionTreeClassifier, disable_fuzzy=True,
+                                   fuzzification_params=fuzzification_params,
+                                   criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
     elif comparing_mode is ComparisionMode.FUZZY:
         # FDT vs. NDT
-        clf = FuzzyDecisionTreeClassifierAPI(fdt_class=FuzzyDecisionTreeClassifier, disable_fuzzy=False,
-                                             fuzzification_params=fuzzification_params,
-                                             criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
+        clf = FuzzyDecisionTreeAPI(fdt_class=FuzzyDecisionTreeClassifier, disable_fuzzy=False,
+                                   fuzzification_params=fuzzification_params,
+                                   criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
     elif comparing_mode is ComparisionMode.BOOSTING:
         # Gradient boosting FDT vs. Gradient boosting NDT
         clf = FuzzyGBDTClassifier(disable_fuzzy=False, fuzzification_params=fuzzification_params,
@@ -250,7 +252,8 @@ def exe_by_a_fuzzy_model(comparing_mode, X_train, X_test, y_train, y_test, fuzzi
 
     # print("    Fuzzy accuracy train:", accuracy_train)
     # print("    Fuzzy accuracy test:", accuracy_test)
-    print('    Elapsed time of a single model (FDT-based):', time.time() - time_start, 's')  # Display the time of training a single model.
+    print('    Elapsed time of a single model (FDT-based):', time.time() - time_start,
+          's')  # Display the time of training a single model.
 
     return accuracy_train, accuracy_test
 
@@ -285,8 +288,8 @@ if __name__ == '__main__':
 
     # search_fuzzy_optimum(ComparisionMode.FF5)  # e.g. Take 3.9857s with 32 CPU cores on dataset Iris.
 
-    search_fuzzy_optimum(ComparisionMode.FUZZY)  # e.g. Take 5.6539s with 21 CPU cores on dataset Iris.
-    # search_fuzzy_optimum(ComparisionMode.BOOSTING)  # e.g. Take 815.76s with 21 CPU cores on dataset Iris.
+    # search_fuzzy_optimum(ComparisionMode.FUZZY)  # e.g. Take 5.6539s with 21 CPU cores on dataset Iris.
+    search_fuzzy_optimum(ComparisionMode.BOOSTING)  # e.g. Take 815.76s with 21 CPU cores on dataset Iris.
 
     print("Total elapsed time: {:.5}s".format(time.time() - time_start))
     print("Main Process (%s) ended." % os.getpid())

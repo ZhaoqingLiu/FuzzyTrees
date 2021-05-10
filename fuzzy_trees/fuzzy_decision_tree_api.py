@@ -9,8 +9,14 @@ TODO:
     2. Done - Add function implementing splitting criteria fuzzification in util_criterion_funcs.py
     3. Upgrade program from Python to Cython to speed up the algorithms.
 """
+import multiprocessing
+import traceback
 from abc import ABCMeta, abstractmethod
-from fuzzy_trees.util_criterion_funcs import calculate_entropy, calculate_gini, calculate_variance, calculate_standard_deviation
+from decimal import Decimal
+
+from fuzzy_trees.settings import NUM_CPU_CORES_REQ, FUZZY_LIM, FUZZY_STRIDE
+from fuzzy_trees.util_criterion_funcs import calculate_entropy, calculate_gini, calculate_variance, \
+    calculate_standard_deviation
 
 # =============================================================================
 # Types and constants
@@ -18,6 +24,8 @@ from fuzzy_trees.util_criterion_funcs import calculate_entropy, calculate_gini, 
 
 CRITERIA_FUNC_CLF = {"entropy": calculate_entropy, "gini": calculate_gini}
 CRITERIA_FUNC_REG = {"mse": calculate_variance, "mae": calculate_standard_deviation}
+
+
 # TODO: Change API pattern to the following:
 # CLF_TYPE = {"ID3": [calculate_entropy, calculate_information_gain],
 #              "C45": [calculate_gini, calculate_information_gain_ratio],
@@ -38,7 +46,8 @@ class FuzzificationParams:
 
     """
 
-    def __init__(self, r_seed=0, conv_size=1, conv_k=3, num_iter=1, feature_filter_func=None, feature_filter_func_param=None, dataset_df=None, dataset_mms_df=None, X_fuzzy_dms=None):
+    def __init__(self, r_seed=0, conv_size=1, conv_k=3, num_iter=1, feature_filter_func=None,
+                 feature_filter_func_param=None, dataset_df=None, dataset_mms_df=None, X_fuzzy_dms=None):
         self.r_seed = r_seed
         self.conv_size = conv_size
         self.conv_k = conv_k
@@ -168,7 +177,7 @@ class DecisionTreeInterface(metaclass=ABCMeta):
 
     @abstractmethod
     def predict(self, X):
-        pass  # TODO: delete??? It's not required in regression decision tree.
+        pass
 
     @abstractmethod
     def print_tree(self, tree=None, indent="  ", delimiter="=>"):
@@ -180,9 +189,9 @@ class DecisionTreeInterface(metaclass=ABCMeta):
 # =============================================================================
 
 
-class FuzzyDecisionTreeClassifierAPI:
+class FuzzyDecisionTreeAPI:
     """
-    A decision tree classifier API.
+    A decision tree estimator API.
 
     NB: The primary role of this class is the API for external calls
     to the decision tree family algorithm and dependency injection to
@@ -214,7 +223,7 @@ class FuzzyDecisionTreeClassifierAPI:
         Class that encapsulates all the parameters of the fuzzification settings
         to be used by the specified fuzzy decision tree.
 
-    criterion_func: {"gini", "entropy"}, default="gini"
+    criterion_func: {"gini", "entropy"} for a classifier, {"mse", "mae"} for a regressor
         The criterion function used by the function that calculates the impurity
         gain of the target values.
 
@@ -269,10 +278,8 @@ class FuzzyDecisionTreeClassifierAPI:
         their life cycle is consistent with that of the current estimator.
         They are generated in the feature fuzzification before training the
         current estimator.
-        TODO: To be used in version 1.0.
+        NB: To be used in version 1.0.
 
-    TODO: Add the following before officially releasing the package, like those
-        in sklearn.
     References
     ----------
 
@@ -283,15 +290,19 @@ class FuzzyDecisionTreeClassifierAPI:
     """
 
     # All parameters in this constructor should have default values.
-    def __init__(self, fdt_class=None, disable_fuzzy=False, X_fuzzy_dms=None, fuzzification_params=None, criterion_func=CRITERIA_FUNC_CLF["gini"],
+    def __init__(self, fdt_class=None, disable_fuzzy=False, X_fuzzy_dms=None, fuzzification_params=None,
+                 criterion_func=None,
                  max_depth=float("inf"), min_samples_split=2, min_impurity_split=1e-7, **kwargs):
         # Construct a instance of the specified fuzzy decision tree.
         if fdt_class is not None:
-            self.estimator = fdt_class(disable_fuzzy=disable_fuzzy, X_fuzzy_dms=X_fuzzy_dms, fuzzification_params=fuzzification_params, criterion_func=criterion_func, max_depth=max_depth, min_samples_split=min_samples_split, min_impurity_split=min_impurity_split, **kwargs)
+            self.estimator = fdt_class(disable_fuzzy=disable_fuzzy, X_fuzzy_dms=X_fuzzy_dms,
+                                       fuzzification_params=fuzzification_params, criterion_func=criterion_func,
+                                       max_depth=max_depth, min_samples_split=min_samples_split,
+                                       min_impurity_split=min_impurity_split, **kwargs)
 
     def fit(self, X_train, y_train):
         """
-        Train a decision tree classifier from the training set (X_train, y_train).
+        Train a decision tree estimator from the training set (X_train, y_train).
 
         Parameters:
         -----------
@@ -304,14 +315,18 @@ class FuzzyDecisionTreeClassifierAPI:
         # Start training to get a fitted estimator.
         try:
             self.estimator.fit(X_train, y_train)
-        except (AttributeError, TypeError):
-            print("Oops! You forgot to specify a fuzzy decision tree at the beginning. Try again...")
+        except Exception as e:
+            print(traceback.format_exc())
 
     def predict(self, X):
         """
-        Predict classification of the input samples X.
-        The predicted class is the one with the largest number of
-        samples of the same class in the leaf.
+        Predict the target values of the input samples X.
+
+        In classification, a predicted target value is the one with the
+        largest number of samples of the same class in a leaf.
+
+        In regression, the predicted target value is the mean of the target
+        values in a leaf.
 
         Parameters:
         -----------
@@ -321,12 +336,12 @@ class FuzzyDecisionTreeClassifierAPI:
         Returns
         -------
         pred_y: list of n_outputs such arrays if n_outputs > 1
-            The classification of the input samples.
+            The target values of the input samples.
         """
         try:
             return self.estimator.predict(X)
-        except (AttributeError, TypeError):
-            print("Oops! You forgot to specify a fuzzy decision tree at the beginning. Try again...")
+        except Exception as e:
+            print(traceback.format_exc())
 
     def print_tree(self, tree=None, indent="  ", delimiter="-->"):
         """
@@ -345,170 +360,48 @@ class FuzzyDecisionTreeClassifierAPI:
         """
         try:
             self.estimator.print_tree(tree=tree, indent=indent, delimiter=delimiter)
-        except (AttributeError, TypeError):
-            print("Oops! You forgot to specify a fuzzy decision tree at the beginning. Try again...")
+        except Exception as e:
+            print(traceback.format_exc())
 
+    def pre_train(self, ds_list):
+        # Create a connection used to communicate between processes.
+        q = multiprocessing.Manager().Queue()
+        # Create a pool to manage multiple processes.
+        pool = multiprocessing.Pool(processes=NUM_CPU_CORES_REQ)
 
-class FuzzyDecisionTreeRegressorAPI:
-    """
-    A decision tree regressor API.
+        # Execute all tasks in parallel by multiprocessing.
+        for ds in ds_list:
+            dfuzzy_th = 0.0
+            while fuzzy_th <= FUZZY_LIM:
+                # pool.apply_async(search_fuzzy_optimum_on_one_ds, args=(q, comparing_mode, ds_name, fuzzy_th,)) # TODO: 实验不在main所在的py模块中使用multi-process，还有在类中使用multi-process是否可以有效
+                fuzzy_th = float(Decimal(str(fuzzy_th)) + Decimal(str(FUZZY_STRIDE)))
 
-    NB: The primary role of this class is the API for external calls
-    to the decision tree family algorithm and dependency injection to
-    the specified decision tree estimator. Unless it is a generic
-    function, the specific implementation should be in the decision
-    tree estimator specified in the constructor.
+        pool.close()
+        pool.join()
 
-    Parameters:
-    -----------
-    fdt_class: Class, default=None
-        The fuzzy decision tree estimator specified.
+        # Encapsulate each process's result into a data set preparing for plotting.
+        encapsulate_result(q)
 
-    disable_fuzzy: bool, default=False
-        Set whether the specified fuzzy decision tree uses the fuzzification.
-        If disable_fuzzy=True, the specified fuzzy decision tree is equivalent
-        to a naive decision tree.
+        # Plot and save result.
+        for (ds_name, coordinates) in DS_PLOT.items():
+            # Plot the comparison of training error versus test error, and both curves are fuzzy thresholds versus accuracies.
+            # Illustrate how the performance on unseen data (test data) is different from the performance on training data.
+            # x_lower_limit, x_upper_limit = np.min(x_train), np.max(x_train)
+            # y_lower_limit = np.min(y_train) if np.min(y_train) < np.min(y_test) else np.min(y_test)
+            # y_upper_limit = np.max(y_train) if np.max(y_train) > np.max(y_test) else np.max(y_test)
+            # print("x_limits and y_limits are:", x_lower_limit, x_upper_limit, y_lower_limit, y_upper_limit)
+            plotter.plot_multi_curves(coordinates=coordinates,
+                                      title="Fuzzy Threshold vs Error -- {} -- {}".format(comparing_mode.name, ds_name),
+                                      x_label="Fuzzy threshold",
+                                      y_label="Error Rate",
+                                      legends=["Train", "Test"],
+                                      f_name=EvaluationMode.FUZZY_TH_VS_ACC.value + "_" + comparing_mode.name + "_" + ds_name + ".png")
 
-    X_fuzzy_dms: {array-like, sparse matrix} of shape (n_samples, n_features)
-        Three-dimensional array, and each element of the first dimension of the
-        array is a two-dimensional array of corresponding feature's fuzzy sets.
-        Each two-dimensional array is of shape of (n_samples, n_fuzzy_sets), but
-        has transformed membership degree of the feature values to corresponding
-        fuzzy sets.
-
-    fuzzification_params: FuzzificationParams, default=None
-        The class that encapsulates all the parameters of the fuzzification settings
-        to be used by the specified fuzzy decision tree.
-
-    criterion_func: {"mse", "mae"}, default="mse"
-        The criterion function used by the function that calculates the impurity
-        gain of the target values.
-
-    max_depth: int, default=float("inf")
-        The maximum depth of the tree.
-
-    min_samples_split: int, default=2
-        The minimum number of samples required to split a node. If a node has a
-        sample number above this threshold, it will be split, otherwise it
-        becomes a leaf node.
-
-    min_impurity_split: float, default=1e-7
-        The minimum impurity required to split a node. If a node's impurity is
-        above this threshold, it will be split, otherwise it becomes a leaf node.
-
-    Attributes
-    ----------
-    root: Node
-        The root node of a decision tree.
-
-    _impurity_gain_calculation_func: function
-        The function to calculate the impurity gain of the target values.
-
-    _leaf_value_calculation_func: function
-        The function to calculate the predicted value if the current node is a
-        leaf:
-        - In a classification tree, it gives the target value with the highest
-         probability.
-        - In the regression tree, it gives the average of all the target values.
-
-    _is_one_dim: bool
-        The Boolean value that indicates whether the y is a multi-dimensional set,
-        which means whether y is one-hot encoded.
-
-    _best_split_rule: SplitRule
-        The split rule including the index of the best feature to be used, and
-        the best value in the best feature.
-
-    _best_binary_subtrees: BinarySubtrees
-        The binary subtrees including two subtrees under a node, and each subtree
-        is a subset of the sample that has been split. It is one of attributes of
-        the node (including root node) in a decision tree.
-
-    _best_impurity_gain: float
-        The best impurity gain calculated based on the current split subtrees
-        during a tree building process.
-
-    _fuzzy_sets: {array-like, sparse matrix} of shape (n_features, n_coefficients)
-        All the coefficients of the degree of membership sets based on the
-        current estimator. They will be used to calculate the degree of membership
-        of the features of new samples before predicting those samples. Therefore,
-        their life cycle is consistent with that of the current estimator.
-        They are generated in the feature fuzzification before training the
-        current estimator.
-        TODO: To be used in version 1.0.
-
-    TODO: Add the following before officially releasing the package, like those
-        in sklearn.
-    References
-    ----------
-
-
-    Examples
-    --------
-
-    """
-
-    def __init__(self, fdt_class=None, disable_fuzzy=True, X_fuzzy_dms=None, fuzzification_params=None, criterion_func=CRITERIA_FUNC_REG["mse"], max_depth=float("inf"), min_samples_split=2, min_impurity_split=1e-7, **kwargs):
-        # Construct a instance of the specified fuzzy decision tree.
-        if fdt_class is not None:
-            self.estimator = fdt_class(disable_fuzzy=disable_fuzzy, X_fuzzy_dms=X_fuzzy_dms, fuzzification_params=fuzzification_params, criterion_func=criterion_func, max_depth=max_depth, min_samples_split=min_samples_split, min_impurity_split=min_impurity_split, **kwargs)
-
-    def fit(self, X_train, y_train):
-        """
-        Train a decision tree regressor from the training set (X, y).
-
-        Parameters:
-        -----------
-        X_train: {array-like, sparse matrix} of shape (n_samples, n_features)
-            The training input samples.
-
-        y_train: array-like of shape (n_samples,) or (n_samples, n_outputs)
-            The target values (real numbers).
-        """
-        # Start training to get a fitted estimator.
-        try:
-            self.estimator.fit(X_train, y_train)
-        except (AttributeError, TypeError):
-            print("Oops! You forgot to specify a fuzzy decision tree at the beginning. Try again...")
-
-    def predict(self, X):
-        """
-        Predict value of the input samples X.
-        The predicted value is the mean of the target values in the leaf.
-
-        Parameters:
-        -----------
-        X: {array-like, sparse matrix} of shape (n_samples, n_features)
-            The input samples to be predicted.
-
-        Returns
-        -------
-        pred_y: list of n_outputs such arrays if n_outputs > 1
-            The value of the input samples.
-        """
-        try:
-            return self.estimator.predict(X)
-        except (AttributeError, TypeError):
-            print("Oops! You forgot to specify a fuzzy decision tree at the beginning. Try again...")
-
-    def print_tree(self, tree=None, indent="  ", delimiter="-->"):
-        """
-        Recursively (in a top-to-bottom approach) print the built decision tree.
-
-        Parameters:
-        -----------
-        tree: Node
-            The root node of a decision tree.
-
-        indent: str
-            The indentation symbol used when printing subtrees.
-
-        delimiter: str
-            The delimiter between split rules and results.
-        """
-        try:
-            self.estimator.print_tree(tree=tree, indent=indent, delimiter=delimiter)
-        except (AttributeError, TypeError):
-            print("Oops! You forgot to specify a fuzzy decision tree at the beginning. Try again...")
-
-
+            # Save the experiment's results into a file.
+            res_df = pd.DataFrame()
+            column_names = []
+            for i in range(int(coordinates.shape[1] / 2)):
+                column_names.append("x_{}".format(i))
+                column_names.append("y_{}".format(i))
+            res_df = pd.DataFrame(data=coordinates, columns=column_names)
+            res_df.to_csv(EvaluationMode.FUZZY_TH_VS_ACC.value + "_" + comparing_mode.name + "_" + ds_name + ".csv")

@@ -9,7 +9,7 @@ from abc import ABCMeta
 import numpy as np
 
 from fuzzy_trees.fuzzy_decision_tree import FuzzyDecisionTreeRegressor
-from fuzzy_trees.fuzzy_decision_tree_api import CRITERIA_FUNC_REG, CRITERIA_FUNC_CLF, FuzzyDecisionTreeRegressorAPI
+from fuzzy_trees.fuzzy_decision_tree_api import CRITERIA_FUNC_REG, CRITERIA_FUNC_CLF, FuzzyDecisionTreeAPI
 from fuzzy_trees.util_criterion_funcs import LeastSquaresFunction, SoftLeastSquaresFunction
 from fuzzy_trees.util_data_processing_funcs import one_hot_encode
 
@@ -30,7 +30,10 @@ class FuzzyGBDT(metaclass=ABCMeta):
     _estimators: ndarray of FuzzyDecisionTreeRegressor
         The collection of fitted sub-estimators.
     """
-    def __init__(self, disable_fuzzy, X_fuzzy_dms, fuzzification_params, criterion_func, learning_rate, n_estimators,validation_fraction, n_iter_no_change, max_depth, min_samples_split, min_impurity_split, is_regression):
+
+    def __init__(self, disable_fuzzy, X_fuzzy_dms, fuzzification_params, criterion_func, learning_rate, n_estimators,
+                 validation_fraction, n_iter_no_change, max_depth, min_samples_split, min_impurity_split,
+                 is_regression):
         self.disable_fuzzy = disable_fuzzy
         self.X_fuzzy_dms = X_fuzzy_dms
         self.fuzzification_params = fuzzification_params
@@ -51,7 +54,19 @@ class FuzzyGBDT(metaclass=ABCMeta):
         # the classifications of samples.
         self._estimators = []
         for i in range(self.n_estimators):
-            self._estimators.append(FuzzyDecisionTreeRegressor(disable_fuzzy=self.disable_fuzzy, X_fuzzy_dms=self.X_fuzzy_dms, fuzzification_params=self.fuzzification_params, criterion_func=self.criterion_func, max_depth=self.max_depth, min_samples_split=self.min_samples_split, min_impurity_split=self.min_impurity_split))
+            # self._estimators.append(
+            #     FuzzyDecisionTreeRegressor(disable_fuzzy=self.disable_fuzzy, X_fuzzy_dms=self.X_fuzzy_dms,
+            #                                fuzzification_params=self.fuzzification_params,
+            #                                criterion_func=self.criterion_func, max_depth=self.max_depth,
+            #                                min_samples_split=self.min_samples_split,
+            #                                min_impurity_split=self.min_impurity_split))
+            estimator = FuzzyDecisionTreeAPI(fdt_class=FuzzyDecisionTreeRegressor,
+                                             disable_fuzzy=disable_fuzzy,
+                                             fuzzification_params=fuzzification_params,
+                                             criterion_func=criterion_func, max_depth=max_depth,
+                                             min_samples_split=min_samples_split,
+                                             min_impurity_split=min_impurity_split)
+            self._estimators.append(estimator)
 
     def fit(self, X_train, y_train):
         """
@@ -183,8 +198,16 @@ class FuzzyGBDTClassifier(FuzzyGBDT):
     _estimators: ndarray of FuzzyDecisionTreeRegressor
         The collection of fitted sub-estimators.
     """
-    def __init__(self, disable_fuzzy=False, X_fuzzy_dms=None, fuzzification_params=None, criterion_func=CRITERIA_FUNC_REG["mse"], learning_rate=0.1, n_estimators=100, validation_fraction=0.1, n_iter_no_change=None, max_depth=3, min_samples_split=2, min_impurity_split=1e-7):
-        super().__init__(disable_fuzzy=disable_fuzzy, X_fuzzy_dms=X_fuzzy_dms, fuzzification_params=fuzzification_params, criterion_func=criterion_func, learning_rate=learning_rate, n_estimators=n_estimators, validation_fraction=validation_fraction, n_iter_no_change=n_iter_no_change, max_depth=max_depth, min_samples_split=min_samples_split, min_impurity_split=min_impurity_split, is_regression=False)
+
+    def __init__(self, disable_fuzzy=False, X_fuzzy_dms=None, fuzzification_params=None,
+                 criterion_func=CRITERIA_FUNC_REG["mse"], learning_rate=0.1, n_estimators=100, validation_fraction=0.1,
+                 n_iter_no_change=None, max_depth=3, min_samples_split=2, min_impurity_split=1e-7):
+        super().__init__(disable_fuzzy=disable_fuzzy, X_fuzzy_dms=X_fuzzy_dms,
+                         fuzzification_params=fuzzification_params, criterion_func=criterion_func,
+                         learning_rate=learning_rate, n_estimators=n_estimators,
+                         validation_fraction=validation_fraction, n_iter_no_change=n_iter_no_change,
+                         max_depth=max_depth, min_samples_split=min_samples_split,
+                         min_impurity_split=min_impurity_split, is_regression=False)
 
     def fit(self, X_train, y_train):
         y_train = one_hot_encode(y_train)
@@ -257,10 +280,13 @@ class FuzzyGBDTRegressor(FuzzyGBDT):
     _estimators: ndarray of FuzzyDecisionTreeRegressor
         The collection of fitted sub-estimators.
     """
-    def __init__(self, disable_fuzzy=False, X_fuzzy_dms=None, fuzzification_params=None, criterion_func=CRITERIA_FUNC_REG["mse"], learning_rate=0.1, n_estimators=100, validation_fraction=0.1, n_iter_no_change=None, max_depth=3, min_samples_split=2, min_impurity_split=1e-7):
-        super().__init__(disable_fuzzy=disable_fuzzy, X_fuzzy_dms=X_fuzzy_dms, fuzzification_params=fuzzification_params, criterion_func=criterion_func, learning_rate=learning_rate, n_estimators=n_estimators, validation_fraction=validation_fraction, n_iter_no_change=n_iter_no_change, max_depth=max_depth, min_samples_split=min_samples_split, min_impurity_split=min_impurity_split, is_regression=True)
 
-
-
-
-
+    def __init__(self, disable_fuzzy=False, X_fuzzy_dms=None, fuzzification_params=None,
+                 criterion_func=CRITERIA_FUNC_REG["mse"], learning_rate=0.1, n_estimators=100, validation_fraction=0.1,
+                 n_iter_no_change=None, max_depth=3, min_samples_split=2, min_impurity_split=1e-7):
+        super().__init__(disable_fuzzy=disable_fuzzy, X_fuzzy_dms=X_fuzzy_dms,
+                         fuzzification_params=fuzzification_params, criterion_func=criterion_func,
+                         learning_rate=learning_rate, n_estimators=n_estimators,
+                         validation_fraction=validation_fraction, n_iter_no_change=n_iter_no_change,
+                         max_depth=max_depth, min_samples_split=min_samples_split,
+                         min_impurity_split=min_impurity_split, is_regression=True)
