@@ -108,20 +108,6 @@ def search_fuzzy_optimum_on_one_ds(q, comparing_mode, ds_name, fuzzy_th):
 
     # Put the result in the connection between the main process and the child processes (in master-worker mode).
     # The 2nd return value in send() should be a 2-dimensional ndarray
-    # TODO
-    #   1. 给算法增加pre_train(hyper-parameters...)，返回模型群model_bunch，模型群的两个属性best_fuzzy_th和model_with_best_fuzzy_th。
-    #       pre_train()中：
-    #           将test error最低的给属性best_fuzzy_th和model_with_best_fuzzy_th；
-    #           把每个fuzzy threshold训练出来的模型都各自序列化然后放进属性__trained_models列表中；
-    #           把每个模型保存到一个file并将其路径放进属性__trained_model_file_names列表中。
-    #       模型群model_bunch提供方法
-    #           get_trained_models()：先从__trained_models中取，若它为空，再根据__trained_model_file_names读取files返回模型。
-    #           show_fuzzy_th_vs_acc()：显示所有fuzzy threshold和accuracy之间的关系图。
-    #   2. 给算法增加训练后评估功能：
-    #       mdl_complexity_vs_err(fuzzy_th)：比较不同fuzzy threshold（0-0.5, 0.5为非模糊决策树）对overfitting的影响，即，
-    #       显示不同fuzzy threshold下的model complexity和prediction error rate之间的关系图，是否有某个fuzzy threshold减轻overfitting。
-    # if not q.full():
-    #     q.put({ds_name: np.asarray([[fuzzy_th, accuracy_train_mean, fuzzy_th, accuracy_test_mean]])})
     error_train_mean = 1 - accuracy_train_mean
     error_test_mean = 1 - accuracy_test_mean
     # !!! NB: The value in the dictionary to be returned must be a 2-d matrix.
@@ -167,7 +153,7 @@ def get_exp_results_clf(X, y, comparing_mode, ds_name, fuzzy_th):
         fuzzification_params = FuzzificationParams(conv_k=5)
         X_dms = extract_fuzzy_features(X_fuzzy_pre, conv_k=5, fuzzy_th=fuzzy_th)
     else:
-        fuzzification_params = FuzzificationParams(conv_k=5)
+        fuzzification_params = FuzzificationParams(conv_k=4)
         # - Step 1: Standardise feature scaling.
         # X_fuzzy_pre[:, :] -= X_fuzzy_pre[:, :].min()
         # X_fuzzy_pre[:, :] /= X_fuzzy_pre[:, :].max()
@@ -286,10 +272,23 @@ if __name__ == '__main__':
     print("Main Process (%s) started." % os.getpid())
     time_start = time.time()
 
-    # search_fuzzy_optimum(ComparisionMode.FF5)  # e.g. Take 3.9857s with 32 CPU cores on dataset Iris.
+    # 1st step: Load the datasets.
+    dataset_list = []
+    for ds_name in DS_LOAD_FUNC_CLF.keys():
+        # Load the data set.
+        dataset_list.append(load_dataset_clf(ds_name))
 
-    search_fuzzy_optimum(ComparisionMode.FUZZY)  # e.g. Take 5.6539s with 21 CPU cores on dataset Iris.
-    # search_fuzzy_optimum(ComparisionMode.BOOSTING)  # e.g. Take 815.76s with 21 CPU cores on dataset Iris.
+    # 2nd step: Preprocess features to degrees of membership.
+    fuzzification_params = None
+
+    # 3rd step: Create a fuzzy decision tree API and pretrain a set of estimators according to different fuzzy thresholds.
+    clf = FuzzyDecisionTreeAPI(fdt_class=FuzzyDecisionTreeClassifier, disable_fuzzy=False,
+                               fuzzification_params=fuzzification_params,
+                               criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
+    clf.pre_train(dataset_list)
+
+    # 4th step: Show the fuzzy threshold versus training error and test error.
+    clf.show_fuzzy_th_vs_err()
 
     print("Total elapsed time: {:.5}s".format(time.time() - time_start))
     print("Main Process (%s) ended." % os.getpid())

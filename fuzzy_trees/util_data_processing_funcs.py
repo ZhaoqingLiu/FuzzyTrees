@@ -75,15 +75,17 @@ def degree_of_membership_build(X_df, r_seed, conv_k, fuzzy_th):
     degree_of_membership_theta = centriods_pair_dist.min(axis=1)
 
     # convert distance to degree of membership
+    theta_f = np.log(fuzzy_th) - np.log(1-fuzzy_th)
     for idx, item in enumerate(degree_of_membership_theta):
-        x_new[:, idx] = 1 - x_new[:, idx] / item
-    # x_new[x_new < 0] = 0
+        # x_new[:, idx] = 1 - x_new[:, idx] / item
+        x_new[:, idx] = 1 - x_new[:, idx] / item * theta_f
+    x_new[x_new < 0] = 0
 
     # TODO: Searching an optimum fuzzy threshold by a loop according the specified stride.
     # np.where(x_new > fuzzy_th, x_new, 0.0)
     # np.where(x_new > fuzzy_th and x_new <= (1 - fuzzy_th), x_new, 1.0)
-    x_new[x_new <= fuzzy_th] = 0
-    x_new[x_new > (1 - fuzzy_th)] = 1
+    # x_new[x_new <= fuzzy_th] = 0
+    # x_new[x_new > (1 - fuzzy_th)] = 1
     # print("++++++++++++++++++++++++++++++++++++++")
     # print(x_new)
     # print("++++++++++++++++++++++++++++++++++++++")
@@ -188,3 +190,15 @@ def make_diagonal(x):
         m[i, i] = x[i]
 
     return m
+
+
+if __name__ == '__main__':
+    # Test for mapping [0, infinity] to [0, 1]
+    a = np.arange(0, 1, 0.01)
+    print(a)
+    b = 1 - 1/(1+100*a)
+    print(b)
+
+    b = np.log(a) - np.log(1-a)
+    print(b)
+

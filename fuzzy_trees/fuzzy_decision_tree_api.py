@@ -363,45 +363,12 @@ class FuzzyDecisionTreeAPI:
         except Exception as e:
             print(traceback.format_exc())
 
-    def pre_train(self, ds_list):
-        # Create a connection used to communicate between processes.
-        q = multiprocessing.Manager().Queue()
-        # Create a pool to manage multiple processes.
-        pool = multiprocessing.Pool(processes=NUM_CPU_CORES_REQ)
+    def pre_train(self, dataset_list):
+        for ds in dataset_list:
+            pass
 
-        # Execute all tasks in parallel by multiprocessing.
-        for ds in ds_list:
-            dfuzzy_th = 0.0
-            while fuzzy_th <= FUZZY_LIM:
-                # pool.apply_async(search_fuzzy_optimum_on_one_ds, args=(q, comparing_mode, ds_name, fuzzy_th,)) # TODO: 实验不在main所在的py模块中使用multi-process，还有在类中使用multi-process是否可以有效
-                fuzzy_th = float(Decimal(str(fuzzy_th)) + Decimal(str(FUZZY_STRIDE)))
+    def show_fuzzy_th_vs_err(self):
+        pass
 
-        pool.close()
-        pool.join()
-
-        # Encapsulate each process's result into a data set preparing for plotting.
-        encapsulate_result(q)
-
-        # Plot and save result.
-        for (ds_name, coordinates) in DS_PLOT.items():
-            # Plot the comparison of training error versus test error, and both curves are fuzzy thresholds versus accuracies.
-            # Illustrate how the performance on unseen data (test data) is different from the performance on training data.
-            # x_lower_limit, x_upper_limit = np.min(x_train), np.max(x_train)
-            # y_lower_limit = np.min(y_train) if np.min(y_train) < np.min(y_test) else np.min(y_test)
-            # y_upper_limit = np.max(y_train) if np.max(y_train) > np.max(y_test) else np.max(y_test)
-            # print("x_limits and y_limits are:", x_lower_limit, x_upper_limit, y_lower_limit, y_upper_limit)
-            plotter.plot_multi_curves(coordinates=coordinates,
-                                      title="Fuzzy Threshold vs Error -- {} -- {}".format(comparing_mode.name, ds_name),
-                                      x_label="Fuzzy threshold",
-                                      y_label="Error Rate",
-                                      legends=["Train", "Test"],
-                                      f_name=EvaluationMode.FUZZY_TH_VS_ACC.value + "_" + comparing_mode.name + "_" + ds_name + ".png")
-
-            # Save the experiment's results into a file.
-            res_df = pd.DataFrame()
-            column_names = []
-            for i in range(int(coordinates.shape[1] / 2)):
-                column_names.append("x_{}".format(i))
-                column_names.append("y_{}".format(i))
-            res_df = pd.DataFrame(data=coordinates, columns=column_names)
-            res_df.to_csv(EvaluationMode.FUZZY_TH_VS_ACC.value + "_" + comparing_mode.name + "_" + ds_name + ".csv")
+if __name__ == '__main__':
+    pass
