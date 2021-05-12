@@ -14,7 +14,6 @@ import pandas as pd
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import KFold
 
-from exp_config import ComparisionMode, NUM_CPU_CORES_REQ, DS_LOAD_FUNC_CLF, FUZZY_STRIDE, EvaluationMode, FUZZY_LIM
 from fuzzy_trees.fuzzy_decision_tree import FuzzyDecisionTreeClassifier
 from fuzzy_trees.fuzzy_decision_tree_api import FuzzificationParams, FuzzyDecisionTreeAPI, CRITERIA_FUNC_CLF, \
     CRITERIA_FUNC_REG

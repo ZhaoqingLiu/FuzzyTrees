@@ -14,7 +14,7 @@ import pandas as pd
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import KFold
 
-from exp_config import ComparisionMode, NUM_CPU_CORES_REQ, DS_LOAD_FUNC_CLF, FUZZY_STRIDE, EvaluationMode, FUZZY_LIM
+from fuzzy_trees.settings import ComparisionMode, NUM_CPU_CORES_REQ, DS_LOAD_FUNC_CLF, FUZZY_STRIDE, EvaluationType, FUZZY_LIM
 from fuzzy_trees.fuzzy_decision_tree import FuzzyDecisionTreeClassifier
 from fuzzy_trees.fuzzy_decision_tree_api import FuzzificationParams, FuzzyDecisionTreeAPI, CRITERIA_FUNC_CLF, \
     CRITERIA_FUNC_REG
@@ -79,7 +79,7 @@ def search_fuzzy_optimum(comparing_mode):
                                   x_label="Fuzzy threshold",
                                   y_label="Error Rate",
                                   legends=["Train", "Test"],
-                                  f_name=EvaluationMode.FUZZY_TH_VS_ACC.value + "_" + comparing_mode.name + "_" + ds_name + ".png")
+                                  f_name=EvaluationType.FUZZY_TH_VS_ACC.value + "_" + comparing_mode.name + "_" + ds_name + ".png")
 
         # Save the experiment's results into a file.
         res_df = pd.DataFrame()
@@ -88,7 +88,7 @@ def search_fuzzy_optimum(comparing_mode):
             column_names.append("x_{}".format(i))
             column_names.append("y_{}".format(i))
         res_df = pd.DataFrame(data=coordinates, columns=column_names)
-        res_df.to_csv(EvaluationMode.FUZZY_TH_VS_ACC.value + "_" + comparing_mode.name + "_" + ds_name + ".csv")
+        res_df.to_csv(EvaluationType.FUZZY_TH_VS_ACC.value + "_" + comparing_mode.name + "_" + ds_name + ".csv")
 
 
 def search_fuzzy_optimum_on_one_ds(q, comparing_mode, ds_name, fuzzy_th):
@@ -108,18 +108,6 @@ def search_fuzzy_optimum_on_one_ds(q, comparing_mode, ds_name, fuzzy_th):
 
     # Put the result in the connection between the main process and the child processes (in master-worker mode).
     # The 2nd return value in send() should be a 2-dimensional ndarray
-    # TODO
-    #   1. 给算法增加pre_train(hyper-parameters...)，返回模型群model_bunch，模型群的两个属性best_fuzzy_th和model_with_best_fuzzy_th。
-    #       pre_train()中：
-    #           将test error最低的给属性best_fuzzy_th和model_with_best_fuzzy_th；
-    #           把每个fuzzy threshold训练出来的模型都各自序列化然后放进属性__trained_models列表中；
-    #           把每个模型保存到一个file并将其路径放进属性__trained_model_file_names列表中。
-    #       模型群model_bunch提供方法
-    #           get_trained_models()：先从__trained_models中取，若它为空，再根据__trained_model_file_names读取files返回模型。
-    #           show_fuzzy_th_vs_acc()：显示所有fuzzy threshold和accuracy之间的关系图。
-    #   2. 给算法增加训练后评估功能：
-    #       mdl_complexity_vs_err(fuzzy_th)：比较不同fuzzy threshold（0-0.5, 0.5为非模糊决策树）对overfitting的影响，即，
-    #       显示不同fuzzy threshold下的model complexity和prediction error rate之间的关系图，是否有某个fuzzy threshold减轻overfitting。
     # if not q.full():
     #     q.put({ds_name: np.asarray([[fuzzy_th, accuracy_train_mean, fuzzy_th, accuracy_test_mean]])})
     error_train_mean = 1 - accuracy_train_mean
