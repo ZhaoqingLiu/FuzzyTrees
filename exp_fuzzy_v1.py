@@ -24,7 +24,7 @@ from sklearn.model_selection import train_test_split, KFold
 from sklearn.tree import DecisionTreeClassifier
 
 from fuzzy_trees.fuzzy_gbdt import FuzzyGBDTClassifier
-from fuzzy_trees.fuzzy_decision_tree_api import FuzzyDecisionTreeClassifierAPI, FuzzyDecisionTreeRegressorAPI, \
+from fuzzy_trees.fuzzy_decision_tree_proxy import FuzzyDecisionTreeClassifierAPI, FuzzyDecisionTreeRegressorAPI, \
     CRITERIA_FUNC_CLF, CRITERIA_FUNC_REG, FuzzificationParams
 from fuzzy_trees.fuzzy_decision_tree import FuzzyDecisionTreeClassifier, FuzzyDecisionTreeRegressor
 from fuzzy_trees.util_criterion_funcs import calculate_mse, calculate_mae

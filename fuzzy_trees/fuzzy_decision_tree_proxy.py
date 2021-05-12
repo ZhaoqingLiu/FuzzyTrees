@@ -9,6 +9,7 @@ TODO:
     2. Done - Add function implementing splitting criteria fuzzification in util_criterion_funcs.py
     3. Upgrade program from Python to Cython to speed up the algorithms.
 """
+import copy
 import multiprocessing
 import traceback
 import numpy as np
@@ -21,18 +22,16 @@ from sklearn.model_selection import KFold
 from fuzzy_trees.settings import NUM_CPU_CORES_REQ, FUZZY_LIM, FUZZY_STRIDE
 from fuzzy_trees.util_criterion_funcs import calculate_entropy, calculate_gini, calculate_variance, \
     calculate_standard_deviation
+from fuzzy_trees.util_data_handler import load_dataset_clf
+from fuzzy_trees.util_data_processing_funcs import extract_fuzzy_features
+
 
 # =============================================================================
 # Types and constants
 # =============================================================================
-from fuzzy_trees.util_data_handler import load_dataset_clf
-from fuzzy_trees.util_data_processing_funcs import extract_fuzzy_features
-
 CRITERIA_FUNC_CLF = {"entropy": calculate_entropy, "gini": calculate_gini}
 CRITERIA_FUNC_REG = {"mse": calculate_variance, "mae": calculate_standard_deviation}
 
-
-# TODO: Change API pattern to the following:
 # CLF_TYPE = {"ID3": [calculate_entropy, calculate_information_gain],
 #              "C45": [calculate_gini, calculate_information_gain_ratio],
 #              "CART": [calculate_gini, calculate_impurity_gain,]}
@@ -160,13 +159,13 @@ class BinarySubtrees:
 
 
 # =============================================================================
-# Interface for decision trees
+# Interface for decision tree classes
 # =============================================================================
 
 
 class DecisionTreeInterface(metaclass=ABCMeta):
     """
-    Interface for decision trees based on different algorithms.
+    Interface for decision tree classes based on different algorithms.
 
     Warning: This interface should not be used directly.
     Use derived algorithm classes instead.
@@ -191,22 +190,20 @@ class DecisionTreeInterface(metaclass=ABCMeta):
 
 
 # =============================================================================
-# Public estimators API
+# Public proxy class for different decision trees
 # =============================================================================
 
 
-class FuzzyDecisionTreeAPI:
+class FuzzyDecisionTreeProxy(DecisionTreeInterface):
     """
-    A decision tree estimator API.
+    Proxy class for different decision trees.
 
-    NB: The primary role of this class is the API for external calls
-    to the decision tree family algorithm and dependency injection to
-    the specified decision tree estimator. Unless it is a generic
-    function, the specific implementation should be in the decision
-    tree estimator specified in the constructor.
+    NB: The role of this class is to unify the external calls of different
+    decision tree classes and implement dependency injection for those
+    decision tree classes.
 
-    The parameters of constructors for different types of decision
-    trees should belong to a subset of the following parameters.
+    The arguments of the constructors for different decision trees should
+    belong to a subset of the following parameters.
 
     Parameters:
     -----------
@@ -305,6 +302,7 @@ class FuzzyDecisionTreeAPI:
                                        fuzzification_params=fuzzification_params, criterion_func=criterion_func,
                                        max_depth=max_depth, min_samples_split=min_samples_split,
                                        min_impurity_split=min_impurity_split, **kwargs)
+        self.ds_4_plotting = {}
 
     def fit(self, X_train, y_train):
         """
@@ -370,28 +368,84 @@ class FuzzyDecisionTreeAPI:
             print(traceback.format_exc())
 
     # =============================================================================
-    # Pre-Train Functionality
+    # Pre-Train and Evaluation Functions
     # =============================================================================
-    def _fit_test(self, X_train, X_test, y_train, y_test):
-        # time_start = time.time()  # Record the start time.
+    def pre_train(self, ds_name_list, conv_k_lim, fuzzy_reg_lim):
+        """
+        Pretrain a set of FDT estimators on specified datasets according to
+        different fuzzy regulation coefficients and different number of clusters
+        of fuzzification on each feature.
 
-        # Fit the initialised model.
-        self.estimator.fit(X_train, y_train)
-        # clf.print_tree()
+        NB: Use this function to prepare evaluation and plotting data when
+        you need to evaluate the effect of different degrees of fuzzification
+        on model training.
 
-        # Get the training accuracy and test accuracy of the fitted (trained) estimator.
-        y_pred_train = self.predict(X_train)
-        accuracy_train = accuracy_score(y_train, y_pred_train)
-        y_pred_test = self.predict(X_test)
-        accuracy_test = accuracy_score(y_test, y_pred_test)
+        Parameters
+        ----------
+        ds_name_list: array-like
+        fuzzy_reg_lim: tuple, (start, stop, step)
+        conv_k_lim: tuple, (start, stop, step)
 
-        # print("    Fuzzy accuracy train:", accuracy_train)
-        # print("    Fuzzy accuracy test:", accuracy_test)
+        Returns
+        -------
 
-        # # Display the time of training a single model.
-        # print('    Elapsed time of a single model (FDT-based):', time.time() - time_start, 's')
+        """
+        # Create a connection used to communicate between multi-processes.
+        q = multiprocessing.Manager().Queue()
 
-        return accuracy_train, accuracy_test
+        # Create a pool to manage multi-processes.
+        pool = multiprocessing.Pool(processes=NUM_CPU_CORES_REQ)
+
+        # Pretrain estimators in parallel.
+        for ds_name in ds_name_list:
+            for conv_k in range(conv_k_lim[0], conv_k_lim[1] + 1, conv_k_lim[2]):
+                fuzzy_reg = fuzzy_reg_lim[0]
+                while fuzzy_reg <= fuzzy_reg_lim[1]:
+                    # Execute an estimator by a subprocess.
+                    pool.apply_async(self._pre_train_one, args=(q, ds_name, conv_k, fuzzy_reg, ))
+                    fuzzy_reg = float(Decimal(str(fuzzy_reg)) + Decimal(str(fuzzy_reg_lim[2])))
+
+        pool.close()
+        pool.join()
+
+        # Encapsulate and save each process's result.
+        # encapsulate_save_result(q)
+        # print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++", self.ds_4_plotting)
+
+    def show_fuzzy_reg_vs_err(self):
+        """
+        Plot fuzzy regulation coefficient versus training error and test error.
+        Returns
+        -------
+
+        """
+        if not self.ds_4_plotting:
+            # TODO: Plot based on data in memory.
+            pass
+        else:
+            # TODO: Plot based on data in file.
+            pass
+
+    def _pre_train_one(self, ds_name, conv_k, fuzzy_reg):
+        # print("Child process (%s) started.++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" % os.getpid())
+        # Load data sets.
+        ds_df = load_dataset_clf(ds_name)
+
+        # Run the experiment according to the parameters.
+        X = ds_df.iloc[:, :-1].values
+        y = ds_df.iloc[:, -1].values
+        accuracy_train_list, accuracy_test_list = self._exe_pretrain(X, y, ds_name=ds_name, conv_k=conv_k, fuzzy_reg=fuzzy_reg)
+
+        # Process the result.
+        accuracy_train_mean = np.mean(accuracy_train_list)
+        accuracy_test_mean = np.mean(accuracy_test_list)
+
+        # Put the result in the connection between the main process and the child processes (in master-worker mode).
+        # The 2nd return value in send() should be a 2-dimensional ndarray
+        error_train_mean = 1 - accuracy_train_mean
+        error_test_mean = 1 - accuracy_test_mean
+        # !!! NB: The value in the dictionary to be returned must be a 2-d matrix.
+        return {ds_name: np.asarray([[fuzzy_reg, error_train_mean, fuzzy_reg, error_test_mean]])}
 
     def _exe_pretrain(self, X, y, ds_name, conv_k, fuzzy_reg):
         accuracy_train_list = []
@@ -438,47 +492,26 @@ class FuzzyDecisionTreeAPI:
 
         return accuracy_train_list, accuracy_test_list
 
-    def _pre_train_one(self, ds_name, conv_k, fuzzy_reg):
-        # print("Child process (%s) started.++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" % os.getpid())
-        # Load all data sets.
-        ds_df = load_dataset_clf(ds_name)
+    def _fit_test(self, X_train, X_test, y_train, y_test):
+        # time_start = time.time()  # Record the start time.
 
-        # Run the experiment according to the parameters.
-        X = ds_df.iloc[:, :-1].values
-        y = ds_df.iloc[:, -1].values
-        accuracy_train_list, accuracy_test_list = self._exe_pretrain(X, y, ds_name=ds_name, conv_k=conv_k, fuzzy_reg=fuzzy_reg)
+        # Fit the initialised model.
+        self.estimator.fit(X_train, y_train)
+        # clf.print_tree()
 
-        # Process the result.
-        accuracy_train_mean = np.mean(accuracy_train_list)
-        accuracy_test_mean = np.mean(accuracy_test_list)
+        # Get the training accuracy and test accuracy of the fitted (trained) estimator.
+        y_pred_train = self.predict(X_train)
+        accuracy_train = accuracy_score(y_train, y_pred_train)
+        y_pred_test = self.predict(X_test)
+        accuracy_test = accuracy_score(y_test, y_pred_test)
 
-        # Put the result in the connection between the main process and the child processes (in master-worker mode).
-        # The 2nd return value in send() should be a 2-dimensional ndarray
-        error_train_mean = 1 - accuracy_train_mean
-        error_test_mean = 1 - accuracy_test_mean
-        # !!! NB: The value in the dictionary to be returned must be a 2-d matrix.
-        return {ds_name: np.asarray([[fuzzy_reg, error_train_mean, fuzzy_reg, error_test_mean]])}
+        # print("    Fuzzy accuracy train:", accuracy_train)
+        # print("    Fuzzy accuracy test:", accuracy_test)
 
-    def pre_train(self, dataset_name_list):
-        """
-        Pretrain a set of estimators according to different fuzzy regulation coefficients.
+        # # Display the time of training a single model.
+        # print('    Elapsed time of a single model (FDT-based):', time.time() - time_start, 's')
 
-        Parameters
-        ----------
-        dataset_name_list
-
-        Returns
-        -------
-
-        """
-        for ds_name in dataset_name_list:
-            fuzzy_reg = 0.0
-            while fuzzy_reg <= FUZZY_LIM:
-                self._pre_train_one(ds_name=ds_name, conv_k=self.estimator.fuzzification_params.conv_k, fuzzy_reg=fuzzy_reg)
-                fuzzy_reg = float(Decimal(str(fuzzy_reg)) + Decimal(str(FUZZY_STRIDE)))
-
-    def show_fuzzy_th_vs_err(self):
-        pass
+        return accuracy_train, accuracy_test
 
 
 if __name__ == '__main__':

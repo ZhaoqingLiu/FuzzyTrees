@@ -14,7 +14,7 @@ from sklearn.model_selection import KFold
 
 from fuzzy_trees.settings import ComparisionMode, NUM_CPU_CORES_REQ, DS_LOAD_FUNC_CLF, FUZZY_STRIDE
 from fuzzy_trees.fuzzy_decision_tree import FuzzyDecisionTreeClassifier
-from fuzzy_trees.fuzzy_decision_tree_api import FuzzificationParams, FuzzyDecisionTreeAPI, CRITERIA_FUNC_CLF, \
+from fuzzy_trees.fuzzy_decision_tree_proxy import FuzzificationParams, FuzzyDecisionTreeProxy, CRITERIA_FUNC_CLF, \
     CRITERIA_FUNC_REG
 from fuzzy_trees.fuzzy_gbdt import FuzzyGBDTClassifier
 from fuzzy_trees.util_data_processing_funcs import extract_fuzzy_features
@@ -185,19 +185,19 @@ def exe_by_a_fuzzy_model(comparing_mode, X_train, X_test, y_train, y_test, fuzzi
     clf = None
     if comparing_mode is ComparisionMode.NAIVE:
         # My NDT vs. sklearn NDT
-        clf = FuzzyDecisionTreeAPI(fdt_class=FuzzyDecisionTreeClassifier, disable_fuzzy=True,
-                                             fuzzification_params=fuzzification_params,
-                                             criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
+        clf = FuzzyDecisionTreeProxy(fdt_class=FuzzyDecisionTreeClassifier, disable_fuzzy=True,
+                                     fuzzification_params=fuzzification_params,
+                                     criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
     elif comparing_mode is ComparisionMode.FF3 or comparing_mode is ComparisionMode.FF4 or comparing_mode is ComparisionMode.FF5:
         # With only Feature Fuzzification vs. NDT
-        clf = FuzzyDecisionTreeAPI(fdt_class=FuzzyDecisionTreeClassifier, disable_fuzzy=True,
-                                             fuzzification_params=fuzzification_params,
-                                             criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
+        clf = FuzzyDecisionTreeProxy(fdt_class=FuzzyDecisionTreeClassifier, disable_fuzzy=True,
+                                     fuzzification_params=fuzzification_params,
+                                     criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
     elif comparing_mode is ComparisionMode.FUZZY:
         # FDT vs. NDT
-        clf = FuzzyDecisionTreeAPI(fdt_class=FuzzyDecisionTreeClassifier, disable_fuzzy=False,
-                                             fuzzification_params=fuzzification_params,
-                                             criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
+        clf = FuzzyDecisionTreeProxy(fdt_class=FuzzyDecisionTreeClassifier, disable_fuzzy=False,
+                                     fuzzification_params=fuzzification_params,
+                                     criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
     elif comparing_mode is ComparisionMode.BOOSTING:
         # Gradient boosting FDT vs. Gradient boosting NDT
         clf = FuzzyGBDTClassifier(disable_fuzzy=False, fuzzification_params=fuzzification_params,

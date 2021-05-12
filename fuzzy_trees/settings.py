@@ -12,6 +12,7 @@ from fuzzy_trees.util_data_handler import *
 # =============================================================================
 # Stage 1 Experiments
 # =============================================================================
+
 # Use Enum so that the values are not allowed to be edited and to increase the readability of the code.
 class ComparisionMode(Enum):
     NAIVE = "my_naive_vs_sklearn_naive"
@@ -33,18 +34,6 @@ class ComparisionMode(Enum):
 NUM_CPU_CORES_AVAL = multiprocessing.cpu_count()
 # NUM_CPU_CORES_REQ = int(NUM_CPU_CORES_AVAL * 1 / 10)
 NUM_CPU_CORES_REQ = NUM_CPU_CORES_AVAL
-
-# Datasets (k: dataset name, v: function for getting data) on which the model is being trained.
-# DS_LOAD_FUNC_CLF = {"Iris": load_iris}
-DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle}
-# DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle, "German_Credit": load_German_credit, "Diabetes": load_diabetes}
-# DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle, "German_Credit": load_German_credit, "Diabetes": load_diabetes, "Iris": load_iris, "Wine": load_wine}
-DS_LOAD_FUNC_REG = {}
-
-
-# Model evaluation under different fuzzy regulation coefficients.
-FUZZY_LIM = 0.5
-FUZZY_STRIDE = 0.01
 
 #
 class EvaluationType(Enum):
@@ -75,11 +64,24 @@ print("(S2 EXP) experiments include:")
 for k, name in EvaluationType.__members__.items():
     print("{:>80}".format(k + " -- " + name.value))
 
-print("Data sets for model training by default:")
-for ds_name in DS_LOAD_FUNC_CLF.keys():
-    print("{:>80}".format(ds_name))
-
 for _ in range(80):
     print("=", end="")
 print("")
 # =================================================================================================
+
+
+# =============================================================================
+# For temporary use only
+# =============================================================================
+
+# Datasets (k: dataset name, v: function for getting data) on which the model is being trained.
+# DS_LOAD_FUNC_CLF = {"Iris": load_iris}
+DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle}
+# DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle, "German_Credit": load_German_credit, "Diabetes": load_diabetes}
+# DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle, "German_Credit": load_German_credit, "Diabetes": load_diabetes, "Iris": load_iris, "Wine": load_wine}
+DS_LOAD_FUNC_REG = {}
+
+
+# Model evaluation under different fuzzy regulation coefficients.
+FUZZY_LIM = 0.5
+FUZZY_STRIDE = 0.01

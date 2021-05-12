@@ -8,7 +8,7 @@
 from abc import ABCMeta
 import numpy as np
 
-from fuzzy_trees.fuzzy_decision_tree_api import DecisionTreeInterface, CRITERIA_FUNC_CLF, Node, SplitRule, BinarySubtrees, \
+from fuzzy_trees.fuzzy_decision_tree_proxy import DecisionTreeInterface, CRITERIA_FUNC_CLF, Node, SplitRule, BinarySubtrees, \
     CRITERIA_FUNC_REG
 from fuzzy_trees.util_criterion_funcs import calculate_impurity_gain, calculate_value_by_majority_vote, \
     calculate_variance_reduction, calculate_mean, calculate_proba
