@@ -37,7 +37,7 @@ if __name__ == '__main__':
     clf.pre_train(ds_name_list=ds_name_list, conv_k_lim=(2, 10, 1), fuzzy_reg_lim=(0, 1, 0.01))
 
     # 3rd step: Show the fuzzy regulation coefficient versus training error and test error by the FDT proxy.
-    clf.show_fuzzy_reg_vs_err()
+    clf.plot_fuzzy_reg_vs_err()
 
     print("Total elapsed time: {:.5}s".format(time.time() - time_start))
     print("Main Process (%s) ended." % os.getpid())

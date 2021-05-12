@@ -412,7 +412,7 @@ class FuzzyDecisionTreeProxy(DecisionTreeInterface):
         # encapsulate_save_result(q)
         # print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++", self.ds_4_plotting)
 
-    def show_fuzzy_reg_vs_err(self):
+    def plot_fuzzy_reg_vs_err(self):
         """
         Plot fuzzy regulation coefficient versus training error and test error.
         Returns
@@ -427,8 +427,7 @@ class FuzzyDecisionTreeProxy(DecisionTreeInterface):
             pass
 
     def _pre_train_one(self, ds_name, conv_k, fuzzy_reg):
-        # print("Child process (%s) started.++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" % os.getpid())
-        # Load data sets.
+        # Load data set.
         ds_df = load_dataset_clf(ds_name)
 
         # Run the experiment according to the parameters.
