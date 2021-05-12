@@ -258,6 +258,28 @@ def load_wine():
     return datasets.load_wine(as_frame=True).frame
 
 
+# Available data sets provided by this module.
+DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle, "German_Credit": load_German_credit, "Diabetes": load_diabetes, "Iris": load_iris, "Wine": load_wine}
+def load_dataset_clf(dataset_name):
+    """
+    Load a dataset by a name.
+
+    Parameters
+    ----------
+    dataset_name: str
+
+    Returns
+    -------
+    data: DataFrame
+    """
+    ds_load_func = None
+
+    if dataset_name in DS_LOAD_FUNC_CLF.keys():
+        ds_load_func = DS_LOAD_FUNC_CLF[dataset_name]
+
+    return None if ds_load_func is None else ds_load_func()
+
+
 if __name__ == "__main__":
     print('Loading Vehicle')
     data_vehicle = load_vehicle()

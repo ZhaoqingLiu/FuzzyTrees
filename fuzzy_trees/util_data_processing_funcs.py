@@ -26,7 +26,7 @@ Functions in this module are for preprocessing data:
 # Fuzzy-related functions
 # =============================================================================
 
-def degree_of_membership_build(X_df, r_seed, conv_k, fuzzy_th):
+def degree_of_membership_build(X_df, r_seed, conv_k, fuzzy_reg):
     """
     Build the degree of membership set of a feature. That set maps to
     the specified number of fuzzy sets of the feature.
@@ -75,7 +75,7 @@ def degree_of_membership_build(X_df, r_seed, conv_k, fuzzy_th):
     degree_of_membership_theta = centriods_pair_dist.min(axis=1)
 
     # convert distance to degree of membership
-    theta_f = np.log(fuzzy_th) - np.log(1-fuzzy_th)
+    theta_f = np.log(fuzzy_reg) - np.log(1 - fuzzy_reg)
     for idx, item in enumerate(degree_of_membership_theta):
         # x_new[:, idx] = 1 - x_new[:, idx] / item
         x_new[:, idx] = 1 - x_new[:, idx] / item * theta_f
@@ -93,7 +93,7 @@ def degree_of_membership_build(X_df, r_seed, conv_k, fuzzy_th):
     return x_new, centriods, degree_of_membership_theta
 
 
-def extract_fuzzy_features(X, conv_k=5, fuzzy_th=0.0):
+def extract_fuzzy_features(X, conv_k=5, fuzzy_reg=0.0):
     """
     Extract fuzzy features in feature fuzzification to generate degree of
     membership sets of each feature.
@@ -108,7 +108,7 @@ def extract_fuzzy_features(X, conv_k=5, fuzzy_th=0.0):
     n_samples, n_features = np.shape(X)
     X_fuzzy_dms = np.empty([n_samples, 0])
     for feature_idx in range(n_features):
-        X_fuzzy_dm, _, _ = degree_of_membership_build(r_seed=0, X_df=pd.DataFrame(X[:, feature_idx]), conv_k=conv_k,fuzzy_th=fuzzy_th)
+        X_fuzzy_dm, _, _ = degree_of_membership_build(r_seed=0, X_df=pd.DataFrame(X[:, feature_idx]), conv_k=conv_k, fuzzy_reg=fuzzy_reg)
         X_fuzzy_dms = np.concatenate((X_fuzzy_dms, X_fuzzy_dm), axis=1)
     # print("************* X_fuzzy_dms's shape:", np.shape(X_fuzzy_dms))
     return X_fuzzy_dms
