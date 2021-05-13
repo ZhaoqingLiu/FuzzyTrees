@@ -139,7 +139,7 @@ def read_data_mysql(host, user, passwd, db, charset):
 # Functions for loading specific datasets.
 
 # Change it to your folder path.
-DATA_FOLDER_PATH = '/home/zhaoqliu/Datasets/'
+DATA_FOLDER_PATH = '/data/zhaoqliu/Datasets/'
 
 
 def load_vehicle():
@@ -260,13 +260,15 @@ def load_wine():
 
 # Available data sets provided by this module.
 DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle, "German_Credit": load_German_credit, "Diabetes": load_diabetes, "Iris": load_iris, "Wine": load_wine}
-def load_dataset_clf(dataset_name):
+
+
+def load_data_clf(ds_name):
     """
-    Load a dataset by a name.
+    Load a dataset by the specified name.
 
     Parameters
     ----------
-    dataset_name: str
+    ds_name: str
 
     Returns
     -------
@@ -274,8 +276,8 @@ def load_dataset_clf(dataset_name):
     """
     ds_load_func = None
 
-    if dataset_name in DS_LOAD_FUNC_CLF.keys():
-        ds_load_func = DS_LOAD_FUNC_CLF[dataset_name]
+    if ds_name in DS_LOAD_FUNC_CLF.keys():
+        ds_load_func = DS_LOAD_FUNC_CLF[ds_name]
 
     return None if ds_load_func is None else ds_load_func()
 

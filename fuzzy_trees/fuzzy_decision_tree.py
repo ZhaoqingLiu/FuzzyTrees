@@ -11,8 +11,8 @@ import numpy as np
 from fuzzy_trees.fuzzy_decision_tree_proxy import DecisionTreeInterface, CRITERIA_FUNC_CLF, Node, SplitRule, BinarySubtrees, \
     CRITERIA_FUNC_REG
 from fuzzy_trees.util_criterion_funcs import calculate_impurity_gain, calculate_value_by_majority_vote, \
-    calculate_variance_reduction, calculate_mean, calculate_proba
-from fuzzy_trees.util_split_funcs import split_dataset
+    calculate_variance_reduction, calculate_mean, calculate_proba, calculate_impurity_gain_ratio
+from fuzzy_trees.util_split_funcs import split_ds_2_bin, split_ds_2_multi, split_disc_ds_2_multi
 
 
 # =============================================================================
@@ -43,8 +43,9 @@ class FuzzyDecisionTree(metaclass=ABCMeta):
         self.min_impurity_split = min_impurity_split
 
         self.root = None
-        self._impurity_gain_calculation_func = None
-        self._leaf_value_calculation_func = None
+        self._split_ds_func = None
+        self._impurity_gain_calc_func = None
+        self._leaf_value_calc_func = None
         self._is_one_dim = None
         self._best_split_rule = None  # To be deprecated in version 1.0.
         self._best_binary_subtrees = None  # To be deprecated in version 1.0.
@@ -58,14 +59,12 @@ class FuzzyDecisionTree(metaclass=ABCMeta):
 
         # # Do feature fuzzification.
         # if not self.disable_fuzzy:
-        #     TODO: Do something.
 
         self.root = self._build_tree(X_train, y_train)
 
     def predict(self, X):
         # # Do feature fuzzification.
         # if not self.disable_fuzzy:
-        #     TODO: Do something.
 
         y_pred = []
         for x in X:
@@ -75,7 +74,6 @@ class FuzzyDecisionTree(metaclass=ABCMeta):
     def predict_proba(self, X):
         # # Do feature fuzzification.
         # if not self.disable_fuzzy:
-        #     TODO: Do something.
 
         y_pred_prob = []
         for x in X:
@@ -135,7 +133,7 @@ class FuzzyDecisionTree(metaclass=ABCMeta):
 
         # If none of the above criteria is met, then the current data set can only be a leaf node.
         # Then generate a leaf node.
-        leaf_value = self._leaf_value_calculation_func(y)
+        leaf_value = self._leaf_value_calc_func(y)
         leaf_proba = calculate_proba(y)
         leaf_node = Node(leaf_value=leaf_value, leaf_proba=leaf_proba)
         return leaf_node
@@ -183,7 +181,7 @@ class FuzzyDecisionTree(metaclass=ABCMeta):
             count = 0
             for unique_value in unique_values:
                 count += 1
-                subset_true, subset_false = split_dataset(ds_train, feature_idx, unique_value)
+                subset_true, subset_false = self._split_ds_func(ds_train, feature_idx, unique_value)
 
                 if len(subset_true) > 0 and len(subset_false) > 0:
                     # Calculate the membership probability of each subset according to the fuzzy splitting criterion.
@@ -204,7 +202,7 @@ class FuzzyDecisionTree(metaclass=ABCMeta):
                     y_subset_true = subset_true[:, n_loop:]  # For non-fuzzy trees, n_loop is exactly the number of features
                     y_subset_false = subset_false[:, n_loop:]  # For non-fuzzy trees, n_loop is exactly the number of features
 
-                    impurity_gain = self._impurity_gain_calculation_func(y, y_subset_true, y_subset_false, self.criterion_func, p_subset_true_dm=p_subset_true_dm, p_subset_false_dm=p_subset_false_dm)
+                    impurity_gain = self._impurity_gain_calc_func(y, y_subset_true, y_subset_false, self.criterion_func, p_subset_true_dm=p_subset_true_dm, p_subset_false_dm=p_subset_false_dm)
                     if impurity_gain > best_impurity_gain:
                         best_impurity_gain = impurity_gain
 
@@ -276,7 +274,10 @@ class FuzzyDecisionTreeClassifier(FuzzyDecisionTree, DecisionTreeInterface):
     """
     A fuzzy decision tree classifier.
 
-    NB: See FuzzyDecisionTreeClassifierAPI for descriptions of all parameters
+    The CART algorithm can handle both continuous/numerical and discrete/categorical
+    variables, and can be used for both classification and regression.
+
+    NB: See FuzzyDecisionTreeProxy for descriptions of all parameters
     and attributes in this class.
     """
 
@@ -285,16 +286,20 @@ class FuzzyDecisionTreeClassifier(FuzzyDecisionTree, DecisionTreeInterface):
         super().__init__(disable_fuzzy=disable_fuzzy, X_fuzzy_dms=X_fuzzy_dms, fuzzification_params=fuzzification_params, criterion_func=criterion_func, max_depth=max_depth, min_samples_split=min_samples_split, min_impurity_split=min_impurity_split, **kwargs)
 
     def fit(self, X_train, y_train):
-        self._impurity_gain_calculation_func = calculate_impurity_gain
-        self._leaf_value_calculation_func = calculate_value_by_majority_vote
+        self._split_ds_func = split_ds_2_bin
+        self._impurity_gain_calc_func = calculate_impurity_gain
+        self._leaf_value_calc_func = calculate_value_by_majority_vote
         super().fit(X_train=X_train, y_train=y_train)
 
 
 class FuzzyDecisionTreeRegressor(FuzzyDecisionTree, DecisionTreeInterface):
     """
-    A fuzzy decision tree regressor.
+    A fuzzy CART decision tree regressor.
 
-    NB: See FuzzyDecisionTreeRegressorAPI for descriptions of all parameters
+    The CART algorithm can handle both continuous/numerical and discrete/categorical
+    variables, and can be used for both classification and regression.
+
+    NB: See FuzzyDecisionTreeProxy for descriptions of all parameters
     and attributes in this class.
     """
 
@@ -303,8 +308,55 @@ class FuzzyDecisionTreeRegressor(FuzzyDecisionTree, DecisionTreeInterface):
         super().__init__(disable_fuzzy=disable_fuzzy, X_fuzzy_dms=X_fuzzy_dms, fuzzification_params=fuzzification_params, criterion_func=criterion_func, max_depth=max_depth, min_samples_split=min_samples_split, min_impurity_split=min_impurity_split, **kwargs)
 
     def fit(self, X_train, y_train):
-        self._impurity_gain_calculation_func = calculate_variance_reduction
-        self._leaf_value_calculation_func = calculate_mean
+        self._split_ds_func = split_ds_2_bin
+        self._impurity_gain_calc_func = calculate_variance_reduction
+        self._leaf_value_calc_func = calculate_mean
+        super().fit(X_train=X_train, y_train=y_train)
+
+
+class FuzzyID3Classifier(FuzzyDecisionTree, DecisionTreeInterface):
+    # Need to modify the code "subset_true, subset_false = split_dataset(ds_train, feature_idx, unique_value)"
+    # in baseclass "FuzzyDecisionTree" to using a function object passed externally.
+    """
+    A fuzzy ID3 decision tree classifier.
+
+    The ID3 algorithm can only handle discrete/categorical variables and can
+    only be used for classification.
+
+    NB: See FuzzyDecisionTreeProxy for descriptions of all parameters
+    and attributes in this class.
+    """
+
+    # All parameters in this constructor should have default values.
+    def __init__(self, disable_fuzzy=False, X_fuzzy_dms=None, fuzzification_params=None, criterion_func=CRITERIA_FUNC_CLF["entropy"], max_depth=float("inf"), min_samples_split=2, min_impurity_split=1e-7, **kwargs):
+        super().__init__(disable_fuzzy=disable_fuzzy, X_fuzzy_dms=X_fuzzy_dms, fuzzification_params=fuzzification_params, criterion_func=criterion_func, max_depth=max_depth, min_samples_split=min_samples_split, min_impurity_split=min_impurity_split, **kwargs)
+
+    def fit(self, X_train, y_train):
+        self._split_ds_func = split_disc_ds_2_multi
+        self._impurity_gain_calc_func = calculate_impurity_gain
+        self._leaf_value_calc_func = calculate_value_by_majority_vote
+        super().fit(X_train=X_train, y_train=y_train)
+
+
+class FuzzyC45Classifier(FuzzyDecisionTree, DecisionTreeInterface):
+    """
+    A fuzzy C4.5 decision tree classifier.
+
+    The C4.5 algorithm can handle both continuous/numerical and discrete/categorical
+    variables, but can only be used for classification.
+
+    NB: See FuzzyDecisionTreeProxy for descriptions of all parameters
+    and attributes in this class.
+    """
+
+    # All parameters in this constructor should have default values.
+    def __init__(self, disable_fuzzy=False, X_fuzzy_dms=None, fuzzification_params=None, criterion_func=CRITERIA_FUNC_CLF["entropy"], max_depth=float("inf"), min_samples_split=2, min_impurity_split=1e-7, **kwargs):
+        super().__init__(disable_fuzzy=disable_fuzzy, X_fuzzy_dms=X_fuzzy_dms, fuzzification_params=fuzzification_params, criterion_func=criterion_func, max_depth=max_depth, min_samples_split=min_samples_split, min_impurity_split=min_impurity_split, **kwargs)
+
+    def fit(self, X_train, y_train):
+        self._split_ds_func = split_ds_2_multi
+        self._impurity_gain_calc_func = calculate_impurity_gain_ratio
+        self._leaf_value_calc_func = calculate_value_by_majority_vote
         super().fit(X_train=X_train, y_train=y_train)
 
 

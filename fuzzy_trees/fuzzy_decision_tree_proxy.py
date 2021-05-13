@@ -11,24 +11,32 @@ TODO:
 """
 import copy
 import multiprocessing
+import os
+import time
 import traceback
+
+import joblib
 import numpy as np
+import pandas as pd
 from abc import ABCMeta, abstractmethod
 from decimal import Decimal
 
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, balanced_accuracy_score, average_precision_score, brier_score_loss, f1_score
 from sklearn.model_selection import KFold
 
-from fuzzy_trees.settings import NUM_CPU_CORES_REQ, FUZZY_LIM, FUZZY_STRIDE
+from fuzzy_trees.settings import NUM_CPU_CORES_REQ, PathSave, EvaluationType
+from fuzzy_trees.util_comm import get_timestamp_str, get_today_str
 from fuzzy_trees.util_criterion_funcs import calculate_entropy, calculate_gini, calculate_variance, \
     calculate_standard_deviation
-from fuzzy_trees.util_data_handler import load_dataset_clf
+from fuzzy_trees.util_data_handler import load_data_clf
 from fuzzy_trees.util_data_processing_funcs import extract_fuzzy_features
 
 
 # =============================================================================
 # Types and constants
 # =============================================================================
+from fuzzy_trees.util_plotter import plot_multi_curves
+
 CRITERIA_FUNC_CLF = {"entropy": calculate_entropy, "gini": calculate_gini}
 CRITERIA_FUNC_REG = {"mse": calculate_variance, "mae": calculate_standard_deviation}
 
@@ -302,7 +310,8 @@ class FuzzyDecisionTreeProxy(DecisionTreeInterface):
                                        fuzzification_params=fuzzification_params, criterion_func=criterion_func,
                                        max_depth=max_depth, min_samples_split=min_samples_split,
                                        min_impurity_split=min_impurity_split, **kwargs)
-        self.ds_4_plotting = {}
+        self.ds_4_plotting = [[]]
+        self.df_4_plotting = None
 
     def fit(self, X_train, y_train):
         """
@@ -368,13 +377,15 @@ class FuzzyDecisionTreeProxy(DecisionTreeInterface):
             print(traceback.format_exc())
 
     # =============================================================================
-    # Pre-Train and Evaluation Functions
+    # Pre-Train and Plotting Functions
     # =============================================================================
-    def pre_train(self, ds_name_list, conv_k_lim, fuzzy_reg_lim):
+    def pre_train_clf(self, ds_name_list, conv_k_lim, fuzzy_reg_lim):
         """
-        Pretrain a set of FDT estimators on specified datasets according to
-        different fuzzy regulation coefficients and different number of clusters
-        of fuzzification on each feature.
+        Pretrain a set of FDT classifiers from specified datasets in parallel.
+
+        The fuzzy feature extraction before training is based on specified
+        fuzzy regulation coefficients and a number of fuzzy clusters that each
+        feature belongs to.
 
         NB: Use this function to prepare evaluation and plotting data when
         you need to evaluate the effect of different degrees of fuzzification
@@ -393,78 +404,117 @@ class FuzzyDecisionTreeProxy(DecisionTreeInterface):
         # Create a connection used to communicate between multi-processes.
         q = multiprocessing.Manager().Queue()
 
-        # Create a pool to manage multi-processes.
+        # Create a pool to manage all child processes in multi-process mode.
         pool = multiprocessing.Pool(processes=NUM_CPU_CORES_REQ)
 
-        # Pretrain estimators in parallel.
+        # Pretrain classifiers and then get their metrics for evaluation in parallel.
         for ds_name in ds_name_list:
             for conv_k in range(conv_k_lim[0], conv_k_lim[1] + 1, conv_k_lim[2]):
                 fuzzy_reg = fuzzy_reg_lim[0]
                 while fuzzy_reg <= fuzzy_reg_lim[1]:
-                    # Execute an estimator by a subprocess.
-                    pool.apply_async(self._pre_train_one, args=(q, ds_name, conv_k, fuzzy_reg, ))
+                    # Start a child process to fit 10 classifiers and then to get the mean metric of them.
+                    pool.apply_async(self._get_one_mean_clf, args=(q, ds_name, conv_k, fuzzy_reg,))
                     fuzzy_reg = float(Decimal(str(fuzzy_reg)) + Decimal(str(fuzzy_reg_lim[2])))
 
         pool.close()
         pool.join()
 
-        # Encapsulate and save each process's result.
-        # encapsulate_save_result(q)
-        # print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++", self.ds_4_plotting)
+        # Encapsulate and save all results from processes.
+        self._encapsulate_save_res_clf(q=q)
+        print("+++++++++++++++++++++++++++++++++++++++++++++++++++", np.shape(self.ds_4_plotting))
+        print(self.ds_4_plotting)
 
-    def plot_fuzzy_reg_vs_err(self):
+    def plot_fuzzy_reg_vs_err_sep(self, filename):
         """
-        Plot fuzzy regulation coefficient versus training error and test error.
+        Separately plot fuzzy regulation coefficient versus training error and
+        test error on each number of fuzzy clusters.
+
         Returns
         -------
 
         """
-        if not self.ds_4_plotting:
+        # q.put([[ds_name, conv_k, fuzzy_reg, acc_train_mean, std_train, acc_test_mean, std_test]])
+        if np.size(self.ds_4_plotting, axis=0) > 1:
+            # Plot based on data in memory.
+            # Plot the comparison of training error versus test error, and both curves are fuzzy thresholds versus accuracies.
+            # Illustrate how the performance on unseen data (test data) is different from the performance on training data.
+            # x_lower_limit, x_upper_limit = np.min(x_train), np.max(x_train)
+            # y_lower_limit = np.min(y_train) if np.min(y_train) < np.min(y_test) else np.min(y_test)
+            # y_upper_limit = np.max(y_train) if np.max(y_train) > np.max(y_test) else np.max(y_test)
+            # print("x_limits and y_limits are:", x_lower_limit, x_upper_limit, y_lower_limit, y_upper_limit)
+            self.df_4_plotting = pd.DataFrame()
+            assert self.df_4_plotting is not None, "No pre-train data stored in self.df_4_plotting"
+            for ds in self.df_4_plotting.groupby(["ds_name"]).groups:
+                for (ds_name, idxs) in ds.items():
+                    plot_multi_curves(coordinates=data,
+                                      title="Fuzzy Threshold vs Error -- {} -- {}".format(comparing_mode.name, ds_name),
+                                      x_label="Fuzzy threshold",
+                                      y_label="Error Rate",
+                                      legends=["Train", "Test"],
+                                      f_name=EvaluationType.FUZZY_TH_VS_ACC.value + "_" + comparing_mode.name + "_" + ds_name + ".png")
+        else:
+            df = pd.read_csv(filename)
+
+    def plot_fuzzy_reg_vs_err_all(self):
+        """
+        Plot fuzzy regulation coefficient versus training error and test error
+        on all numbers of fuzzy clusters together.
+
+        Returns
+        -------
+
+        """
+        if np.size(self.ds_4_plotting, axis=0) > 1:
             # TODO: Plot based on data in memory.
             pass
         else:
             # TODO: Plot based on data in file.
             pass
 
-    def _pre_train_one(self, ds_name, conv_k, fuzzy_reg):
-        # Load data set.
-        ds_df = load_dataset_clf(ds_name)
+    def _get_one_mean_clf(self, q, ds_name, conv_k, fuzzy_reg):
+        """
+        Get one mean metric of 10 classifiers trained on the specified dataset.
 
-        # Run the experiment according to the parameters.
-        X = ds_df.iloc[:, :-1].values
-        y = ds_df.iloc[:, -1].values
-        accuracy_train_list, accuracy_test_list = self._exe_pretrain(X, y, ds_name=ds_name, conv_k=conv_k, fuzzy_reg=fuzzy_reg)
+        The fuzzy feature extraction before training is based on specified
+        fuzzy regulation coefficients and a number of fuzzy clusters that each
+        feature belongs to.
 
-        # Process the result.
-        accuracy_train_mean = np.mean(accuracy_train_list)
-        accuracy_test_mean = np.mean(accuracy_test_list)
+        Parameters
+        ----------
+        q: multiprocessing.queue.Queue
+        ds_name: str
+        conv_k: int
+        fuzzy_reg: float
 
-        # Put the result in the connection between the main process and the child processes (in master-worker mode).
-        # The 2nd return value in send() should be a 2-dimensional ndarray
-        error_train_mean = 1 - accuracy_train_mean
-        error_test_mean = 1 - accuracy_test_mean
-        # !!! NB: The value in the dictionary to be returned must be a 2-d matrix.
-        return {ds_name: np.asarray([[fuzzy_reg, error_train_mean, fuzzy_reg, error_test_mean]])}
+        Returns
+        -------
 
-    def _exe_pretrain(self, X, y, ds_name, conv_k, fuzzy_reg):
-        accuracy_train_list = []
-        accuracy_test_list = []
+        """
+        curr_pid = os.getpid()
+        print("    |-- ({} Child-process) Train 10 classifiers on: {}.".format(curr_pid, ds_name))
+        print("    |-- ({} Child-process) Preprocess fuzzy feature extraction based on parameters: {}, {}.".format(curr_pid, conv_k, fuzzy_reg))
 
-        # Step 1: Preprocess features for using fuzzy decision tree.
+        # Load data.
+        df = load_data_clf(ds_name)
+
+        # Preprocess fuzzy feature extraction (only for fuzzy decision tree).
+        X = df.iloc[:, :-1].values
+        y = df.iloc[:, -1].values
         X_fuzzy_pre = X.copy()
         # - Step 1: Standardise feature scaling.
         # X_fuzzy_pre[:, :] -= X_fuzzy_pre[:, :].min()
         # X_fuzzy_pre[:, :] /= X_fuzzy_pre[:, :].max()
         # - Step 2: Extract fuzzy features.
-        X_dms = extract_fuzzy_features(X_fuzzy_pre, conv_k=conv_k, fuzzy_reg=fuzzy_reg)
+        X_dms = extract_fuzzy_features(X=X_fuzzy_pre, conv_k=conv_k, fuzzy_reg=fuzzy_reg)
         X_plus_dms = np.concatenate((X, X_dms), axis=1)
-        # print("************* Before, original shape:", np.shape(X))
-        # print("************* After, fuzzy shape:", np.shape(X_plus_dms))
+        # print("************* Shape before fuzzification:", np.shape(X))
+        # print("************* Shape after fuzzification:", np.shape(X_plus_dms))
 
-        # Step 2: Get training and testing result by a model.
-        pool = multiprocessing.Pool(processes=NUM_CPU_CORES_REQ)
+        # Fit a group of models, and then get the mean of their accuracy results.
+        acc_train_list = []
+        acc_test_list = []
         for i in range(10):
-            print("%ith comparison on - %s" % (i, ds_name))
+            print("        |-- ({} Child-process) {}-th fitting......".format(curr_pid, i))
 
             # Split training and test sets by hold-out partition method.
             # X_train, X_test, y_train, y_test = train_test_split(X_fuzzy_pre, y, test_size=0.4)
@@ -473,26 +523,52 @@ class FuzzyDecisionTreeProxy(DecisionTreeInterface):
             for train_index, test_index in kf.split(X):
                 y_train, y_test = y[train_index], y[test_index]
 
-                # Using a fuzzy decision tree. =========================================================================
+                # Train and test one model, and then get its accuracy results.
                 X_train, X_test = X_plus_dms[train_index], X_plus_dms[test_index]
-                # accuracy_train, accuracy_test = self._fit_test(X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test)
-                # accuracy_train_list.append(accuracy_train)
-                # accuracy_test_list.append(accuracy_test)
-                pool.apply_async(self._fit_test, args=(X_train, X_test, y_train, y_test,))
+                accuracy_train, accuracy_test = self._fit_one_clf(X_train=X_train, X_test=X_test,
+                                                                  y_train=y_train, y_test=y_test,
+                                                                  ds_name=ds_name, conv_k=conv_k, fuzzy_reg=fuzzy_reg)
+                acc_train_list.append(accuracy_train)
+                acc_test_list.append(accuracy_test)
 
-        pool.close()
-        pool.join()
+        # Calculate the mean of the accuracy and errors.
+        acc_train_mean = np.mean(acc_train_list)
+        std_train = np.std(acc_train_list)
+        acc_test_mean = np.mean(acc_test_list)
+        std_test = np.std(acc_test_list)
+        print("    |-- ========================================================================================")
+        print("    |-- ({} Child-process) Train 10 classifiers on: {}.".format(curr_pid, ds_name))
+        print("    |-- Mean train acc:", acc_train_mean, "  std:", std_train)
+        print("    |-- Mean test acc:", acc_test_mean, "  std:", std_test)
+        print("    |-- ========================================================================================")
 
-        # print("========================================================================================")
-        # print("Pretraining on - ", ds_name)
-        # print("Mean training accuracy:", np.mean(accuracy_train_list), "  std:", np.std(accuracy_train_list))
-        # print("Mean test accuracy:", np.mean(accuracy_test_list), "  std:", np.std(accuracy_test_list))
-        # print("========================================================================================")
+        # Put the results in the connection between the main process and the child processes.
+        # !!! NB: The return value should be a 2-dimensional ndarray. Or, the return value is
+        # a dictionary, and its key is the dataset name and its value is a 2-d matrix ndarray.
+        if not q.full():
+            q.put([[ds_name, conv_k, fuzzy_reg, acc_train_mean, std_train, acc_test_mean, std_test]])
 
-        return accuracy_train_list, accuracy_test_list
+    def _fit_one_clf(self, X_train, X_test, y_train, y_test, ds_name, conv_k, fuzzy_reg):
+        """
+        Fit one classifier and get its evaluation metrics.
 
-    def _fit_test(self, X_train, X_test, y_train, y_test):
-        # time_start = time.time()  # Record the start time.
+        Evaluation metrics used in classification include accuracy, f1, roc_auc,
+        etc.
+        See more on https://scikit-learn.org/stable/modules/model_evaluation.html
+
+        Parameters
+        ----------
+        X_train
+        X_test
+        y_train
+        y_test
+
+        Returns
+        -------
+
+        """
+        # # Record the start time used to calculate the time spent fitting one model.
+        # time_start = time.time()
 
         # Fit the initialised model.
         self.estimator.fit(X_train, y_train)
@@ -501,16 +577,74 @@ class FuzzyDecisionTreeProxy(DecisionTreeInterface):
         # Get the training accuracy and test accuracy of the fitted (trained) estimator.
         y_pred_train = self.predict(X_train)
         accuracy_train = accuracy_score(y_train, y_pred_train)
+        # balanced_accuracy_train = balanced_accuracy_score(y_train, y_pred_train)
+        # neg_brier_score_train = brier_score_loss(y_train, y_pred_train)
         y_pred_test = self.predict(X_test)
         accuracy_test = accuracy_score(y_test, y_pred_test)
-
+        # balanced_accuracy_test = balanced_accuracy_score(y_test, y_pred_test)
+        # neg_brier_score_test = brier_score_loss(y_test, y_pred_test)
         # print("    Fuzzy accuracy train:", accuracy_train)
         # print("    Fuzzy accuracy test:", accuracy_test)
 
-        # # Display the time of training a single model.
-        # print('    Elapsed time of a single model (FDT-based):', time.time() - time_start, 's')
+        # Pickle the current model.
+        joblib.dump(value=self.estimator, filename=PathSave.MODELS + "clf_" + ds_name + "_" + conv_k + "_" + fuzzy_reg + ".mdl")
+        # trained_clf = joblib.load(filename=PATH_SAVE_MODELS + "clf-" + ds_name + "-" + conv_k + "-" + fuzzy_reg + ".mdl")
+
+        # # Display the elapsed time.
+        # print("            |-- Time elapsed fitting one model:", time.time() - time_start, "s")
 
         return accuracy_train, accuracy_test
+
+    def _encapsulate_save_res_clf(self, q):
+        """
+        Encapsulate each process's result into a container for plotting and
+        saving into a file.
+
+        Parameters
+        ----------
+        q: multiprocessing.queue.Queue
+
+        Returns
+        -------
+
+        """
+        while not q.empty():
+            # q.put([[ds_name, conv_k, fuzzy_reg, acc_train_mean, std_train, acc_test_mean, std_test]])
+            results = q.get()
+            for res in results:
+                if len(np.shape(res)) == 1:
+                    res = np.expand_dims(res, axis=0)
+                if np.size(self.ds_4_plotting) == 0:
+                    self.ds_4_plotting = res
+                else:
+                    self.ds_4_plotting = np.concatenate((self.ds_4_plotting, res), axis=0)
+
+        # Save the experiment's results into a file.
+        self.df_4_plotting = pd.DataFrame()
+        column_names = ["ds_name", "conv_k", "fuzzy_reg", "acc_train_mean", "std_train", "acc_test_mean", "std_test"]
+        self.df_4_plotting = pd.DataFrame(data=self.ds_4_plotting, columns=column_names)
+        self.df_4_plotting.to_csv(PathSave.EVAL_DATA + EvaluationType.FUZZY_REG_VS_ACC_ON_CONV_K.value + "_" + get_today_str() + ".csv")
+
+    def _fit_one_regr(self, X_train, X_test, y_train, y_test):
+        """
+        Fit one regressor and get its evaluation metrics.
+
+        Evaluation metrics used in regression include neg_mean_absolute_error,
+        neg_root_mean_squared_error, r2, etc.
+        See more on https://scikit-learn.org/stable/modules/model_evaluation.html
+
+        Parameters
+        ----------
+        X_train
+        X_test
+        y_train
+        y_test
+
+        Returns
+        -------
+
+        """
+        pass
 
 
 if __name__ == '__main__':

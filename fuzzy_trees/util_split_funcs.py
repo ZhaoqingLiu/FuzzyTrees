@@ -14,7 +14,7 @@ import numpy as np
 # Naive functions
 # =============================================================================
 
-def split_dataset(dataset, feature_index, split_value):
+def split_ds_2_bin(ds, col_idx, split_val):
     """
     Split a data set into two subsets by a specified value of a specified feature:
     - If the specified feature is numerical data, split the data set into two
@@ -26,34 +26,41 @@ def split_dataset(dataset, feature_index, split_value):
 
     Parameters
     ----------
-    dataset: {array-like, sparse matrix} of shape (n_samples, n_feature)
+    ds: {array-like, sparse matrix} of shape (n_samples, n_feature)
         The current data set to be split.
 
-    feature_index: int
-        The index of the specified feature.
+    col_idx: int
+        The index of the specified column on which the split based.
 
-    split_value: int, float, or string
-        The specified value of the feature indexed as feature_idx.
+    split_val: int, float, or string
+        The specified value of the column indexed as col_idx.
 
     Returns
     -------
-    subset_true, subset_false: array-like of shape
+    subset_true, subset_false: array-like
         Return a tuple of the two split subsets.
     """
     # Declare a lambda (args: expression), which is an anonymous function,
     # and will define the criteria for slicing the data set to be split.
     split_func = None
-    if isinstance(split_value, int) or isinstance(split_value, float):
-        split_func = lambda sample: sample[feature_index] >= split_value
+    if isinstance(split_val, int) or isinstance(split_val, float):
+        split_func = lambda sample: sample[col_idx] >= split_val
     else:
-        split_func = lambda sample: sample[feature_index] == split_value
+        split_func = lambda sample: sample[col_idx] == split_val
 
     # Slice out all samples that meet the criteria defined by the lambda.
-    subset_true = np.array([sample for sample in dataset if split_func(sample)])
-    subset_false = np.array([sample for sample in dataset if not split_func(sample)])
+    subset_true = np.array([sample for sample in ds if split_func(sample)])
+    subset_false = np.array([sample for sample in ds if not split_func(sample)])
 
     return subset_true, subset_false
 
+
+def split_ds_2_multi(ds, col_idx, split_val):
+    pass
+
+
+def split_disc_ds_2_multi(ds, col_idx, split_val):
+    pass
 
 
 

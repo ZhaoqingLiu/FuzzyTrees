@@ -35,13 +35,17 @@ NUM_CPU_CORES_AVAL = multiprocessing.cpu_count()
 # NUM_CPU_CORES_REQ = int(NUM_CPU_CORES_AVAL * 1 / 10)
 NUM_CPU_CORES_REQ = NUM_CPU_CORES_AVAL
 
-#
-class EvaluationType(Enum):
-    FUZZY_TH_VS_ACC = "fuzzy_th_vs_acc"
-    MDL_CXTY_VS_ACC = "mdl_cxty_vs_acc"
-    FUZZY_TH_VS_ERR = "fuzzy_th_vs_err"
-    MDL_CXTY_VS_ERR = "mdl_cxty_vs_err"
 
+# Evaluation types corresponding plotting types.
+class EvaluationType(Enum):
+    FUZZY_REG_VS_ACC_ON_CONV_K = "fuzzy_reg_vs_acc_on_conv_k"
+
+
+# File paths to save evaluation data, graphs, serialised models.
+class PathSave(Enum):
+    EVAL_DATA = "./eval_data/"
+    EVAL_FIGURES = "./eval_figures/"
+    MODELS = "./models/"
 
 # Output all of the above preset experiment configuration information before the experiment starts.
 # =================================================================================================
@@ -64,6 +68,10 @@ print("(S2 EXP) experiments include:")
 for k, name in EvaluationType.__members__.items():
     print("{:>80}".format(k + " -- " + name.value))
 
+print("(S2 EXP) Path to save files:")
+for k, name in PathSave.__members__.items():
+    print("{:>80}".format(k + " -- " + name.value))
+
 for _ in range(80):
     print("=", end="")
 print("")
@@ -80,7 +88,6 @@ DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle}
 # DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle, "German_Credit": load_German_credit, "Diabetes": load_diabetes}
 # DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle, "German_Credit": load_German_credit, "Diabetes": load_diabetes, "Iris": load_iris, "Wine": load_wine}
 DS_LOAD_FUNC_REG = {}
-
 
 # Model evaluation under different fuzzy regulation coefficients.
 FUZZY_LIM = 0.5

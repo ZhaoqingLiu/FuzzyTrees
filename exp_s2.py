@@ -79,7 +79,7 @@ def search_fuzzy_optimum(comparing_mode):
                                   x_label="Fuzzy threshold",
                                   y_label="Error Rate",
                                   legends=["Train", "Test"],
-                                  f_name=EvaluationType.FUZZY_TH_VS_ACC.value + "_" + comparing_mode.name + "_" + ds_name + ".png")
+                                  f_name=EvaluationType.FUZZY_REG_VS_ACC_ON_CONV_K.value + "_" + comparing_mode.name + "_" + ds_name + ".png")
 
         # Save the experiment's results into a file.
         res_df = pd.DataFrame()
@@ -88,7 +88,7 @@ def search_fuzzy_optimum(comparing_mode):
             column_names.append("x_{}".format(i))
             column_names.append("y_{}".format(i))
         res_df = pd.DataFrame(data=coordinates, columns=column_names)
-        res_df.to_csv(EvaluationType.FUZZY_TH_VS_ACC.value + "_" + comparing_mode.name + "_" + ds_name + ".csv")
+        res_df.to_csv(EvaluationType.FUZZY_REG_VS_ACC_ON_CONV_K.value + "_" + comparing_mode.name + "_" + ds_name + ".csv")
 
 
 def search_fuzzy_optimum_on_one_ds(q, comparing_mode, ds_name, fuzzy_th):
@@ -162,12 +162,12 @@ def get_exp_results_clf(X, y, comparing_mode, ds_name, fuzzy_th):
         # - Step 2: Extract fuzzy features.
         X_dms = extract_fuzzy_features(X_fuzzy_pre, conv_k=5, fuzzy_reg=fuzzy_th)
     X_plus_dms = np.concatenate((X, X_dms), axis=1)
-    print("************* Before, original shape:", np.shape(X))
-    print("************* After, fuzzy shape:", np.shape(X_plus_dms))
+    print("************* Shape before fuzzification:", np.shape(X))
+    print("************* Shape after fuzzification:", np.shape(X_plus_dms))
 
     # Step 2: Get training and testing result by a model.
     for i in range(10):
-        print("%ith comparison on - %s" % (i, ds_name))
+        print("%ith model training on - %s" % (i, ds_name))
 
         # Split training and test sets by hold-out partition method.
         # X_train, X_test, y_train, y_test = train_test_split(X_fuzzy_pre, y, test_size=0.4)
@@ -187,9 +187,9 @@ def get_exp_results_clf(X, y, comparing_mode, ds_name, fuzzy_th):
 
     print("========================================================================================")
     print(comparing_mode.value, " - ", ds_name)
-    print("Mean training accuracy:", np.mean(accuracy_train_list), "  std:",
+    print("Mean train acc:", np.mean(accuracy_train_list), "  std:",
           np.std(accuracy_train_list))
-    print("Mean test accuracy:", np.mean(accuracy_test_list), "  std:",
+    print("Mean test acc:", np.mean(accuracy_test_list), "  std:",
           np.std(accuracy_test_list))
     print("========================================================================================")
 
@@ -197,7 +197,8 @@ def get_exp_results_clf(X, y, comparing_mode, ds_name, fuzzy_th):
 
 
 def exe_by_a_fuzzy_model(comparing_mode, X_train, X_test, y_train, y_test, fuzzification_params):
-    time_start = time.time()  # Record the start time.
+    # Record the start time used to calculate the time spent fitting one model.
+    time_start = time.time()
 
     # Initialise a fuzzy model.
     clf = None
@@ -240,8 +241,9 @@ def exe_by_a_fuzzy_model(comparing_mode, X_train, X_test, y_train, y_test, fuzzi
 
     # print("    Fuzzy accuracy train:", accuracy_train)
     # print("    Fuzzy accuracy test:", accuracy_test)
-    print('    Elapsed time of a single model (FDT-based):', time.time() - time_start,
-          's')  # Display the time of training a single model.
+    # Display the elapsed time.
+    print('    Time elapsed fitting one model:', time.time() - time_start,
+          's')
 
     return accuracy_train, accuracy_test
 
@@ -276,8 +278,8 @@ if __name__ == '__main__':
 
     # search_fuzzy_optimum(ComparisionMode.FF5)  # e.g. Take 3.9857s with 32 CPU cores on dataset Iris.
 
-    search_fuzzy_optimum(ComparisionMode.FUZZY)  # e.g. Take 5.6539s with 21 CPU cores on dataset Iris.
-    # search_fuzzy_optimum(ComparisionMode.BOOSTING)  # e.g. Take 815.76s with 21 CPU cores on dataset Iris.
+    # search_fuzzy_optimum(ComparisionMode.FUZZY)  # e.g. Take 5.6539s with 21 CPU cores on dataset Iris.
+    search_fuzzy_optimum(ComparisionMode.BOOSTING)  # e.g. Take 815.76s with 21 CPU cores on dataset Iris.
 
     print("Total elapsed time: {:.5}s".format(time.time() - time_start))
     print("Main Process (%s) ended." % os.getpid())
