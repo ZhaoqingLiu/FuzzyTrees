@@ -42,39 +42,41 @@ class EvaluationType(Enum):
 
 
 # File paths to save evaluation data, graphs, serialised models.
-class PathSave(Enum):
-    EVAL_DATA = "./eval_data/"
-    EVAL_FIGURES = "./eval_figures/"
-    MODELS = "./models/"
+class DirSave(Enum):
+    EVAL_DATA = "/data/zhaoqliu/my_ml_p/FuzzyDecisionTrees/fuzzy_trees/eval_data/"
+    EVAL_FIGURES = "/data/zhaoqliu/my_ml_p/FuzzyDecisionTrees/fuzzy_trees/eval_figures/"
+    MODELS = "./data/zhaoqliu/my_ml_p/FuzzyDecisionTrees/fuzzy_trees/pkl_models/"
+
+
+# Number of a group of models when pretraining.
+NUM_GRP_MDLS = 10
+
 
 # Output all of the above preset experiment configuration information before the experiment starts.
 # =================================================================================================
-for _ in range(80):
-    print("=", end="")
-print("")
+print("=" * 100)
 
 print("{:^80}".format("Environment Configuration Information"))
 
 print("Number of CPU cores available:")
-print("{:>80}".format(NUM_CPU_CORES_AVAL))
+print("{:>100}".format(NUM_CPU_CORES_AVAL))
+
 print("Number of CPU cores currently requested:")
-print("{:>80}".format(NUM_CPU_CORES_REQ))
+print("{:>100}".format(NUM_CPU_CORES_REQ))
 
 print("(S1 EXP) Comparison experiments include:")
 for k, name in ComparisionMode.__members__.items():
-    print("{:>80}".format(k + " -- " + name.value))
+    print("{:>100}".format(k + " -- " + name.value))
 
 print("(S2 EXP) experiments include:")
 for k, name in EvaluationType.__members__.items():
-    print("{:>80}".format(k + " -- " + name.value))
+    print("{:>100}".format(k + " -- " + name.value))
 
 print("(S2 EXP) Path to save files:")
-for k, name in PathSave.__members__.items():
-    print("{:>80}".format(k + " -- " + name.value))
+for k, name in DirSave.__members__.items():
+    print("{:>100}".format(k + " -- " + name.value))
 
-for _ in range(80):
-    print("=", end="")
-print("")
+print("=" * 100)
 # =================================================================================================
 
 

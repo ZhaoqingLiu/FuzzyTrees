@@ -7,15 +7,17 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-
 COLOUR = ["b", "r", "g", "c", "y", "k", "m"]
+
+
 # The colours above are equivalent to the colours below:
 # COLOUR = ["blue", "red", "green", "cyan", "yellow", "black", "magenta"]
 
 
-def plot_multi_curves(coordinates, title=None, x_label=None, y_label=None, x_limit=None, y_limit=None, legends=None, f_name=None):
+def plot_multi_lines(coordinates, title=None, x_label=None, y_label=None, x_limit=None, y_limit=None, legends=None,
+                     f_name=None):
     """
-    Plot the comparison of multiple curves.
+    Plot multiple lines in a figure.
     """
     # 1st step: Create a figure as a canvas.
     plt.figure()
@@ -42,7 +44,7 @@ def plot_multi_curves(coordinates, title=None, x_label=None, y_label=None, x_lim
         # print("after sorting - y:")
         # print(y)
 
-        plt.plot(x, y, linewidth=1.0, linestyle="-", label=legends[int(i/2)])
+        plt.plot(x, y, linewidth=1.0, linestyle="-", label=legends[int(i / 2)])
 
         # Plot the minimum point and annotate it.
         y_min = np.amin(y)
@@ -87,9 +89,49 @@ def plot_multi_curves(coordinates, title=None, x_label=None, y_label=None, x_lim
     plt.show()
 
 
-def plot_multi_curves_dyn(q, x_list, y_list, title=None, x_label=None, y_label=None, x_limit=None, y_limit=None):
+def plot_multi_curves_dyn(x_list, y_list, title=None, x_label=None, y_label=None, x_limit=None, y_limit=None):
     pass
 
 
+def plot_multi_lines_subplots(df, title=None, x_label=None, y_label=None, x_limit=None, y_limit=None,
+                              legends=None, f_name=None):
+    """
+    Plot multiple curves.
+    """
+    # 1st step: Create a figure as a canvas.
+    plt.figure()
+
+    # 2nd step: Plot on the figure.
+    # 2.1 Define the figure using subplot mode.
+    # q.put([[ds_name, conv_k, fuzzy_reg, acc_train_mean, std_train, acc_test_mean, std_test]])
+    conv_ks = df["conv_k"].unique()
+    conv_ks = sorted(conv_ks)
+    fig, axes = plt.subplots(nrows=np.size(conv_ks), ncols=1)
+    # 2.2 Plot all subplots and curves in it iteratively.
+    for idx, conv_k in enumerate(conv_ks):
+        df_4_conv_k = df[df["conv_k"] == conv_k]
+        x_y = df_4_conv_k.sort_values(by="fuzzy_reg")  # ascending is True by default.
+        x = x_y["fuzzy_reg"].values
+        y_1 = x_y["acc_train_mean"].values
+        y_2 = x_y["acc_test_mean"].values
+        axes[idx].plot(x, y_1, linewidth=1.0, linestyle="-", label=legends[int(idx % 2)])
+        axes[idx].plot(x, y_2, linewidth=1.0, linestyle="-", label=legends[int(idx % 2)])
+
+        axes[idx].grid(True, linestyle="--", linewidth=1, alpha=0.3)
+        axes[idx].legend()
+        axes[idx].set_title(title + "(" + conv_k + ")")
+        axes[idx].set_xlabel(x_label)
+        axes[idx].set_ylabel(y_label)
+        axes[idx].set_xlim(x_limit)
+        axes[idx].set_ylim(y_limit)
+
+    # Save the figure into a file.
+    if f_name is not None:
+        plt.savefig(fname=f_name)
+
+    # 3rd step: Show the figure.
+    plt.show()
+
+
 if __name__ == '__main__':
-    plot_multi_curves([], [], "My Title", "x label", "y label", (10, 20), (-10, 0))
+    plot_multi_lines([], [], "My Title", "x label", "y label", (10, 20), (-10, 0))

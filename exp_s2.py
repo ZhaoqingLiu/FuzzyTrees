@@ -74,12 +74,12 @@ def search_fuzzy_optimum(comparing_mode):
         # y_lower_limit = np.min(y_train) if np.min(y_train) < np.min(y_test) else np.min(y_test)
         # y_upper_limit = np.max(y_train) if np.max(y_train) > np.max(y_test) else np.max(y_test)
         # print("x_limits and y_limits are:", x_lower_limit, x_upper_limit, y_lower_limit, y_upper_limit)
-        plotter.plot_multi_curves(coordinates=coordinates,
-                                  title="Fuzzy Threshold vs Error -- {} -- {}".format(comparing_mode.name, ds_name),
-                                  x_label="Fuzzy threshold",
-                                  y_label="Error Rate",
-                                  legends=["Train", "Test"],
-                                  f_name=EvaluationType.FUZZY_REG_VS_ACC_ON_CONV_K.value + "_" + comparing_mode.name + "_" + ds_name + ".png")
+        plotter.plot_multi_lines(coordinates=coordinates,
+                                 title="Fuzzy Threshold vs Error -- {} -- {}".format(comparing_mode.name, ds_name),
+                                 x_label="Fuzzy threshold",
+                                 y_label="Error Rate",
+                                 legends=["Train", "Test"],
+                                 f_name=EvaluationType.FUZZY_REG_VS_ACC_ON_CONV_K.value + "_" + comparing_mode.name + "_" + ds_name + ".png")
 
         # Save the experiment's results into a file.
         res_df = pd.DataFrame()

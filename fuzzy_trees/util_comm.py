@@ -5,6 +5,7 @@
 @date: 08/05/2021 9:35 pm
 @desc: 
 """
+import os
 import time
 
 
@@ -18,6 +19,13 @@ def get_today_str():
 
 def get_now_str(tim_str):
     return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(tim_str)/1000))
+
+
+def get_cwd_as_prefix():
+    # !!! NB: This function must be tested in the main of a project.
+    # return os.path.abspath(os.path.dirname(__name__)) + "/"
+    # return os.path.abspath(os.path.dirname(__file__)) + "/"
+    return os.getcwd() + "/"
 
 
 if __name__ == '__main__':

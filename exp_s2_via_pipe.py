@@ -72,11 +72,11 @@ def search_fuzzy_optimum():
         # y_lower_limit = np.min(y_train) if np.min(y_train) < np.min(y_test) else np.min(y_test)
         # y_upper_limit = np.max(y_train) if np.max(y_train) > np.max(y_test) else np.max(y_test)
         # print("x_limits and y_limits are:", x_lower_limit, x_upper_limit, y_lower_limit, y_upper_limit)
-        plotter.plot_multi_curves(coordinates=coordinates,
-                                  title="Training Error vs Test Error -- {}".format(ds_name),
-                                  x_label="Fuzzy threshold",
-                                  y_label="Error",
-                                  legends=["Train", "Test"])
+        plotter.plot_multi_lines(coordinates=coordinates,
+                                 title="Training Error vs Test Error -- {}".format(ds_name),
+                                 x_label="Fuzzy threshold",
+                                 y_label="Error",
+                                 legends=["Train", "Test"])
 
 
 def search_fuzzy_optimum_on_one_ds(conn_send, comparing_mode, ds_name, fuzzy_th):
