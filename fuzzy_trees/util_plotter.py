@@ -119,7 +119,7 @@ def plot_multi_lines_subplots(df, title=None, x_label=None, y_label=None, x_limi
 
         axes[idx].grid(True, linestyle="--", linewidth=1, alpha=0.3)
         axes[idx].legend()
-        axes[idx].set_title(title + "(" + conv_k + ")")
+        axes[idx].set_title(title + "(conv_k = " + conv_k + ")")
         axes[idx].set_xlabel(x_label)
         axes[idx].set_ylabel(y_label)
         axes[idx].set_xlim(x_limit)
@@ -130,6 +130,7 @@ def plot_multi_lines_subplots(df, title=None, x_label=None, y_label=None, x_limi
         plt.savefig(fname=f_name)
 
     # 3rd step: Show the figure.
+    plt.tight_layout()  # Make the ticks of X-axis and Y-axis have layout space.
     plt.show()
 
 

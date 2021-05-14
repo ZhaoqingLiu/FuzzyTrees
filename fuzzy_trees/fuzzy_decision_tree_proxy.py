@@ -649,7 +649,7 @@ class FuzzyDecisionTreeProxy(DecisionTreeInterface):
         for ds_name in ds_names:
             df_4_ds_name = self.df_pretrain[self.df_pretrain["ds_name"] == ds_name]
             plot_multi_lines_subplots(df=df_4_ds_name,
-                                      title="Fuzzy Regulation Coefficient vs Error - {}".format(ds_name),
+                                      title="Fuzzy Reg Coeff vs Error - {}".format(ds_name),
                                       x_label="Fuzzy Regulation Coefficient",
                                       y_label="Error Rate",
                                       legends=["Train", "Test"],
