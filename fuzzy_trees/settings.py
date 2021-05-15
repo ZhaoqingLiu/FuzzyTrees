@@ -56,7 +56,7 @@ NUM_GRP_MDLS = 10
 # =================================================================================================
 print("=" * 100)
 
-print("{:^80}".format("Environment Configuration Information"))
+print("{:^100}".format("Environment Configuration Information"))
 
 print("Number of CPU cores available:")
 print("{:>100}".format(NUM_CPU_CORES_AVAL))
@@ -86,9 +86,11 @@ print("=" * 100)
 
 # Datasets (k: dataset name, v: function for getting data) on which the model is being trained.
 # DS_LOAD_FUNC_CLF = {"Iris": load_iris}
-DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle}
-# DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle, "German_Credit": load_German_credit, "Diabetes": load_diabetes}
-# DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle, "German_Credit": load_German_credit, "Diabetes": load_diabetes, "Iris": load_iris, "Wine": load_wine}
+# DS_LOAD_FUNC_CLF = {"Wine": load_wine}
+# DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle}
+# DS_LOAD_FUNC_CLF = {"German_Credit": load_German_credit}
+# DS_LOAD_FUNC_CLF = {"Diabetes": load_diabetes}
+DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle, "German_Credit": load_German_credit, "Diabetes": load_diabetes, "Iris": load_iris, "Wine": load_wine}
 DS_LOAD_FUNC_REG = {}
 
 # Model evaluation under different fuzzy regulation coefficients.

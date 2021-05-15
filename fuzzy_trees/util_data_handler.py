@@ -19,124 +19,15 @@ Created on Thu Nov 19 11:15:33 2020
         - (potentially) cyclical features
 
 """
-import io
-
 import numpy as np
 import pandas as pd
-import requests
-import pymysql
 from scipy.io import arff
-
 from sklearn import datasets
 
 
 # ==================================================================================
-# Methods to read local files:
-# ds = data = pd.read_csv(r'../filename.csv')
-# ds = pd.read_table(r'../filename.txt')
-# ds = pd.read_excel(r'../filename.xlsx')
-
-
-"""
-General functions for reading online data, which are in the formats of:
-    1. CSV
-    2. TXT
-    3. EXCEL
-    4. MYSQL
-"""
-def read_online_csv(url):
-    """
-    Read a CSV-format online file.
-    Parameters
-    ----------
-    url: raw URL
-        URL should be a raw URL,
-        e.g. "https://raw.githubusercontent.com/hunkim/DeepLearningZeroToAll/master/data-03-diabetes.csv",
-        not "https://githubusercontent.com/hunkim/DeepLearningZeroToAll/master/data-03-diabetes.csv".
-
-    Returns
-    -------
-    ds: pandas.DataFrame
-    """
-    # ds = pd.read_csv(url, header=None)  # Equivalent to the following two lines of code.
-    s = requests.get(url).content
-    ds = pd.read_csv(io.StringIO(s.decode("utf-8")), header=None)
-    return ds
-
-
-def read_online_txt(url):
-    """
-    Read a TXT-format online file.
-
-    Parameters
-    ----------
-    url: raw URL
-        URL should be a raw URL
-
-    Returns
-    -------
-    ds: pandas.DataFrame
-    """
-    # ds = pd.read_csv(url, header=None)  # Equivalent to the following two lines of code.
-    s = requests.get(url).content
-    ds = pd.read_table(io.StringIO(s.decode("utf-8")), header=None)
-    return ds
-
-
-def read_online_excel(url):
-    """
-    Read a EXCEL-format online file.
-
-    Parameters
-    ----------
-    url: raw URL
-        URL should be a raw URL
-
-    Returns
-    -------
-    ds: pandas.DataFrame
-    """
-    # ds = pd.read_csv(url, header=None)  # Equivalent to the following two lines of code.
-    s = requests.get(url).content
-    ds = pd.read_excel(io.StringIO(s.decode("utf-8")), header=None)
-    return ds
-
-
-def read_data_mysql(host, user, passwd, db, charset):
-    # Connect to a database using your database information.
-    conn = pymysql.connect(host=host, user=user, passwd=passwd, db=db, charset=charset)
-
-    # Create a cursor.
-    cur = conn.cursor()
-
-    # Execute a SQL command.
-    cur.execute("select * from train_data limit 100")
-
-    # Fetch data.
-    data = cur.fetchall()
-
-    # Get columns.
-    cols = cur.description
-
-    # Commit the execution.
-    conn.commit()
-
-    # Close the cursor and the connection to the database.
-    cur.close()
-    conn.close()
-
-    # Encapsulate the data.
-    col = []
-    for i in cols:
-        col.append(i[0])
-    data = list(map(list, data))
-    ds = pd.DataFrame(data, columns=col)
-
-    return ds
-
-
-# ==================================================================================
 # Functions for loading specific datasets.
+# ==================================================================================
 
 # Change it to your folder path.
 DATA_FOLDER_PATH = '/data/zhaoqliu/Datasets/'

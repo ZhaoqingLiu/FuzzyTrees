@@ -7,6 +7,7 @@
 import multiprocessing
 import os
 import time
+import traceback
 from decimal import Decimal
 
 import numpy as np
