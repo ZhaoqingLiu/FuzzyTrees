@@ -90,8 +90,8 @@ print("=" * 100)
 # DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle}
 # DS_LOAD_FUNC_CLF = {"German_Credit": load_German_credit}
 # DS_LOAD_FUNC_CLF = {"Diabetes": load_diabetes}
-DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle, "German_Credit": load_German_credit, "Diabetes": load_diabetes, "Iris": load_iris, "Wine": load_wine}
-DS_LOAD_FUNC_REG = {}
+# DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle, "German_Credit": load_German_credit, "Diabetes": load_diabetes, "Iris": load_iris, "Wine": load_wine}
+# DS_LOAD_FUNC_REG = {}
 
 # Model evaluation under different fuzzy regulation coefficients.
 FUZZY_LIM = 0.5

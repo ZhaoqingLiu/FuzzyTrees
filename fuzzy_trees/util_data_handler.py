@@ -149,8 +149,12 @@ def load_wine():
     return datasets.load_wine(as_frame=True).frame
 
 
-# Available data sets provided by this module.
+# ==================================================================================
+# Datasets available provided by this module.
+# ==================================================================================
+# Datasets (k: dataset name, v: function for getting data) on which the model is being trained.
 DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle, "German_Credit": load_German_credit, "Diabetes": load_diabetes, "Iris": load_iris, "Wine": load_wine}
+DS_LOAD_FUNC_REG = {}  # To be set when running regression experiments.
 
 
 def load_data_clf(ds_name):

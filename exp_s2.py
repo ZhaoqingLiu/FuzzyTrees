@@ -15,11 +15,12 @@ import pandas as pd
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import KFold
 
-from fuzzy_trees.settings import ComparisionMode, NUM_CPU_CORES_REQ, DS_LOAD_FUNC_CLF, FUZZY_STRIDE, EvaluationType, FUZZY_LIM
+from fuzzy_trees.settings import ComparisionMode, EvaluationType, NUM_CPU_CORES_REQ, FUZZY_STRIDE, FUZZY_LIM
 from fuzzy_trees.fuzzy_decision_tree import FuzzyDecisionTreeClassifier
 from fuzzy_trees.fuzzy_decision_tree_proxy import FuzzificationParams, FuzzyDecisionTreeProxy, CRITERIA_FUNC_CLF, \
     CRITERIA_FUNC_REG
 from fuzzy_trees.fuzzy_gbdt import FuzzyGBDTClassifier
+from fuzzy_trees.util_data_handler import DS_LOAD_FUNC_CLF
 from fuzzy_trees.util_data_processing_funcs import extract_fuzzy_features
 import fuzzy_trees.util_plotter as plotter
 
