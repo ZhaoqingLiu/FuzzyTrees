@@ -5,6 +5,7 @@
 @desc  :
 """
 import multiprocessing
+import os
 from enum import Enum
 from fuzzy_trees.util_data_handler import *
 
@@ -38,14 +39,14 @@ NUM_CPU_CORES_REQ = NUM_CPU_CORES_AVAL
 
 # Evaluation types corresponding plotting types.
 class EvaluationType(Enum):
-    FUZZY_REG_VS_ACC_ON_CONV_K = "fuzzy_reg_vs_acc_on_conv_k"
+    FUZZY_REG_VS_ERR_ON_CONV_K = "fuzzy_reg_vs_err_on_conv_k"
 
 
 # File paths to save evaluation data, graphs, serialised models.
 class DirSave(Enum):
-    EVAL_DATA = "/data/zhaoqliu/my_ml_p/FuzzyDecisionTrees/fuzzy_trees/eval_data/"
-    EVAL_FIGURES = "/data/zhaoqliu/my_ml_p/FuzzyDecisionTrees/fuzzy_trees/eval_figures/"
-    MODELS = "./data/zhaoqliu/my_ml_p/FuzzyDecisionTrees/fuzzy_trees/pkl_models/"
+    EVAL_DATA = os.getcwd() + "/data_gen/eval_data/"
+    EVAL_FIGURES = os.getcwd() + "/data_gen/eval_figures/"
+    MODELS = os.getcwd() + "/data_gen/pkl_models/"
 
 
 # Number of a group of models when pretraining.
@@ -65,16 +66,19 @@ print("Number of CPU cores currently requested:")
 print("{:>100}".format(NUM_CPU_CORES_REQ))
 
 print("(S1 EXP) Comparison experiments include:")
-for k, name in ComparisionMode.__members__.items():
-    print("{:>100}".format(k + " -- " + name.value))
+for name, item in ComparisionMode.__members__.items():
+    print("{:>100}".format(name + " -- " + item.value))
 
 print("(S2 EXP) experiments include:")
-for k, name in EvaluationType.__members__.items():
-    print("{:>100}".format(k + " -- " + name.value))
+for name, item in EvaluationType.__members__.items():
+    print("{:>100}".format(name + " -- " + item.value))
 
-print("(S2 EXP) Path to save files:")
-for k, name in DirSave.__members__.items():
-    print("{:>100}".format(k + " -- " + name.value))
+print("(S2 EXP) Current path:")
+print("{:>100}".format(os.getcwd()))
+
+print("(S2 EXP) Path to save generated files:")
+for _, item in DirSave.__members__.items():
+    print("{:>100}".format(item.value))
 
 print("=" * 100)
 # =================================================================================================

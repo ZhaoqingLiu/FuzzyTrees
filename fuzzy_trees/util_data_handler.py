@@ -19,6 +19,7 @@ Created on Thu Nov 19 11:15:33 2020
         - (potentially) cyclical features
 
 """
+import os
 import numpy as np
 import pandas as pd
 from scipy.io import arff
@@ -30,7 +31,7 @@ from sklearn import datasets
 # ==================================================================================
 
 # Change it to your folder path.
-DATA_FOLDER_PATH = '/data/zhaoqliu/Datasets/'
+DATA_FOLDER_PATH = os.path.abspath(os.path.dirname(os.getcwd())) + '/Datasets/'
 
 
 def load_vehicle():
@@ -153,7 +154,8 @@ def load_wine():
 # Datasets available provided by this module.
 # ==================================================================================
 # Datasets (k: dataset name, v: function for getting data) on which the model is being trained.
-DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle, "German_Credit": load_German_credit, "Diabetes": load_diabetes, "Iris": load_iris, "Wine": load_wine}
+DS_LOAD_FUNC_CLF = {"Iris": load_iris}
+# DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle, "German_Credit": load_German_credit, "Diabetes": load_diabetes, "Iris": load_iris, "Wine": load_wine}
 DS_LOAD_FUNC_REG = {}  # To be set when running regression experiments.
 
 
@@ -178,6 +180,8 @@ def load_data_clf(ds_name):
 
 
 if __name__ == "__main__":
+    print(DATA_FOLDER_PATH)
+
     print('Loading Vehicle')
     data_vehicle = load_vehicle()
     print('Loading Vehicle, shape', data_vehicle.shape)

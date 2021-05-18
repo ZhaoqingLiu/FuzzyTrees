@@ -15,7 +15,7 @@ import pandas as pd
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import KFold
 
-from fuzzy_trees.settings import ComparisionMode, EvaluationType, NUM_CPU_CORES_REQ, FUZZY_STRIDE, FUZZY_LIM
+from fuzzy_trees.settings import ComparisionMode, EvaluationType, NUM_CPU_CORES_REQ, FUZZY_STRIDE, FUZZY_LIM, DirSave
 from fuzzy_trees.fuzzy_decision_tree import FuzzyDecisionTreeClassifier
 from fuzzy_trees.fuzzy_decision_tree_proxy import FuzzificationParams, FuzzyDecisionTreeProxy, CRITERIA_FUNC_CLF, \
     CRITERIA_FUNC_REG
@@ -81,7 +81,7 @@ def search_fuzzy_optimum(comparing_mode):
                                  x_label="Fuzzy threshold",
                                  y_label="Error Rate",
                                  legends=["Train", "Test"],
-                                 f_name=EvaluationType.FUZZY_REG_VS_ACC_ON_CONV_K.value + "_" + comparing_mode.name + "_" + ds_name + ".png")
+                                 fig_name=EvaluationType.FUZZY_REG_VS_ACC_ON_CONV_K.value + "_" + comparing_mode.name + "_" + ds_name + ".png")
 
         # Save the experiment's results into a file.
         res_df = pd.DataFrame()
@@ -90,7 +90,7 @@ def search_fuzzy_optimum(comparing_mode):
             column_names.append("x_{}".format(i))
             column_names.append("y_{}".format(i))
         res_df = pd.DataFrame(data=coordinates, columns=column_names)
-        res_df.to_csv(EvaluationType.FUZZY_REG_VS_ACC_ON_CONV_K.value + "_" + comparing_mode.name + "_" + ds_name + ".csv")
+        res_df.to_csv(DirSave.EVAL_DATA.value + EvaluationType.FUZZY_REG_VS_ACC_ON_CONV_K.value + "_" + comparing_mode.name + "_" + ds_name + ".csv")
 
 
 def search_fuzzy_optimum_on_one_ds(q, comparing_mode, ds_name, fuzzy_th):
