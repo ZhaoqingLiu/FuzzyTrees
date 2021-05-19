@@ -18,9 +18,12 @@ import traceback
 import joblib
 import numpy as np
 import pandas as pd
+import warnings
+warnings.filterwarnings("always")
 from abc import ABCMeta, abstractmethod
 from decimal import Decimal
 
+from deprecated.sphinx import deprecated
 from sklearn.metrics import accuracy_score, balanced_accuracy_score, average_precision_score, brier_score_loss, f1_score
 from sklearn.model_selection import KFold
 
@@ -511,10 +514,10 @@ class FuzzyDecisionTreeProxy(DecisionTreeInterface):
 
         # Calculate the mean of the fitted model's evaluation scores.
         acc_train_mean = np.mean(acc_train_list)
-        err_train_mean = 1 - np.mean(acc_train_list)
+        err_train_mean = 1 - np.abs(np.mean(acc_train_list))
         std_train = np.std(acc_train_list)
         acc_test_mean = np.mean(acc_test_list)
-        err_test_mean = 1 - np.mean(acc_test_list)
+        err_test_mean = 1 - np.abs(np.mean(acc_test_list))
         std_test = np.std(acc_test_list)
         print("    |-- ========================================================================================")
         print("    |-- ({} Child-process) Pretrain a group of classifiers on: {}.".format(curr_pid, ds_name))
@@ -643,7 +646,6 @@ class FuzzyDecisionTreeProxy(DecisionTreeInterface):
                 filename_list = sorted(filename_list)
                 self.df_pretrain = pd.read_csv(DirSave.EVAL_DATA.value + filename_list[-1])
 
-        # q.put([[ds_name, conv_k, fuzzy_reg, acc_train_mean, std_train, acc_test_mean, std_test]])
         assert self.df_pretrain is not None, "Not any data for plotting. Please execute the function pretrain() first."
         # q.put([[ds_name, conv_k, fuzzy_reg, err_train_mean, std_train, err_test_mean, std_test]])
         ds_names = self.df_pretrain["ds_name"].unique()
@@ -654,8 +656,8 @@ class FuzzyDecisionTreeProxy(DecisionTreeInterface):
             for conv_k in conv_ks:
                 df_4_conv_k = df_4_ds_name[df_4_ds_name["conv_k"] == conv_k]
                 df_4_conv_k = df_4_conv_k.sort_values(by="fuzzy_reg", ascending=True)  # ascending is True by default.
-                # df_4_conv_k.round({"fuzzy_reg": 2, "err_train_mean": 2, "err_test_mean": 2})
-                coordinates = df_4_conv_k[["fuzzy_reg", "err_train_mean", "err_test_mean"]].values
+                coordinates = df_4_conv_k[["fuzzy_reg", "err_train_mean", "err_test_mean"]].astype("float").values
+                # print("+++++++++++++++++++++++++++++++++++++++++++++", type(df_4_conv_k["err_train_mean"].values[1]))
                 # x_lower_limit, x_upper_limit = np.min(df_4_conv_k[["fuzzy_reg"]].values), np.max(df_4_conv_k[["fuzzy_reg"]].values)
                 # y_lower_limit = np.min(df_4_conv_k[["err_train_mean"]].values) if np.min(df_4_conv_k[["err_train_mean"]].values) < np.min(df_4_conv_k[["err_test_mean"]].values) else np.min(df_4_conv_k[["err_test_mean"]].values)
                 # y_upper_limit = np.max(df_4_conv_k[["err_train_mean"]].values) if np.max(df_4_conv_k[["err_train_mean"]].values) > np.max(df_4_conv_k[["err_test_mean"]].values) else np.max(df_4_conv_k[["err_test_mean"]].values)
@@ -665,8 +667,6 @@ class FuzzyDecisionTreeProxy(DecisionTreeInterface):
                                  title="Fuzzy Reg Coeff vs Error - conv_k {} - {}".format(conv_k, ds_name),
                                  x_label="Fuzzy Regulation Coefficient",
                                  y_label="Error Rate",
-                                 x_limit=(0.0, 1.0),
-                                 y_limit=(0.0, 1.0),
                                  legends=["Train", "Test"],
                                  fig_name=DirSave.EVAL_FIGURES.value + get_today_str() + "_" + EvaluationType.FUZZY_REG_VS_ERR_ON_CONV_K.value + "_" + str(
                                      conv_k) + "_" + ds_name + ".png")

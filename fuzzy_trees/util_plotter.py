@@ -6,6 +6,11 @@
 """
 import matplotlib.pyplot as plt
 import numpy as np
+import warnings
+warnings.filterwarnings("always")
+
+from deprecated.sphinx import deprecated
+
 
 COLOUR = ["b", "r", "g", "c", "y", "k", "m"]
 
@@ -21,14 +26,18 @@ def plot_multi_lines(coordinates, title=None, x_label=None, y_label=None, x_limi
     Parameters
     ----------
     coordinates: array-like
-        Where, the values (i.e. coordinates[:, 0]) corresponding to the X-axis must be in ascending order.
-    title
-    x_label
-    y_label
-    x_limit
-    y_limit
-    legends
-    fig_name
+        Where, the values (i.e. coordinates[:, 0]) corresponding to the X-axis must be numeric and in ascending order.
+    title: str, default=None
+    x_label: str, default=None
+    y_label: str, default=None
+    x_limit: tuple, default=None
+    y_limit: tuple, default=None
+    legends: array-like, default=None
+    fig_name: str, default=None
+        fig_name is either a text or byte string giving the name (and the
+        path if the file isn't in the current working directory) of the
+        file to be opened or an integer file descriptor of the file to be
+        wrapped.
 
     Returns
     -------
@@ -70,10 +79,10 @@ def plot_multi_lines(coordinates, title=None, x_label=None, y_label=None, x_limi
     plt.title(title)
     plt.xlabel(x_label)
     plt.ylabel(y_label)
-    plt.xlim(x_limit[0], x_limit[1])
-    plt.ylim(y_limit[0], y_limit[1])
-    # plt.xticks(x_ticks)
-    # plt.yticks(y_ticks)
+    plt.xlim(x_limit)
+    plt.ylim(y_limit)
+    plt.xticks(x_ticks)
+    plt.yticks(y_ticks)
 
     # # Set axes.
     # ax = plt.gca()
@@ -96,11 +105,13 @@ def plot_multi_curves_dyn(x_list, y_list, title=None, x_label=None, y_label=None
     pass
 
 
+@deprecated(version='0.1', reason="This function is deprecated.")
 def plot_multi_lines_2(coordinates, title=None, x_label=None, y_label=None, x_limit=None, y_limit=None, legends=None, fig_name=None):
     """
     Plot multiple lines in a figure.
-    !!! NB: To be deleted.
     """
+    warnings.warn("The function plot_multi_lines_2 is deprecated", DeprecationWarning)
+
     # 1st step: Create a figure as a canvas.
     plt.figure()
 
@@ -171,12 +182,19 @@ def plot_multi_lines_2(coordinates, title=None, x_label=None, y_label=None, x_li
     plt.show()
 
 
+@deprecated(version='0.1', reason="This function is deprecated because it has two issues to be fixed: 1. It uses "
+                                  "subplots() to draw multiple plots vertically, and they'll all overlap. Also, "
+                                  "the maximum number of grids of the parameters in subplots() is 8.")
 def plot_multi_lines_subplots(df, title=None, x_label=None, y_label=None, x_limit=None, y_limit=None,
                               x_ticks=None, y_ticks=None, legends=None, f_name=None):
     """
     Plot multiple curves.
-    !!! NB: To be modified because the maximum number of subplots is 8.
+    !!!!!!!! NB: Issues to be fixed:
+            1. Use subplots() to draw multiple plots vertically, and they'll all overlap.
+            2. The maximum number of grids of the parameters in subplots() is 8.
     """
+    warnings.warn("The function plot_multi_lines_subplots is deprecated", DeprecationWarning)
+
     # 1st step: Create a figure as a canvas.
     plt.figure(figsize=(20, 20), dpi=100)
 
