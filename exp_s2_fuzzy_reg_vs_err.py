@@ -34,7 +34,7 @@ if __name__ == '__main__':
     # Create a FDT proxy, and do the pretraining via it.
     clf = FuzzyDecisionTreeProxy(fdt_class=FuzzyDecisionTreeClassifier, disable_fuzzy=False,
                                  fuzzification_params=FuzzificationParams(),
-                                 criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
+                                 criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=10)
     clf.pretrain_fuzzy_clf(ds_name_list=ds_name_list, conv_k_lim=(2, 10, 1), fuzzy_reg_lim=(0.0, 1.0, 0.01))
 
     # Show the fuzzy regulation coefficient versus training error and test error by the FDT proxy.
@@ -44,12 +44,24 @@ if __name__ == '__main__':
     print("Main Process (%s) ended." % os.getpid())
 
     """
-    exp on: ds_name_list = ["Vehicle", "German_Credit", "Diabetes", "Iris", "Wine"], 
-            conv_k_lim=(2, 10, 1), 
-            fuzzy_reg_lim=(0.0, 1.0, 0.01):
-    exp results:
+    1st exp on: 
+        1. Configuration:
+            ds_name_list = ["Vehicle", "German_Credit", "Diabetes", "Iris", "Wine"]
+            conv_k_lim=(2, 10, 1)
+            fuzzy_reg_lim=(0.0, 1.0, 0.01)
+        2. Hyper-parameters of tree:
+            max_depth = 5
+        3. exp results:
             [4545 rows x 7 columns] (909 items/ds)
-    Total elapsed time: 8046.6s
+            Total elapsed time: 8046.6s
+    
+    2nd exp on:
+        1. Configuration:
+            (Same configuration as that of 1st exp.)
+        2.Hyper-parameters of tree:
+            max_depth=10
+        3. exp results:
+            
     """
 
 
