@@ -16,7 +16,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.model_selection import KFold
 
 from fuzzytrees.settings import ComparisionMode, EvaluationType, NUM_CPU_CORES_REQ, FUZZY_STRIDE, FUZZY_LIM, DirSave
-from fuzzytrees.fuzzy_CART import FuzzyDecisionTreeClassifier
+from fuzzytrees.fuzzy_cart import FuzzyCARTClassifier
 from fuzzytrees.fuzzy_decision_tree_wrapper import FuzzificationParams, FuzzyDecisionTreeWrapper, CRITERIA_FUNC_CLF, \
     CRITERIA_FUNC_REG
 from fuzzytrees.fuzzy_gbdt import FuzzyGBDTClassifier
@@ -206,17 +206,17 @@ def exe_by_a_fuzzy_model(comparing_mode, X_train, X_test, y_train, y_test, fuzzi
     clf = None
     if comparing_mode is ComparisionMode.NAIVE:
         # My NDT vs. sklearn NDT
-        clf = FuzzyDecisionTreeWrapper(fdt_class=FuzzyDecisionTreeClassifier, disable_fuzzy=True,
+        clf = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier, disable_fuzzy=True,
                                        fuzzification_params=fuzzification_params,
                                        criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
     elif comparing_mode is ComparisionMode.FF3 or comparing_mode is ComparisionMode.FF4 or comparing_mode is ComparisionMode.FF5:
         # With only Feature Fuzzification vs. NDT
-        clf = FuzzyDecisionTreeWrapper(fdt_class=FuzzyDecisionTreeClassifier, disable_fuzzy=True,
+        clf = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier, disable_fuzzy=True,
                                        fuzzification_params=fuzzification_params,
                                        criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
     elif comparing_mode is ComparisionMode.FUZZY:
         # FDT vs. NDT
-        clf = FuzzyDecisionTreeWrapper(fdt_class=FuzzyDecisionTreeClassifier, disable_fuzzy=False,
+        clf = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier, disable_fuzzy=False,
                                        fuzzification_params=fuzzification_params,
                                        criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
     elif comparing_mode is ComparisionMode.BOOSTING:

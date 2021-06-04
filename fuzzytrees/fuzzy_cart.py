@@ -270,7 +270,7 @@ class FuzzyDecisionTree(metaclass=ABCMeta):
 # Public estimators
 # =============================================================================
 
-class FuzzyDecisionTreeClassifier(FuzzyDecisionTree, DecisionTreeInterface):
+class FuzzyCARTClassifier(FuzzyDecisionTree, DecisionTreeInterface):
     """
     A fuzzy decision tree classifier.
 
@@ -292,7 +292,7 @@ class FuzzyDecisionTreeClassifier(FuzzyDecisionTree, DecisionTreeInterface):
         super().fit(X_train=X_train, y_train=y_train)
 
 
-class FuzzyDecisionTreeRegressor(FuzzyDecisionTree, DecisionTreeInterface):
+class FuzzyCARTRegressor(FuzzyDecisionTree, DecisionTreeInterface):
     """
     A fuzzy CART decision tree regressor.
 

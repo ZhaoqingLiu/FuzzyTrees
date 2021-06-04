@@ -2,20 +2,20 @@
 
 FuzzyTrees is a framework designed for rapidly developing various fuzzy decision tree algorithms.
 
-First, the framework is a supporting architecture for development. Based on this framework, any developer can extend more components according to a particular algorithm to quickly build a complete fuzzy decision tree scheme.
+First, the framework is a supporting architecture for development. Based on this framework, any developer can extend more components according to a particular fuzzy decision tree to quickly build a complete algorithm scheme.
 
 Second, the framework provides protocols for extending components. You can follow a unified set of APIs to develop algorithms that are easy for other developers to understand.
 To easily extend the components, the framework has provided you with a set of supporting and easy-to-use utilities, such as the split metric calculation and split method tools used in ID3, C4.5, and CART algorithms, respectively.
 
-Also, a fuzzy CART algorithm has implemented based on this framework.
+Also, the [fuzzy CART](fuzzytrees/fuzzy_cart.py) and [fuzzy GBDT](fuzzytrees/fuzzy_gbdt.py) algorithm in the project are implemented based on this framework.
 
 Fuzzytrees是一个框架，它为快速开发各种模糊决策树算法而设计。
 
-首先，该框架是一个用于开发的支撑架构。在该框架的基础上，任何开发者都可以根据某个特定的算法去扩展更多的组成部分，从而迅速地构建一个完整的模糊决策树方案。
+首先，该框架是一个用于开发的支撑架构。在该框架的基础上，任何开发者都可以以某个特定的模糊决策树为目标去扩展更多的组成部分，从而迅速地构建一个完整的算法方案。
 
 其次，该框架提供扩展组件的协议。你可遵循一组统一的应用程序接口开发出易于其他开发者理解的算法。为了方便地扩展组件，该框架已经给你提供了一组辅助性、支撑性的方便易用的实用工具，例如分别在ID3, C4.5, 和CART算法中使用的分裂指标计算和分裂方法的工具。
 
-此外，Fuzzytrees已经在该框架基础上实现了一个模糊CART算法。
+此外，项目中的模糊CART和模糊GBDT算法即是在该框架基础上实现的。
 
 
 ## Usage
@@ -25,14 +25,53 @@ Fuzzytrees是一个框架，它为快速开发各种模糊决策树算法而设�
 $ pip install fuzzytrees
 ```
 
-###  Importing dependencies
+###  Importing its dependencies
 ```shell
 $ pip install -r requirements.txt
 ```
 
 ### Using it
 ```python
-from fuzzytrees.fuzzy_decision_tree_wrapper import *
+from fuzzytrees.fuzzy_decision_tree_wrapper import DecisionTreeInterface, CRITERIA_FUNC_CLF, CRITERIA_FUNC_REG, Node, SplitRule, BinarySubtrees
+from fuzzytrees.util_criterion_funcs import calculate_impurity_gain, calculate_value_by_majority_vote, calculate_variance_reduction, calculate_mean, calculate_proba, calculate_impurity_gain_ratio
+from fuzzytrees.util_split_funcs import split_ds_2_bin, split_ds_2_multi, split_disc_ds_2_multi
+```
+
+### Custom your algorithm class
+Taking the classifier class of CART algorithm as an example:
+```python
+class FuzzyCARTClassifier(DecisionTreeInterface):
+    
+    def fit(self, X_train, y_train):
+        self._split_ds_func = split_ds_2_bin
+        self._impurity_gain_calc_func = calculate_impurity_gain
+        self._leaf_value_calc_func = calculate_value_by_majority_vote
+        
+        # Add your code for fitting a tree below.
+
+    def predict(self, X):
+        # Add your code for predicting a set of samples below.
+
+    def print_tree(self, tree=None, indent="  ", delimiter="=>"):
+        # Add your code for printing the fitted tree below.
+```
+
+Taking the regressor class of CART algorithm as an example:
+```python
+class FuzzyCARTRegressor(DecisionTreeInterface):
+    
+    def fit(self, X_train, y_train):
+        self._split_ds_func = split_ds_2_bin
+        self._impurity_gain_calc_func = calculate_variance_reduction
+        self._leaf_value_calc_func = calculate_mean
+        
+        # Add your code for fitting a tree below.
+
+    def predict(self, X):
+        # Add your code for predicting a set of samples below.
+
+    def print_tree(self, tree=None, indent="  ", delimiter="=>"):
+        # Add your code for printing the fitted tree below.
 ```
 
 
