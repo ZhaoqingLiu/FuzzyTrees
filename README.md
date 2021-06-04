@@ -40,8 +40,11 @@ from fuzzytrees.util_split_funcs import split_ds_2_bin, split_ds_2_multi, split_
 ### Custom your algorithm class
 Taking the classifier class of CART algorithm as an example:
 ```python
+# Define a classifier.
 class FuzzyCARTClassifier(DecisionTreeInterface):
     
+    # Add your __init__() here and declare its arguments.
+
     def fit(self, X_train, y_train):
         self._split_ds_func = split_ds_2_bin
         self._impurity_gain_calc_func = calculate_impurity_gain
@@ -54,11 +57,19 @@ class FuzzyCARTClassifier(DecisionTreeInterface):
 
     def print_tree(self, tree=None, indent="  ", delimiter="=>"):
         # Add your code for printing the fitted tree below.
+
+# Use the classifier (You can customise the arguments in your constructor and their default values).
+clf = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier, disable_fuzzy=False,
+                               fuzzification_params=fuzzification_params,
+                               criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
 ```
 
 Taking the regressor class of CART algorithm as an example:
 ```python
+# Define a regressor.
 class FuzzyCARTRegressor(DecisionTreeInterface):
+    
+    # Add your __init__() here and declare its arguments.
     
     def fit(self, X_train, y_train):
         self._split_ds_func = split_ds_2_bin
@@ -72,6 +83,11 @@ class FuzzyCARTRegressor(DecisionTreeInterface):
 
     def print_tree(self, tree=None, indent="  ", delimiter="=>"):
         # Add your code for printing the fitted tree below.
+
+# Use the regressor (You can customise the arguments in your constructor and their default values).
+reg = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTRegressor, disable_fuzzy=False,
+                               fuzzification_params=fuzzification_params,
+                               criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
 ```
 
 

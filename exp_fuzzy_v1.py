@@ -24,8 +24,8 @@ from sklearn.model_selection import train_test_split, KFold
 from sklearn.tree import DecisionTreeClassifier
 
 from fuzzytrees.fuzzy_gbdt import FuzzyGBDTClassifier
-from fuzzytrees.fuzzy_decision_tree_wrapper import FuzzyDecisionTreeClassifierAPI, FuzzyDecisionTreeRegressorAPI, \
-    CRITERIA_FUNC_CLF, CRITERIA_FUNC_REG, FuzzificationParams
+from fuzzytrees.fuzzy_decision_tree_wrapper import FuzzyDecisionTreeWrapper, CRITERIA_FUNC_CLF, CRITERIA_FUNC_REG, \
+    FuzzificationParams
 from fuzzytrees.fuzzy_cart import FuzzyCARTClassifier, FuzzyCARTRegressor
 from fuzzytrees.util_criterion_funcs import calculate_mse, calculate_mae
 from fuzzytrees.util_data_processing_funcs import extract_fuzzy_features
@@ -115,17 +115,21 @@ def get_exp_results_clf(X, y, comparing_mode=ComparisionMode.FUZZY):
 
             # Using a fuzzy decision tree. =============================================================================
             X_train, X_test = X_plus_dms[train_index], X_plus_dms[test_index]
-            accuracy = use_fuzzy_trees(comparing_mode=comparing_mode, X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test, fuzzification_params=fuzzification_params)
+            accuracy = use_fuzzy_trees(comparing_mode=comparing_mode, X_train=X_train, X_test=X_test, y_train=y_train,
+                                       y_test=y_test, fuzzification_params=fuzzification_params)
             fuzzy_accuracy_list.append(accuracy)
 
             # Using a naive decision tree. =============================================================================
             X_train, X_test = X[train_index], X[test_index]
-            accuracy = use_naive_trees(comparing_mode=comparing_mode, X_train=X_train, X_test=X_test, y_train=y_train, y_test=y_test)
+            accuracy = use_naive_trees(comparing_mode=comparing_mode, X_train=X_train, X_test=X_test, y_train=y_train,
+                                       y_test=y_test)
             naive_accuracy_list.append(accuracy)
 
     print("========================================================================================")
-    print(comparing_mode.value, "-FDT's mean accuracy:", np.mean(fuzzy_accuracy_list), "   std:", np.std(fuzzy_accuracy_list))
-    print(comparing_mode.value, "-NDT's mean accuracy:", np.mean(naive_accuracy_list), "   std:", np.std(naive_accuracy_list))
+    print(comparing_mode.value, "-FDT's mean accuracy:", np.mean(fuzzy_accuracy_list), "   std:",
+          np.std(fuzzy_accuracy_list))
+    print(comparing_mode.value, "-NDT's mean accuracy:", np.mean(naive_accuracy_list), "   std:",
+          np.std(naive_accuracy_list))
     print("========================================================================================")
 
     return fuzzy_accuracy_list, naive_accuracy_list
@@ -137,19 +141,19 @@ def use_fuzzy_trees(comparing_mode, X_train, X_test, y_train, y_test, fuzzificat
     clf = None
     if comparing_mode is ComparisionMode.NAIVE:
         # My NDT vs. sklearn NDT
-        clf = FuzzyDecisionTreeClassifierAPI(fdt_class=FuzzyCARTClassifier, disable_fuzzy=True,
-                                             fuzzification_params=fuzzification_params,
-                                             criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
+        clf = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier, disable_fuzzy=True,
+                                       fuzzification_params=fuzzification_params,
+                                       criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
     elif comparing_mode is ComparisionMode.FF3 or comparing_mode is ComparisionMode.FF4 or comparing_mode is ComparisionMode.FF5:
         # With only Feature Fuzzification vs. NDT
-        clf = FuzzyDecisionTreeClassifierAPI(fdt_class=FuzzyCARTClassifier, disable_fuzzy=True,
-                                             fuzzification_params=fuzzification_params,
-                                             criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
+        clf = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier, disable_fuzzy=True,
+                                       fuzzification_params=fuzzification_params,
+                                       criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
     elif comparing_mode is ComparisionMode.FUZZY:
         # FDT vs. NDT
-        clf = FuzzyDecisionTreeClassifierAPI(fdt_class=FuzzyCARTClassifier, disable_fuzzy=False,
-                                             fuzzification_params=fuzzification_params,
-                                             criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
+        clf = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier, disable_fuzzy=False,
+                                       fuzzification_params=fuzzification_params,
+                                       criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
     elif comparing_mode is ComparisionMode.BOOSTING:
         # Gradient boosting FDT vs. Gradient boosting NDT
         clf = FuzzyGBDTClassifier(disable_fuzzy=False, fuzzification_params=fuzzification_params,
@@ -181,12 +185,12 @@ def use_naive_trees(comparing_mode, X_train, X_test, y_train, y_test):
         clf = DecisionTreeClassifier(criterion="gini", max_depth=5)
     elif comparing_mode is ComparisionMode.FF3 or comparing_mode is ComparisionMode.FF4 or comparing_mode is ComparisionMode.FF5:
         # With only Feature Fuzzification vs. NDT
-        clf = FuzzyDecisionTreeClassifierAPI(fdt_class=FuzzyCARTClassifier, disable_fuzzy=True,
-                                             criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
+        clf = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier, disable_fuzzy=True,
+                                       criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
     elif comparing_mode is ComparisionMode.FUZZY:
         # FDT vs. NDT
-        clf = FuzzyDecisionTreeClassifierAPI(fdt_class=FuzzyCARTClassifier, disable_fuzzy=True,
-                                             criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
+        clf = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier, disable_fuzzy=True,
+                                       criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
     elif comparing_mode is ComparisionMode.BOOSTING:
         # Gradient boosting FDT vs. Gradient boosting NDT
         clf = FuzzyGBDTClassifier(disable_fuzzy=True, criterion_func=CRITERIA_FUNC_REG["mse"], learning_rate=0.1,
@@ -216,7 +220,7 @@ def exp_regression():
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
 
     # fuzzy_model = FuzzyDecisionTreeRegressor()
-    fuzzy_model = FuzzyDecisionTreeRegressorAPI(fdt_class=FuzzyCARTRegressor)
+    fuzzy_model = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTRegressor)
     fuzzy_model.fit(X_train, y_train)
     # fuzzy_model.print_tree()
     y_pred = fuzzy_model.predict(X_test)
@@ -473,6 +477,3 @@ if __name__ == "__main__":
     # print("entropy:", entropy)
     # gini = calculate_gini(y)
     # print("gini:", gini)
-
-
-
