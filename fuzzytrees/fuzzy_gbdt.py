@@ -8,10 +8,10 @@
 from abc import ABCMeta
 import numpy as np
 
-from fuzzy_trees.fuzzy_decision_tree import FuzzyDecisionTreeRegressor
-from fuzzy_trees.fuzzy_decision_tree_proxy import CRITERIA_FUNC_REG, CRITERIA_FUNC_CLF, FuzzyDecisionTreeProxy
-from fuzzy_trees.util_criterion_funcs import LeastSquaresFunction, SoftLeastSquaresFunction
-from fuzzy_trees.util_data_processing_funcs import one_hot_encode
+from fuzzytrees.fuzzy_CART import FuzzyDecisionTreeRegressor
+from fuzzytrees.fuzzy_decision_tree_wrapper import CRITERIA_FUNC_REG, CRITERIA_FUNC_CLF, FuzzyDecisionTreeWrapper
+from fuzzytrees.util_criterion_funcs import LeastSquaresFunction, SoftLeastSquaresFunction
+from fuzzytrees.util_data_processing_funcs import one_hot_encode
 
 
 class FuzzyGBDT(metaclass=ABCMeta):
@@ -60,12 +60,12 @@ class FuzzyGBDT(metaclass=ABCMeta):
             #                                criterion_func=self.criterion_func, max_depth=self.max_depth,
             #                                min_samples_split=self.min_samples_split,
             #                                min_impurity_split=self.min_impurity_split))
-            estimator = FuzzyDecisionTreeProxy(fdt_class=FuzzyDecisionTreeRegressor,
-                                               disable_fuzzy=disable_fuzzy,
-                                               fuzzification_params=fuzzification_params,
-                                               criterion_func=criterion_func, max_depth=max_depth,
-                                               min_samples_split=min_samples_split,
-                                               min_impurity_split=min_impurity_split)
+            estimator = FuzzyDecisionTreeWrapper(fdt_class=FuzzyDecisionTreeRegressor,
+                                                 disable_fuzzy=disable_fuzzy,
+                                                 fuzzification_params=fuzzification_params,
+                                                 criterion_func=criterion_func, max_depth=max_depth,
+                                                 min_samples_split=min_samples_split,
+                                                 min_impurity_split=min_impurity_split)
             self._estimators.append(estimator)
 
     def fit(self, X_train, y_train):

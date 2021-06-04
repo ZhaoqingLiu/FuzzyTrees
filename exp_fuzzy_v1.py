@@ -23,13 +23,13 @@ import pandas as pd
 from sklearn.model_selection import train_test_split, KFold
 from sklearn.tree import DecisionTreeClassifier
 
-from fuzzy_trees.fuzzy_gbdt import FuzzyGBDTClassifier
-from fuzzy_trees.fuzzy_decision_tree_proxy import FuzzyDecisionTreeClassifierAPI, FuzzyDecisionTreeRegressorAPI, \
+from fuzzytrees.fuzzy_gbdt import FuzzyGBDTClassifier
+from fuzzytrees.fuzzy_decision_tree_wrapper import FuzzyDecisionTreeClassifierAPI, FuzzyDecisionTreeRegressorAPI, \
     CRITERIA_FUNC_CLF, CRITERIA_FUNC_REG, FuzzificationParams
-from fuzzy_trees.fuzzy_decision_tree import FuzzyDecisionTreeClassifier, FuzzyDecisionTreeRegressor
-from fuzzy_trees.util_criterion_funcs import calculate_mse, calculate_mae
-from fuzzy_trees.util_data_processing_funcs import extract_fuzzy_features
-import fuzzy_trees.util_data_handler as dh
+from fuzzytrees.fuzzy_CART import FuzzyDecisionTreeClassifier, FuzzyDecisionTreeRegressor
+from fuzzytrees.util_criterion_funcs import calculate_mse, calculate_mae
+from fuzzytrees.util_data_processing_funcs import extract_fuzzy_features
+import fuzzytrees.util_data_handler as dh
 
 
 class ComparisionMode(Enum):

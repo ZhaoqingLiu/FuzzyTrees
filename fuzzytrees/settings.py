@@ -7,7 +7,7 @@
 import multiprocessing
 import os
 from enum import Enum
-from fuzzy_trees.util_data_handler import *
+from fuzzytrees.util_data_handler import *
 
 
 # =============================================================================

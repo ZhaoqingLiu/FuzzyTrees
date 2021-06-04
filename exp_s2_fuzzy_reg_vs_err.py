@@ -14,12 +14,12 @@ import pandas as pd
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import KFold
 
-from fuzzy_trees.fuzzy_decision_tree import FuzzyDecisionTreeClassifier
-from fuzzy_trees.fuzzy_decision_tree_proxy import FuzzificationParams, FuzzyDecisionTreeProxy, CRITERIA_FUNC_CLF, \
+from fuzzytrees.fuzzy_CART import FuzzyDecisionTreeClassifier
+from fuzzytrees.fuzzy_decision_tree_wrapper import FuzzificationParams, FuzzyDecisionTreeWrapper, CRITERIA_FUNC_CLF, \
     CRITERIA_FUNC_REG
-from fuzzy_trees.fuzzy_gbdt import FuzzyGBDTClassifier
-from fuzzy_trees.util_data_processing_funcs import extract_fuzzy_features
-import fuzzy_trees.util_plotter as plotter
+from fuzzytrees.fuzzy_gbdt import FuzzyGBDTClassifier
+from fuzzytrees.util_data_processing_funcs import extract_fuzzy_features
+import fuzzytrees.util_plotter as plotter
 
 
 if __name__ == '__main__':
@@ -32,9 +32,9 @@ if __name__ == '__main__':
     # ds_name_list = ["Iris"]
 
     # Create a FDT proxy, and do the pretraining via it.
-    clf = FuzzyDecisionTreeProxy(fdt_class=FuzzyDecisionTreeClassifier, disable_fuzzy=False,
-                                 fuzzification_params=FuzzificationParams(),
-                                 criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=10)
+    clf = FuzzyDecisionTreeWrapper(fdt_class=FuzzyDecisionTreeClassifier, disable_fuzzy=False,
+                                   fuzzification_params=FuzzificationParams(),
+                                   criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=10)
     clf.pretrain_fuzzy_clf(ds_name_list=ds_name_list, conv_k_lim=(2, 10, 1), fuzzy_reg_lim=(0.0, 1.0, 0.01))
 
     # Show the fuzzy regulation coefficient versus training error and test error by the FDT proxy.

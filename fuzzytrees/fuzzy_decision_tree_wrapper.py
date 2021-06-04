@@ -27,13 +27,13 @@ from deprecated.sphinx import deprecated
 from sklearn.metrics import accuracy_score, balanced_accuracy_score, average_precision_score, brier_score_loss, f1_score
 from sklearn.model_selection import KFold
 
-from fuzzy_trees.settings import NUM_CPU_CORES_REQ, DirSave, EvaluationType, NUM_GRP_MDLS
-from fuzzy_trees.util_comm import get_timestamp_str, get_today_str
-from fuzzy_trees.util_criterion_funcs import calculate_entropy, calculate_gini, calculate_variance, \
+from fuzzytrees.settings import NUM_CPU_CORES_REQ, DirSave, EvaluationType, NUM_GRP_MDLS
+from fuzzytrees.util_comm import get_timestamp_str, get_today_str
+from fuzzytrees.util_criterion_funcs import calculate_entropy, calculate_gini, calculate_variance, \
     calculate_standard_deviation
-from fuzzy_trees.util_data_handler import load_data_clf
-from fuzzy_trees.util_data_processing_funcs import extract_fuzzy_features
-from fuzzy_trees.util_plotter import plot_multi_lines, plot_multi_lines_subplots
+from fuzzytrees.util_data_handler import load_data_clf
+from fuzzytrees.util_data_processing_funcs import extract_fuzzy_features
+from fuzzytrees.util_plotter import plot_multi_lines, plot_multi_lines_subplots
 
 # =============================================================================
 # Types and constants
@@ -201,13 +201,13 @@ class DecisionTreeInterface(metaclass=ABCMeta):
 
 
 # =============================================================================
-# Public proxy class for different decision trees
+# Public wrapper class for different decision trees
 # =============================================================================
 
 
-class FuzzyDecisionTreeProxy(DecisionTreeInterface):
+class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
     """
-    Proxy class for different decision trees.
+    Wrapper class for different decision trees.
 
     NB: The role of this class is to unify the external calls of different
     decision tree classes and implement dependency injection for those

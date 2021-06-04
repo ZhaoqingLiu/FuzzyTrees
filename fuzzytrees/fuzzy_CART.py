@@ -8,11 +8,11 @@
 from abc import ABCMeta
 import numpy as np
 
-from fuzzy_trees.fuzzy_decision_tree_proxy import DecisionTreeInterface, CRITERIA_FUNC_CLF, Node, SplitRule, BinarySubtrees, \
+from fuzzytrees.fuzzy_decision_tree_wrapper import DecisionTreeInterface, CRITERIA_FUNC_CLF, Node, SplitRule, BinarySubtrees, \
     CRITERIA_FUNC_REG
-from fuzzy_trees.util_criterion_funcs import calculate_impurity_gain, calculate_value_by_majority_vote, \
+from fuzzytrees.util_criterion_funcs import calculate_impurity_gain, calculate_value_by_majority_vote, \
     calculate_variance_reduction, calculate_mean, calculate_proba, calculate_impurity_gain_ratio
-from fuzzy_trees.util_split_funcs import split_ds_2_bin, split_ds_2_multi, split_disc_ds_2_multi
+from fuzzytrees.util_split_funcs import split_ds_2_bin, split_ds_2_multi, split_disc_ds_2_multi
 
 
 # =============================================================================
