@@ -60,7 +60,6 @@ class FuzzyCARTClassifier(DecisionTreeInterface):
 
 # Use the classifier (You can customise the arguments in your constructor and their default values).
 clf = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier, disable_fuzzy=False,
-                               fuzzification_params=fuzzification_params,
                                criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
 
 # Fit a tree.
@@ -95,8 +94,7 @@ class FuzzyCARTRegressor(DecisionTreeInterface):
 
 # Use the regressor (You can customise the arguments in your constructor and their default values).
 reg = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTRegressor, disable_fuzzy=False,
-                               fuzzification_params=fuzzification_params,
-                               criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
+                               criterion_func=CRITERIA_FUNC_REG["mse"], max_depth=5)
 
 # Fit a tree.
 reg.fit(X_train, y_train)
