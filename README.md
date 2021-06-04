@@ -18,7 +18,7 @@ Fuzzytrees是一个框架，它为快速开发各种模糊决策树算法而设�
 此外，项目中的模糊CART和模糊GBDT算法即是在该框架基础上实现的。
 
 
-## Usage
+## Usage example for development
 
 ###  Getting it
 ```shell
