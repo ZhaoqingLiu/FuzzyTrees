@@ -62,6 +62,15 @@ class FuzzyCARTClassifier(DecisionTreeInterface):
 clf = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier, disable_fuzzy=False,
                                fuzzification_params=fuzzification_params,
                                criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
+
+# Fit a tree.
+clf.fit(X_train, y_train)
+
+# Printing the fitted tree.
+clf.print_tree()
+
+# Predict a set of samples.
+y_pred = clf.predict(X_test)
 ```
 
 Taking the regressor class of CART algorithm as an example:
@@ -88,6 +97,15 @@ class FuzzyCARTRegressor(DecisionTreeInterface):
 reg = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTRegressor, disable_fuzzy=False,
                                fuzzification_params=fuzzification_params,
                                criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
+
+# Fit a tree.
+reg.fit(X_train, y_train)
+
+# Printing the fitted tree.
+reg.print_tree()
+
+# Predict a set of samples.
+y_pred = reg.predict(X_test)
 ```
 
 
