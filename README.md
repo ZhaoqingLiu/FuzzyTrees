@@ -17,7 +17,7 @@ Also, the [fuzzy CART](fuzzytrees/fdt_base.py) and [fuzzy GBDT](fuzzytrees/fgbdt
 $ pip install fuzzytrees
 ```
 
-###  Importing its dependencies
+###  Importing dependencies
 ```shell
 $ pip install -r requirements.txt
 ```
