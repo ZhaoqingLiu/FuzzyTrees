@@ -4,22 +4,10 @@
 @date  : 21/4/21 11:29 am
 @desc  :
 """
-import multiprocessing
 import os
 import time
-from decimal import Decimal
-
-import numpy as np
-import pandas as pd
-from sklearn.metrics import accuracy_score
-from sklearn.model_selection import KFold
-
-from fuzzytrees.fuzzy_cart import FuzzyCARTClassifier
-from fuzzytrees.fuzzy_decision_tree_wrapper import FuzzificationParams, FuzzyDecisionTreeWrapper, CRITERIA_FUNC_CLF, \
-    CRITERIA_FUNC_REG
-from fuzzytrees.fuzzy_gbdt import FuzzyGBDTClassifier
-from fuzzytrees.util_data_processing_funcs import extract_fuzzy_features
-import fuzzytrees.util_plotter as plotter
+from fuzzytrees.fdt_base import FuzzyDecisionTreeWrapper, FuzzificationParams, CRITERIA_FUNC_CLF
+from fuzzytrees.fdts import FuzzyCARTClassifier
 
 
 if __name__ == '__main__':
@@ -35,7 +23,7 @@ if __name__ == '__main__':
     clf = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier, disable_fuzzy=False,
                                    fuzzification_params=FuzzificationParams(),
                                    criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=10)
-    clf.pretrain_fuzzy_clf(ds_name_list=ds_name_list, conv_k_lim=(2, 10, 1), fuzzy_reg_lim=(0.0, 1.0, 0.01))
+    clf.search_fuzzy_params_4_clf(ds_name_list=ds_name_list, conv_k_lim=(2, 10, 1), fuzzy_reg_lim=(0.0, 1.0, 0.01))
 
     # Show the fuzzy regulation coefficient versus training error and test error by the FDT proxy.
     clf.plot_fuzzy_reg_vs_err()

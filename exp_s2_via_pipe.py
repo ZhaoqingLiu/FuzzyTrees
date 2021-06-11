@@ -12,11 +12,10 @@ import numpy as np
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import KFold
 
+from fuzzytrees.fdt_base import FuzzificationParams, FuzzyDecisionTreeWrapper, CRITERIA_FUNC_CLF, CRITERIA_FUNC_REG
+from fuzzytrees.fdts import FuzzyCARTClassifier
 from fuzzytrees.settings import ComparisionMode, NUM_CPU_CORES_REQ, DS_LOAD_FUNC_CLF, FUZZY_STRIDE
-from fuzzytrees.fuzzy_cart import FuzzyCARTClassifier
-from fuzzytrees.fuzzy_decision_tree_wrapper import FuzzificationParams, FuzzyDecisionTreeWrapper, CRITERIA_FUNC_CLF, \
-    CRITERIA_FUNC_REG
-from fuzzytrees.fuzzy_gbdt import FuzzyGBDTClassifier
+from fuzzytrees.fgbdt import FuzzyGBDTClassifier
 from fuzzytrees.util_data_processing_funcs import extract_fuzzy_features
 import fuzzytrees.util_plotter as plotter
 

@@ -7,9 +7,8 @@
 """
 from abc import ABCMeta
 import numpy as np
-
-from fuzzytrees.fuzzy_cart import FuzzyCARTRegressor
-from fuzzytrees.fuzzy_decision_tree_wrapper import CRITERIA_FUNC_REG, CRITERIA_FUNC_CLF, FuzzyDecisionTreeWrapper
+from fuzzytrees.fdt_base import FuzzyDecisionTreeWrapper, CRITERIA_FUNC_REG
+from fuzzytrees.fdts import FuzzyCARTRegressor
 from fuzzytrees.util_criterion_funcs import LeastSquaresFunction, SoftLeastSquaresFunction
 from fuzzytrees.util_data_processing_funcs import one_hot_encode
 

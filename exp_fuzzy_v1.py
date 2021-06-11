@@ -12,7 +12,6 @@ TODO:
         What the requirements of citation? e.g. We first consider the simple task of mushroom edibility prediction (Dua and Graff 2017), and Rossmann Store Sales (Kaggle 2019b).
     4. Upgrade program from Python to Cython to speed up the algorithms. (See 005_cython in project Machine-Learning-Algorithms)
 """
-import profile
 import time
 from enum import Enum
 
@@ -23,10 +22,9 @@ import pandas as pd
 from sklearn.model_selection import train_test_split, KFold
 from sklearn.tree import DecisionTreeClassifier
 
-from fuzzytrees.fuzzy_gbdt import FuzzyGBDTClassifier
-from fuzzytrees.fuzzy_decision_tree_wrapper import FuzzyDecisionTreeWrapper, CRITERIA_FUNC_CLF, CRITERIA_FUNC_REG, \
-    FuzzificationParams
-from fuzzytrees.fuzzy_cart import FuzzyCARTClassifier, FuzzyCARTRegressor
+from fuzzytrees.fdt_base import FuzzificationParams, FuzzyDecisionTreeWrapper, CRITERIA_FUNC_CLF, CRITERIA_FUNC_REG
+from fuzzytrees.fdts import FuzzyCARTClassifier, FuzzyCARTRegressor
+from fuzzytrees.fgbdt import FuzzyGBDTClassifier
 from fuzzytrees.util_criterion_funcs import calculate_mse, calculate_mae
 from fuzzytrees.util_data_processing_funcs import extract_fuzzy_features
 import fuzzytrees.util_data_handler as dh
