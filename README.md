@@ -131,7 +131,7 @@ Taking the regressor class of CART algorithm as an example:
 from fuzzytrees.fdt_base import FuzzificationParams, FuzzyDecisionTreeWrapper, CRITERIA_FUNC_REG
 from fuzzytrees.fdts import FuzzyCARTRegressor
 from fuzzytrees.util_data_processing_funcs import extract_fuzzy_features
-from fuzzytrees.util_criterion_funcs import calculate_mse
+from fuzzytrees.util_criterion_funcs import calculate_mse, calculate_mae
 from sklearn import datasets
 from sklearn.model_selection import KFold
 import numpy as np
@@ -173,10 +173,12 @@ for train_index, test_index in kf.split(X):
     # 5.1. Evaluate the fuzzy estimator.
     y_pred_f = freg.predict(X_test_f)
     mse_f = calculate_mse(y_test, y_pred_f)
+    mae_f = calculate_mae(y_test, y_pred_f)
     
     # 5.2. Evaluate the non-fuzzy estimator.
     y_pred = reg.predict(X_test)
     mse = calculate_mse(y_test, y_pred)
+    mae = calculate_mae(y_test, y_pred)
     
     # 5.3. Do your other evaluations.
 ```
