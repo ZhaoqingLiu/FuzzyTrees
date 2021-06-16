@@ -16,11 +16,13 @@ import time
 from enum import Enum
 
 from sklearn import datasets
-from sklearn.metrics import accuracy_score, r2_score
+from sklearn.metrics import accuracy_score, r2_score, confusion_matrix, precision_score, recall_score, f1_score, \
+    roc_auc_score, roc_curve, mean_squared_error
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split, KFold
 from sklearn.tree import DecisionTreeClassifier
+import matplotlib.pyplot as plt
 
 from fuzzytrees.fdt_base import FuzzificationParams, FuzzyDecisionTreeWrapper, CRITERIA_FUNC_CLF, CRITERIA_FUNC_REG
 from fuzzytrees.fdts import FuzzyCARTClassifier, FuzzyCARTRegressor
@@ -210,24 +212,45 @@ def use_naive_trees(comparing_mode, X_train, X_test, y_train, y_test):
 
 
 def exp_regression():
-    data = datasets.load_boston()
+    X, y = datasets.load_boston(return_X_y=True)
     # data = datasets.load_diabetes()
     # data = datasets.load_linnerud()
-    X = data.data
-    y = data.target
+    fuzzification_params = FuzzificationParams(conv_k=5)
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
 
     # fuzzy_model = FuzzyDecisionTreeRegressor()
-    fuzzy_model = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTRegressor)
-    fuzzy_model.fit(X_train, y_train)
+    freg = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTRegressor, disable_fuzzy=False,
+                                    fuzzification_params=fuzzification_params,
+                                    criterion_func=CRITERIA_FUNC_REG["mse"], max_depth=5)
+    freg.fit(X_train, y_train)
     # fuzzy_model.print_tree()
-    y_pred = fuzzy_model.predict(X_test)
+    y_pred = freg.predict(X_test)
 
     print("========================================================================================")
-    print("r2_score:", r2_score(y_test, y_pred))
+    # print("r2_score:", r2_score(y_test, y_pred))
     print("MSE:", calculate_mse(y_test, y_pred))
+    print("MSE:", mean_squared_error(y_test, y_pred))
     print("MAE:", calculate_mae(y_test, y_pred))
     print("========================================================================================")
+
+    # # 5. Evaluate the trained estimators.
+    # h = freg.predict(X_test)
+    # for item in h:
+    #     if item == 0:
+    #         print(item)
+    # h1 = freg.predict_proba(X_test)
+    # for item in h1:
+    #     if item == 0:
+    #         print(item)
+    #
+    # print("The confusion matrix is:\n", confusion_matrix(y_true=y_test, y_pred=h))
+    # print("Precision is:\n", precision_score(y_true=y_test, y_pred=h))
+    # print("Recall is:\n", recall_score(y_true=y_test, y_pred=h))
+    # print("F1 score is:\n", f1_score(y_true=y_test, y_pred=h))
+    # print('AUC is"\n', roc_auc_score(y_true=y_test, y_score=h1[:, -1]))
+    # a, b, c = roc_curve(y_true=y_test, y_score=h1[:, -1])
+    # plt.plot(a, b)
+    # plt.show()
 
 
 def load_dataset_classification():
@@ -376,9 +399,9 @@ if __name__ == "__main__":
     # exec_exp_clf(ComparisionMode.FUZZY)
     # print("Elapsed time: {:.5}s".format(time.time() - time_start))
 
-    time_start = time.time()
-    exec_exp_clf(ComparisionMode.BOOSTING)
-    print("Elapsed time: {:.5}s".format(time.time() - time_start))
+    # time_start = time.time()
+    # exec_exp_clf(ComparisionMode.BOOSTING)
+    # print("Elapsed time: {:.5}s".format(time.time() - time_start))
 
     # time_start = time.time()
     # exec_exp_clf(ComparisionMode.MIXED)
@@ -403,7 +426,7 @@ if __name__ == "__main__":
 
     # Single experiment approach ===============================================
     # exp_classification()
-    # exp_regression()
+    exp_regression()
 
     # dataset = datasets.load_iris()
     # print(dataset.keys())

@@ -186,6 +186,10 @@ class DecisionTreeInterface(metaclass=ABCMeta):
         pass
 
     @abstractmethod
+    def predict_proba(self, X):
+        pass
+
+    @abstractmethod
     def print_tree(self, tree=None, indent="  ", delimiter="=>"):
         pass
 
@@ -916,6 +920,25 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
         """
         try:
             return self.estimator.predict(X)
+        except Exception as e:
+            print(traceback.format_exc())
+
+    def predict_proba(self, X):
+        """
+        Predict the probabilities of the target values of the input samples X.
+
+        Parameters:
+        -----------
+        X: {array-like, sparse matrix} of shape (n_samples, n_features)
+            The input samples to be predicted.
+
+        Returns
+        -------
+        pred_y: list of n_outputs such arrays if n_outputs > 1
+            The probabilities of the target values of the input samples.
+        """
+        try:
+            return self.estimator.predict_proba(X)
         except Exception as e:
             print(traceback.format_exc())
 

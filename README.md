@@ -71,7 +71,7 @@ class FuzzyCARTRegressor(BaseFuzzyDecisionTree, DecisionTreeInterface):
 ### Using it
 Taking the classifier class of CART algorithm as an example:
 ```python
-from fuzzytrees.fdt_base import FuzzyDecisionTreeWrapper, CRITERIA_FUNC_CLF
+from fuzzytrees.fdt_base import FuzzificationParams, FuzzyDecisionTreeWrapper, CRITERIA_FUNC_CLF
 from fuzzytrees.fdts import FuzzyCARTClassifier
 from fuzzytrees.util_data_processing_funcs import extract_fuzzy_features
 from sklearn import datasets
@@ -85,11 +85,13 @@ X = data.iloc[:, :-1].values
 y = data.iloc[:, -1:].values
 
 # 2. Preprocessing data.
-# 2.1. Do your data preprocessing, including identifying feature values and target values, processing missing values, etc.
-# 2.2. Do fuzzification preprocessing.
+# 2.1. Do fuzzification preprocessing.
 X_fuzzy_pre = X.copy()
 X_dms = extract_fuzzy_features(X_fuzzy_pre, conv_k=5)
 X_plus_dms = np.concatenate((X, X_dms), axis=1)
+fuzzification_params = FuzzificationParams(conv_k=5)
+
+# 2.2. Do your other data preprocessing, e.g. identifying feature values and target values, processing missing values, etc.
 
 # 3. Partitioning datasets.
 kf = KFold(n_splits=10, random_state=i, shuffle=True)
@@ -101,7 +103,8 @@ for train_index, test_index in kf.split(X):
     # 4. Machine learning.
     # 4.1. Using a fuzzy classifier (You can customise the arguments in your constructor and their default values).
     fclf = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier, disable_fuzzy=False, 
-                                   criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
+                                    fuzzification_params=fuzzification_params,
+                                    criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
     fclf.fit(X_train_f, y_train)
     fclf.print_tree()
     
@@ -119,29 +122,31 @@ for train_index, test_index in kf.split(X):
     # 5.2. Evaluate the non-fuzzy estimator.
     y_pred = clf.predict(X_test)
     acc = accuracy_score(y_test, y_pred)
+    
+    # 5.3. Do your other evaluations.
 ```
 
 Taking the regressor class of CART algorithm as an example:
 ```python
-from fuzzytrees.fdt_base import FuzzyDecisionTreeWrapper, CRITERIA_FUNC_REG
+from fuzzytrees.fdt_base import FuzzificationParams, FuzzyDecisionTreeWrapper, CRITERIA_FUNC_REG
 from fuzzytrees.fdts import FuzzyCARTRegressor
 from fuzzytrees.util_data_processing_funcs import extract_fuzzy_features
+from fuzzytrees.util_criterion_funcs import calculate_mse
 from sklearn import datasets
 from sklearn.model_selection import KFold
-from sklearn.metrics import accuracy_score
 import numpy as np
 
 # 1. Getting data.
-data = datasets.load_iris(as_frame=True).frame
-X = data.iloc[:, :-1].values
-y = data.iloc[:, -1:].values
+X, y = datasets.load_boston(return_X_y=True)
 
 # 2. Preprocessing data.
-# 2.1. Do your data preprocessing, including identifying feature values and target values, processing missing values, etc.
-# 2.2. Do fuzzification preprocessing.
+# 2.1. Do fuzzification preprocessing.
 X_fuzzy_pre = X.copy()
 X_dms = extract_fuzzy_features(X_fuzzy_pre, conv_k=5)
 X_plus_dms = np.concatenate((X, X_dms), axis=1)
+fuzzification_params = FuzzificationParams(conv_k=5)
+
+# 2.2. Do your other data preprocessing, e.g. identifying feature values and target values, processing missing values, etc.
 
 # 3. Partitioning datasets.
 kf = KFold(n_splits=10, random_state=i, shuffle=True)
@@ -153,24 +158,27 @@ for train_index, test_index in kf.split(X):
     # 4. Machine learning.
     # 4.1. Using a fuzzy regressor (You can customise the arguments in your constructor and their default values).
     freg = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTRegressor, disable_fuzzy=False,
+                                    fuzzification_params=fuzzification_params,
                                     criterion_func=CRITERIA_FUNC_REG["mse"], max_depth=5)
     freg.fit(X_train_f, y_train)
     freg.print_tree()
     
     # 4.2. Using a non-fuzzy regressor (You can customise the arguments in your constructor and their default values).
     reg = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTRegressor, disable_fuzzy=True,
-                                   criterion_func=FuzzyCARTRegressor["gini"], max_depth=5)
+                                   criterion_func=CRITERIA_FUNC_REG["mse"], max_depth=5)
     reg.fit(X_train, y_train)
     reg.print_tree()
     
     # 5. Evaluate the trained estimators.
     # 5.1. Evaluate the fuzzy estimator.
     y_pred_f = freg.predict(X_test_f)
-    acc_f = accuracy_score(y_test, y_pred_f)
+    mse_f = calculate_mse(y_test, y_pred_f)
     
     # 5.2. Evaluate the non-fuzzy estimator.
     y_pred = reg.predict(X_test)
-    acc = accuracy_score(y_test, y_pred)
+    mse = calculate_mse(y_test, y_pred)
+    
+    # 5.3. Do your other evaluations.
 ```
 
 
