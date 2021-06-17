@@ -16,13 +16,11 @@ import time
 from enum import Enum
 
 from sklearn import datasets
-from sklearn.metrics import accuracy_score, r2_score, confusion_matrix, precision_score, recall_score, f1_score, \
-    roc_auc_score, roc_curve, mean_squared_error
+from sklearn.metrics import accuracy_score, mean_squared_error
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split, KFold
 from sklearn.tree import DecisionTreeClassifier
-import matplotlib.pyplot as plt
 
 from fuzzytrees.fdt_base import FuzzificationParams, FuzzyDecisionTreeWrapper, CRITERIA_FUNC_CLF, CRITERIA_FUNC_REG
 from fuzzytrees.fdts import FuzzyCARTClassifier, FuzzyCARTRegressor

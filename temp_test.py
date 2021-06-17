@@ -9,23 +9,9 @@ TODO:
     2. Done - Add function implementing splitting criteria fuzzification in util_criterion_funcs.py
     3. Upgrade program from Python to Cython to speed up the algorithms.
 """
-import multiprocessing
 import os
-import traceback
-import joblib
-import numpy as np
-import pandas as pd
-import warnings
-from fuzzytrees.fdt_base import DecisionTreeInterface
-from decimal import Decimal
-from sklearn.metrics import accuracy_score
-from sklearn.model_selection import KFold
-from fuzzytrees.settings import NUM_CPU_CORES_REQ, DirSave, EvaluationType, NUM_GRP_MDLS
+from fuzzytrees.settings import DirSave
 from fuzzytrees.util_comm import get_today_str
-from fuzzytrees.util_data_handler import load_data_clf
-from fuzzytrees.util_data_processing_funcs import extract_fuzzy_features
-from fuzzytrees.util_plotter import plot_multi_lines, plot_multi_lines_subplots
-
 
 if __name__ == '__main__':
     # df = pd.DataFrame({"id": [1, 2, 3, 4], "name": ["sam", "sam", "peter", "jack"], "number": [8, 6, 8, 2]})

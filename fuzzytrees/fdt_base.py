@@ -16,10 +16,11 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import KFold
-from fuzzytrees.settings import DirSave, NUM_CPU_CORES_REQ, load_data_clf, NUM_GRP_MDLS, EvaluationType
+from fuzzytrees.settings import DirSave, NUM_CPU_CORES_REQ, NUM_GRP_MDLS, EvaluationType
 from fuzzytrees.util_comm import get_today_str
 from fuzzytrees.util_criterion_funcs import calculate_proba, calculate_entropy, calculate_gini, calculate_variance, \
     calculate_standard_deviation
+from fuzzytrees.util_data_handler import load_data_clf
 from fuzzytrees.util_data_processing_funcs import extract_fuzzy_features
 from fuzzytrees.util_plotter import plot_multi_lines
 
