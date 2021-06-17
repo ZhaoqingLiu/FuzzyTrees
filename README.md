@@ -29,8 +29,8 @@ Then, customise your fuzzy decision tree algorithm classes. That's it.
 ### Step 1: Customise your fuzzy-rule functions
 Make sure your fuzzy rule functions follow the [API Reference](./docs/index.html).
 
-### Step 2: Custom your fuzzy decision tree algorithm classes
-All you need to do is specify your custom fuzzy-rule functions at the beginning of the function fit().
+### Step 2: Custom your fuzzy decision tree classes
+All you need to do is specify in the constructor \_\_init\_\_() of one of your fuzzy decision tree classes that the class uses your custom fuzzy-rule functions.
 
 Taking the classifier class of CART algorithm as an example.
 ```python
