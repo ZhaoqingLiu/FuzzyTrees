@@ -2,12 +2,14 @@
 
 FuzzyTrees is a framework designed for rapidly developing various fuzzy decision tree algorithms.
 
-First, the framework is a supporting architecture for development. Based on this framework, any developer can extend more components according to a particular fuzzy decision tree to quickly build a complete algorithm scheme.
+First, the FuzzyTrees is a supporting architecture for development. 
+Based on the FuzzyTrees, you can extend new components according to a particular fuzzy decision tree requirements and quickly build your own complete algorithm solutions.
 
-Second, the framework provides protocols for extending components. You can follow a unified set of APIs to develop algorithms that are easy for other developers to understand.
-To easily extend the components, the framework has provided you with a set of supporting and easy-to-use utilities, such as the split metric calculation and split method tools used in ID3, C4.5, and CART algorithms, respectively.
+Second, the FuzzyTrees provides a set of APIs for extending components. 
+You can easily understand any algorithm as long as it follows these uniform APIs.
+To easily extend new components, the FuzzyTrees has provided you with a set of supporting and easy-to-use utilities, e.g. the splitting and splitting criterion calculation functions used in the ID3, C4.5, and CART algorithms.
 
-Also, the [fuzzy CART](fuzzytrees/fdt_base.py) and [fuzzy GBDT](fuzzytrees/fgbdt.py) algorithm in the project are implemented based on this framework.
+The [fuzzy CART](fuzzytrees/fdt_base.py) and [fuzzy GBDT](fuzzytrees/fgbdt.py) algorithms in this project are developed based on the FuzzyTrees and can be used as examples for developing new algorithms.
 
 
 ## Installation
@@ -23,60 +25,32 @@ $ pip install -r requirements.txt
 
 
 ## Development example
-What you need to do is two steps. First, customise your fuzzy-rule functions (if needed), i.e. the splitting functions, splitting criterion calculation functions, and leaf node value calculation functions. 
-Then, customise your fuzzy decision tree algorithm classes. That's it.
-
-### Step 1: Customise your fuzzy-rule functions
-Make sure your fuzzy rule functions follow the [API Reference](./docs/index.html).
-
-### Step 2: Custom your fuzzy decision tree classes
-All you need to do is specify in the constructor \_\_init\_\_() of one of your fuzzy decision tree classes that the class uses your custom fuzzy-rule functions.
-
-Taking the classifier class of CART algorithm as an example.
+For example, I'm implementing a fuzzy CART classifier.
 ```python
-from fuzzytrees.fdt_base import BaseFuzzyDecisionTree, DecisionTreeInterface
+from fuzzytrees.fdt_base import BaseFuzzyDecisionTree, DecisionTreeInterface, CRITERIA_FUNC_CLF
 from fuzzytrees.util_criterion_funcs import calculate_impurity_gain, calculate_value_by_majority_vote
 from fuzzytrees.util_split_funcs import split_ds_2_bin
 
-# Define a classifier.
 class FuzzyCARTClassifier(BaseFuzzyDecisionTree, DecisionTreeInterface):
     
-    # Add your __init__() here and declare its arguments.
-
-    def fit(self, X_train, y_train):
+    def __init__(self, disable_fuzzy=False, X_fuzzy_dms=None, fuzzification_params=None,
+                 criterion_func=CRITERIA_FUNC_CLF["entropy"], max_depth=float("inf"), min_samples_split=2,
+                 min_impurity_split=1e-7, **kwargs):
+        super().__init__(disable_fuzzy=disable_fuzzy, X_fuzzy_dms=X_fuzzy_dms,
+                         fuzzification_params=fuzzification_params, criterion_func=criterion_func, max_depth=max_depth,
+                         min_samples_split=min_samples_split, min_impurity_split=min_impurity_split, **kwargs)
         self._split_ds_func = split_ds_2_bin
         self._impurity_gain_calc_func = calculate_impurity_gain
         self._leaf_value_calc_func = calculate_value_by_majority_vote
-        super().fit(X_train=X_train, y_train=y_train)
         
-    # NB: The functions predict(), predict_proba() and print_tree() are already defined in the super class BaseFuzzyDecisionTree.
+    # NB: The functions fit(), predict(), predict_proba() and print_tree() are already defined in the super class BaseFuzzyDecisionTree.
 ```
 
-Taking the regressor class of CART algorithm as an example:
-```python
-from fuzzytrees.fdt_base import BaseFuzzyDecisionTree, DecisionTreeInterface
-from fuzzytrees.util_criterion_funcs import calculate_variance_reduction, calculate_mean
-from fuzzytrees.util_split_funcs import split_ds_2_bin
-
-# Define a regressor.
-class FuzzyCARTRegressor(BaseFuzzyDecisionTree, DecisionTreeInterface):
-    
-    # Add your __init__() here and declare its arguments.
-    
-    def fit(self, X_train, y_train):
-        self._split_ds_func = split_ds_2_bin
-        self._impurity_gain_calc_func = calculate_variance_reduction
-        self._leaf_value_calc_func = calculate_mean
-        super().fit(X_train=X_train, y_train=y_train)
-        
-    # NB: The functions predict(), predict_proba() and print_tree() are already defined in the super class BaseFuzzyDecisionTree.
-```
+See the [tutorials](./tutorials.md) for more details on developing based on the FuzzyTrees.
 
 
 ## Usage example
-Here are two usage examples following a normal machine learning process, i.e. getting data, preprocessing data, partitioning data, performing machine learning, and evaluating the trained model.
-
-Taking the classifier class of CART algorithm as an example.
+Let's take machine learning using the fuzzy CART classifier as an example.
 ```python
 from fuzzytrees.fdt_base import FuzzificationParams, FuzzyDecisionTreeWrapper, CRITERIA_FUNC_CLF
 from fuzzytrees.fdts import FuzzyCARTClassifier
@@ -86,114 +60,64 @@ from sklearn.model_selection import KFold
 from sklearn.metrics import accuracy_score
 import numpy as np
 
-# 1. Getting data.
+# 1. Load the dataset.
 data = datasets.load_iris(as_frame=True).frame
 X = data.iloc[:, :-1].values
 y = data.iloc[:, -1:].values
 
-# 2. Preprocessing data.
+# 2. Preprocess the dataset.
 # 2.1. Do fuzzification preprocessing.
 X_fuzzy_pre = X.copy()
 X_dms = extract_fuzzy_features(X_fuzzy_pre, conv_k=5)
 X_plus_dms = np.concatenate((X, X_dms), axis=1)
 fuzzification_params = FuzzificationParams(conv_k=5)
 
-# 2.2. Do your other data preprocessing, e.g. identifying feature values and target values, processing missing values, etc.
+# 2.2. Do your other data preprocessing, e.g. identifying the feature values and target values, processing the missing values, etc.
 
-# 3. Partitioning data.
+# 3. Partition the dataset.
 kf = KFold(n_splits=10, random_state=i, shuffle=True)
 for train_index, test_index in kf.split(X):
     y_train, y_test = y[train_index], y[test_index]
     X_train_f, X_test_f = X_plus_dms[train_index], X_plus_dms[test_index]
     X_train, X_test = X[train_index], X[test_index]
     
-    # 4. Performing machine learning.
+    # 4. Train the models.
     # 4.1. Using a fuzzy classifier (You can customise the arguments in your constructor and their default values).
     fclf = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier, disable_fuzzy=False, 
                                     fuzzification_params=fuzzification_params,
                                     criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
     fclf.fit(X_train_f, y_train)
-    fclf.print_tree()
     
     # 4.2. Using a non-fuzzy classifier (You can customise the arguments in your constructor and their default values).
     clf = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier, disable_fuzzy=True,
                                    criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
     clf.fit(X_train, y_train)
+    
+    # 5. Look at the models.
+    # 5.1. Look at the fuzzy model.
+    fclf.print_tree()
+    
+    # 5.2. Look at the non-fuzzy model.
     clf.print_tree()
     
-    # 5. Evaluating the trained model.
-    # 5.1. Evaluating the fuzzy model.
+    # 6. Evaluate the models.
+    # 6.1. Evaluate the fuzzy model.
     y_pred_f = fclf.predict(X_test_f)
     acc_f = accuracy_score(y_test, y_pred_f)
     
-    # 5.2. Evaluating the non-fuzzy model.
+    # 6.2. Evaluate the non-fuzzy model.
     y_pred = clf.predict(X_test)
     acc = accuracy_score(y_test, y_pred)
     
-    # 5.3. Do your other evaluations.
+    # 6.3. Do your other evaluations.
 ```
 
-Taking the regressor class of CART algorithm as an example.
-```python
-from fuzzytrees.fdt_base import FuzzificationParams, FuzzyDecisionTreeWrapper, CRITERIA_FUNC_REG
-from fuzzytrees.fdts import FuzzyCARTRegressor
-from fuzzytrees.util_data_processing_funcs import extract_fuzzy_features
-from fuzzytrees.util_criterion_funcs import calculate_mse, calculate_mae
-from sklearn import datasets
-from sklearn.model_selection import KFold
-import numpy as np
+See the [tutorials](./tutorials.md) for more details on using fuzzy decision trees.
 
-# 1. Getting data.
-X, y = datasets.load_boston(return_X_y=True)
-
-# 2. Preprocessing data.
-# 2.1. Do fuzzification preprocessing.
-X_fuzzy_pre = X.copy()
-X_dms = extract_fuzzy_features(X_fuzzy_pre, conv_k=5)
-X_plus_dms = np.concatenate((X, X_dms), axis=1)
-fuzzification_params = FuzzificationParams(conv_k=5)
-
-# 2.2. Do your other data preprocessing, e.g. identifying feature values and target values, processing missing values, etc.
-
-# 3. Partitioning data.
-kf = KFold(n_splits=10, random_state=i, shuffle=True)
-for train_index, test_index in kf.split(X):
-    y_train, y_test = y[train_index], y[test_index]
-    X_train_f, X_test_f = X_plus_dms[train_index], X_plus_dms[test_index]
-    X_train, X_test = X[train_index], X[test_index]
-    
-    # 4. Performing machine learning.
-    # 4.1. Using a fuzzy regressor (You can customise the arguments in your constructor and their default values).
-    freg = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTRegressor, disable_fuzzy=False,
-                                    fuzzification_params=fuzzification_params,
-                                    criterion_func=CRITERIA_FUNC_REG["mse"], max_depth=5)
-    freg.fit(X_train_f, y_train)
-    freg.print_tree()
-    
-    # 4.2. Using a non-fuzzy regressor (You can customise the arguments in your constructor and their default values).
-    reg = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTRegressor, disable_fuzzy=True,
-                                   criterion_func=CRITERIA_FUNC_REG["mse"], max_depth=5)
-    reg.fit(X_train, y_train)
-    reg.print_tree()
-    
-    # 5. Evaluating the trained model.
-    # 5.1. Evaluating the fuzzy model.
-    y_pred_f = freg.predict(X_test_f)
-    mse_f = calculate_mse(y_test, y_pred_f)
-    mae_f = calculate_mae(y_test, y_pred_f)
-    
-    # 5.2. Evaluating the non-fuzzy model.
-    y_pred = reg.predict(X_test)
-    mse = calculate_mse(y_test, y_pred)
-    mae = calculate_mae(y_test, y_pred)
-    
-    # 5.3. Do your other evaluations.
-```
-Done.
 
 ## Documentation & Resources
 - [API Reference](./docs/index.html)
-- [Tutorials]()
+- [Tutorials](./tutorials.md)
 
 
 ## Credits
