@@ -1,15 +1,16 @@
 # FuzzyTrees
 
-FuzzyTrees is a framework designed for rapidly developing various fuzzy decision tree algorithms.
+FuzzyTrees is a lightweight framework designed for rapidly developing various fuzzy decision tree algorithms.
+It is easy to use and has three features.
 
-First, the FuzzyTrees is a supporting architecture for development. 
+- Firstly, the FuzzyTrees is a supporting architecture for development. 
 Based on the FuzzyTrees, you can extend new components according to a particular fuzzy decision tree requirements and quickly build your own complete algorithm solutions.
 
-Second, the FuzzyTrees provides a set of APIs for extending components. 
+- Secondly, the FuzzyTrees provides a set of APIs for extending components. 
 You can easily understand any algorithm as long as it follows these uniform APIs.
 To easily extend new components, the FuzzyTrees has provided you with a set of supporting and easy-to-use utilities, e.g. the splitting and splitting criterion calculation functions used in the ID3, C4.5, and CART algorithms.
 
-The [fuzzy CART](fuzzytrees/fdt_base.py) and [fuzzy GBDT](fuzzytrees/fgbdt.py) algorithms in this project are developed based on the FuzzyTrees and can be used as examples for developing new algorithms.
+- Finally, the [fuzzy CART](fuzzytrees/fdt_base.py) and [fuzzy GBDT](fuzzytrees/fgbdt.py) algorithms in this project are developed based on the FuzzyTrees and can be used as examples for developing new algorithms.
 
 
 ## Installation
