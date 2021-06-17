@@ -10,20 +10,29 @@ To easily extend the components, the framework has provided you with a set of su
 Also, the [fuzzy CART](fuzzytrees/fdt_base.py) and [fuzzy GBDT](fuzzytrees/fgbdt.py) algorithm in the project are implemented based on this framework.
 
 
-## Development example
-
+## Installation
 ###  Getting it
 ```shell
 $ pip install fuzzytrees
 ```
 
-###  Importing dependencies
+###  Importing all dependencies
 ```shell
 $ pip install -r requirements.txt
 ```
 
-### Custom your fuzzy decision tree algorithm class
-Taking the classifier class of CART algorithm as an example:
+
+## Development example
+What you need to do is two steps. First, customise your fuzzy-rule functions (if needed), i.e. the splitting functions, splitting criterion calculation functions, and leaf node value calculation functions. 
+Then, customise your fuzzy decision tree algorithm classes. That's it.
+
+### Step 1: Customise your fuzzy-rule functions
+Make sure your fuzzy rule functions follow the [API Reference](./docs/index.html).
+
+### Step 2: Custom your fuzzy decision tree algorithm classes
+All you need to do is first specify your custom fuzzy-rule functions at the beginning of the function fit().
+
+Taking the classifier class of CART algorithm as an example.
 ```python
 from fuzzytrees.fdt_base import BaseFuzzyDecisionTree, DecisionTreeInterface
 from fuzzytrees.util_criterion_funcs import calculate_impurity_gain, calculate_value_by_majority_vote
@@ -38,10 +47,9 @@ class FuzzyCARTClassifier(BaseFuzzyDecisionTree, DecisionTreeInterface):
         self._split_ds_func = split_ds_2_bin
         self._impurity_gain_calc_func = calculate_impurity_gain
         self._leaf_value_calc_func = calculate_value_by_majority_vote
+        super().fit(X_train=X_train, y_train=y_train)
         
-        # Add your code for fitting a tree below.
-
-    # NB: The functions predict() and print_tree() are already defined in the super class BaseFuzzyDecisionTree.
+    # NB: The functions predict(), predict_proba() and print_tree() are already defined in the super class BaseFuzzyDecisionTree.
 ```
 
 Taking the regressor class of CART algorithm as an example:
@@ -59,17 +67,14 @@ class FuzzyCARTRegressor(BaseFuzzyDecisionTree, DecisionTreeInterface):
         self._split_ds_func = split_ds_2_bin
         self._impurity_gain_calc_func = calculate_variance_reduction
         self._leaf_value_calc_func = calculate_mean
+        super().fit(X_train=X_train, y_train=y_train)
         
-        # Add your code for fitting a tree below.
-
-    # NB: The functions predict() and print_tree() are already defined in the super class BaseFuzzyDecisionTree.
+    # NB: The functions predict(), predict_proba() and print_tree() are already defined in the super class BaseFuzzyDecisionTree.
 ```
 
 
 ## Usage example
-
-### Using it
-Taking the classifier class of CART algorithm as an example:
+Taking the classifier class of CART algorithm as an example.
 ```python
 from fuzzytrees.fdt_base import FuzzificationParams, FuzzyDecisionTreeWrapper, CRITERIA_FUNC_CLF
 from fuzzytrees.fdts import FuzzyCARTClassifier
@@ -126,7 +131,7 @@ for train_index, test_index in kf.split(X):
     # 5.3. Do your other evaluations.
 ```
 
-Taking the regressor class of CART algorithm as an example:
+Taking the regressor class of CART algorithm as an example.
 ```python
 from fuzzytrees.fdt_base import FuzzificationParams, FuzzyDecisionTreeWrapper, CRITERIA_FUNC_REG
 from fuzzytrees.fdts import FuzzyCARTRegressor
@@ -182,6 +187,17 @@ for train_index, test_index in kf.split(X):
     
     # 5.3. Do your other evaluations.
 ```
+Done.
+
+## Documentation & Resources
+- [API Reference](./docs/index.html)
+- [Tutorials]()
+
+
+## Credits
+Fuzzy Trees was developed by:
+- Zhaoqing Liu (FuzzyTrees framework, [fuzzy CART](./fuzzytrees/fdt_base.py), [fuzzy ID3](./fuzzytrees/fdt_base.py), [fuzzy C4.5](./fuzzytrees/fdt_base.py), [fuzzy GBDT](./fuzzytrees/fgbdt.py))
+- Anjin Liu ([Fuzzy c-mean algorithm](./fuzzytrees/util_data_processing_funcs.py) for fuzzification in preprocessing)
 
 
 License

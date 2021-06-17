@@ -32,6 +32,9 @@ def degree_of_membership_build(X_df, r_seed, conv_k, fuzzy_reg):
     the specified number of fuzzy sets of the feature.
     This is the process of transforming a crisp set into a fuzzy set.
 
+    @author: Anjin Liu
+    @email: Anjin.Liu@uts.edu.au
+
     TODO: To be deprecated in version 1.0.
         This function will be integrated into the FCM module,
         which extracts the fuzzy features of all samples in a
@@ -100,6 +103,9 @@ def extract_fuzzy_features(X, conv_k=5, fuzzy_reg=0.0):
 
     NB: Feature fuzzification must be done in the data preprocessing, that is,
         before training the model and predicting new samples.
+
+    @author: Anjin Liu
+    @email: Anjin.Liu@uts.edu.au
 
     TODO: To be deprecated in version 1.0.
     TODO: To be verified by experiment: When using cross validation, which performance is better doing this before or after the partition of the data sets?
