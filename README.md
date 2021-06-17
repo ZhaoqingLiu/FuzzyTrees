@@ -20,6 +20,7 @@ $ pip install fuzzytrees
 ```
 
 ###  Importing all dependencies
+Go to the root directory where FuzzyTrees is installed, and then
 ```shell
 $ pip install -r requirements.txt
 ```
@@ -122,7 +123,7 @@ See the [tutorials](./tutorials.md) for more details on using fuzzy decision tre
 
 
 ## Credits
-Fuzzy Trees was developed by:
+FuzzyTrees was developed by:
 - Zhaoqing Liu (FuzzyTrees framework, [fuzzy CART](./fuzzytrees/fdt_base.py), [fuzzy ID3](./fuzzytrees/fdt_base.py), [fuzzy C4.5](./fuzzytrees/fdt_base.py), [fuzzy GBDT](./fuzzytrees/fgbdt.py), [fuzzy RDF](./fuzzytrees/frdf.py))
 - Anjin Liu ([Fuzzy c-mean algorithm](./fuzzytrees/util_data_processing_funcs.py) for fuzzification in preprocessing)
 
