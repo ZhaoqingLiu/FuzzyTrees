@@ -1,7 +1,7 @@
 # FuzzyTrees
 
 FuzzyTrees is a lightweight framework designed for rapidly developing various fuzzy decision tree algorithms.
-It is easy to use and has three features.
+It has three features.
 
 - Firstly, FuzzyTrees is a supporting architecture for development. 
 Based on the FuzzyTrees, you can quickly extend new components according to a particular fuzzy decision tree requirements and build your own complete algorithm solutions.
