@@ -18,7 +18,8 @@ If you are developing a new fuzzy decision tree algorithm,
 all you need to do is specify the fuzzy rule-based functions in the constructor \_\_init\_\_() of your fuzzy decision tree class. 
 See the utilities [util_data_processing_funcs](./fuzzytrees/util_data_processing_funcs.py), [util_split_funcs](./fuzzytrees/util_split_funcs.py) and [util_criterion_funcs](./fuzzytrees/util_criterion_funcs.py) for details on the fuzzy rules-based functions.
 
-In addition to the utilities provided by FuzzyTrees, if you need to customise your own fuzzy-based functions, i.e. fuzzification preprocessing, splitting, splitting criterion calculation, and leaf node value calculation functions, 
+In addition to the utilities provided by FuzzyTrees, if you need to customise your own fuzzy-based functions, 
+i.e. fuzzification preprocessing, splitting, splitting criterion calculation, and leaf node value calculation functions, 
 you can follow the [API Reference](./docs/index.html) to implement them.
 
 That's all.
