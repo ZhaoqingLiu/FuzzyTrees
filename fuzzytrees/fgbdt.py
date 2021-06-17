@@ -69,7 +69,7 @@ class FuzzyGBDT(metaclass=ABCMeta):
 
     def fit(self, X_train, y_train):
         """
-        it the fuzzy gradient boosting model.
+        Fit the fuzzy gradient boosting model.
 
         Parameters
         ----------

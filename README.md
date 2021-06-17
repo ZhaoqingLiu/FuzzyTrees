@@ -10,7 +10,7 @@ It allows you quickly extend new components according to particular fuzzy decisi
 You can easily understand any algorithm as long as it follows these uniform APIs.
 To easily extend new components, FuzzyTrees has provided you with a set of supporting and easy-to-use utilities, e.g. the splitting and splitting criterion calculation functions available in the most popular decision tree algorithms CART, ID3, and C4.5.
 
-- Finally, the [fuzzy CART](fuzzytrees/fdt_base.py), [fuzzy ID3](fuzzytrees/fdt_base.py), [fuzzy C4.5](fuzzytrees/fdt_base.py), and [fuzzy GBDT](fuzzytrees/fgbdt.py) algorithms in this project are developed based on FuzzyTrees and can be used as examples for developing new algorithms.
+- Finally, you can use the [fuzzy CART](./fuzzytrees/fdt_base.py), [fuzzy ID3](./fuzzytrees/fdt_base.py), [fuzzy C4.5](./fuzzytrees/fdt_base.py), [fuzzy GBDT](./fuzzytrees/fgbdt.py), and [fuzzy RDF](./fuzzytrees/frdf.py) algorithms in this project are developed based on FuzzyTrees and can be used as examples for developing new algorithms.
 
 
 ## Installation
@@ -123,7 +123,7 @@ See the [tutorials](./tutorials.md) for more details on using fuzzy decision tre
 
 ## Credits
 Fuzzy Trees was developed by:
-- Zhaoqing Liu (FuzzyTrees framework, [fuzzy CART](./fuzzytrees/fdt_base.py), [fuzzy ID3](./fuzzytrees/fdt_base.py), [fuzzy C4.5](./fuzzytrees/fdt_base.py), [fuzzy GBDT](./fuzzytrees/fgbdt.py))
+- Zhaoqing Liu (FuzzyTrees framework, [fuzzy CART](./fuzzytrees/fdt_base.py), [fuzzy ID3](./fuzzytrees/fdt_base.py), [fuzzy C4.5](./fuzzytrees/fdt_base.py), [fuzzy GBDT](./fuzzytrees/fgbdt.py), [fuzzy RDF](./fuzzytrees/frdf.py))
 - Anjin Liu ([Fuzzy c-mean algorithm](./fuzzytrees/util_data_processing_funcs.py) for fuzzification in preprocessing)
 
 
