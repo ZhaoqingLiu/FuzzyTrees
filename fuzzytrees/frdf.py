@@ -53,7 +53,7 @@ class FuzzyRDF(metaclass=ABCMeta):
         pass
 
 
-class FuzzyGBDTClassifier(FuzzyRDF):
+class FuzzyRDFClassifier(FuzzyRDF):
     """
     A fuzzy random decision forest classifier.
 
@@ -67,7 +67,7 @@ class FuzzyGBDTClassifier(FuzzyRDF):
     pass
 
 
-class FuzzyGBDTRegressor(FuzzyRDF):
+class FuzzyRDFRegressor(FuzzyRDF):
     """
     A fuzzy random decision forest regressor.
 

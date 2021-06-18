@@ -32,12 +32,15 @@ class FuzzyCARTClassifier(BaseFuzzyDecisionTree, DecisionTreeInterface):
         super().__init__(disable_fuzzy=disable_fuzzy, X_fuzzy_dms=X_fuzzy_dms,
                          fuzzification_params=fuzzification_params, criterion_func=criterion_func, max_depth=max_depth,
                          min_samples_split=min_samples_split, min_impurity_split=min_impurity_split, **kwargs)
-
-    def fit(self, X_train, y_train):
         self._split_ds_func = split_ds_2_bin
         self._impurity_gain_calc_func = calculate_impurity_gain
         self._leaf_value_calc_func = calculate_value_by_majority_vote
-        super().fit(X_train=X_train, y_train=y_train)
+
+    # def fit(self, X_train, y_train):
+    #     self._split_ds_func = split_ds_2_bin
+    #     self._impurity_gain_calc_func = calculate_impurity_gain
+    #     self._leaf_value_calc_func = calculate_value_by_majority_vote
+    #     super().fit(X_train=X_train, y_train=y_train)
 
 
 class FuzzyCARTRegressor(BaseFuzzyDecisionTree, DecisionTreeInterface):
@@ -58,12 +61,15 @@ class FuzzyCARTRegressor(BaseFuzzyDecisionTree, DecisionTreeInterface):
         super().__init__(disable_fuzzy=disable_fuzzy, X_fuzzy_dms=X_fuzzy_dms,
                          fuzzification_params=fuzzification_params, criterion_func=criterion_func, max_depth=max_depth,
                          min_samples_split=min_samples_split, min_impurity_split=min_impurity_split, **kwargs)
-
-    def fit(self, X_train, y_train):
         self._split_ds_func = split_ds_2_bin
         self._impurity_gain_calc_func = calculate_variance_reduction
         self._leaf_value_calc_func = calculate_mean
-        super().fit(X_train=X_train, y_train=y_train)
+
+    # def fit(self, X_train, y_train):
+    #     self._split_ds_func = split_ds_2_bin
+    #     self._impurity_gain_calc_func = calculate_variance_reduction
+    #     self._leaf_value_calc_func = calculate_mean
+    #     super().fit(X_train=X_train, y_train=y_train)
 
 
 class FuzzyID3Classifier(BaseFuzzyDecisionTree, DecisionTreeInterface):

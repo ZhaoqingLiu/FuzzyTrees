@@ -83,21 +83,23 @@ from sklearn.metrics import accuracy_score
 import numpy as np
 
 # 1. Load the dataset.
-data = datasets.load_iris(as_frame=True).frame
+data = datasets.load_wine(as_frame=True).frame
 X = data.iloc[:, :-1].values
 y = data.iloc[:, -1:].values
 
 # 2. Preprocess the dataset.
 # 2.1. Do fuzzification preprocessing.
 X_fuzzy_pre = X.copy()
-X_dms = extract_fuzzy_features(X_fuzzy_pre, conv_k=5)
-X_plus_dms = np.concatenate((X, X_dms), axis=1)
 fuzzification_params = FuzzificationParams(conv_k=5)
+X_dms = extract_fuzzy_features(X_fuzzy_pre, conv_k=fuzzification_params.conv_k)
+X_plus_dms = np.concatenate((X, X_dms), axis=1)
 
 # 2.2. Do your other data preprocessing, e.g. identifying the feature values and target values, processing the missing values, etc.
 
 # 3. Partition the dataset.
-kf = KFold(n_splits=10, random_state=i, shuffle=True)
+acc_list_f = []
+acc_list = []
+kf = KFold(n_splits=2, random_state=None, shuffle=True)
 for train_index, test_index in kf.split(X):
     y_train, y_test = y[train_index], y[test_index]
     X_train_f, X_test_f = X_plus_dms[train_index], X_plus_dms[test_index]
@@ -126,12 +128,19 @@ for train_index, test_index in kf.split(X):
     # 6.1. Evaluate the fuzzy model.
     y_pred_f = fclf.predict(X_test_f)
     acc_f = accuracy_score(y_test, y_pred_f)
+    acc_list_f.append(acc_f)
     
     # 6.2. Evaluate the non-fuzzy model.
     y_pred = clf.predict(X_test)
     acc = accuracy_score(y_test, y_pred)
+    acc_list.append(acc)
     
     # 6.3. Do your other evaluations.
+
+print("========================================================================================")
+print("Fuzzy model's average accuracy is:", np.mean(acc_list_f))
+print("Non-fuzzy model's average accuracy is:", np.mean(acc_list))
+print("========================================================================================")
 ```
 
 Let's take machine learning using the fuzzy CART regressor as another example.
@@ -145,19 +154,23 @@ from sklearn.model_selection import KFold
 import numpy as np
 
 # 1. Load the dataset.
-X, y = datasets.load_boston(return_X_y=True)
+X, y = datasets.load_diabetes(return_X_y=True)
 
 # 2. Preprocess the dataset.
 # 2.1. Do fuzzification preprocessing.
 X_fuzzy_pre = X.copy()
-X_dms = extract_fuzzy_features(X_fuzzy_pre, conv_k=5)
-X_plus_dms = np.concatenate((X, X_dms), axis=1)
 fuzzification_params = FuzzificationParams(conv_k=5)
+X_dms = extract_fuzzy_features(X_fuzzy_pre, conv_k=fuzzification_params.conv_k)
+X_plus_dms = np.concatenate((X, X_dms), axis=1)
 
 # 2.2. Do your other data preprocessing, e.g. identifying the feature values and target values, processing the missing values, etc.
 
 # 3. Partition the dataset.
-kf = KFold(n_splits=10, random_state=i, shuffle=True)
+mse_list_f = []
+mae_list_f = []
+mse_list = []
+mae_list = []
+kf = KFold(n_splits=2, random_state=None, shuffle=True)
 for train_index, test_index in kf.split(X):
     y_train, y_test = y[train_index], y[test_index]
     X_train_f, X_test_f = X_plus_dms[train_index], X_plus_dms[test_index]
@@ -187,12 +200,23 @@ for train_index, test_index in kf.split(X):
     y_pred_f = freg.predict(X_test_f)
     mse_f = calculate_mse(y_test, y_pred_f)
     mae_f = calculate_mae(y_test, y_pred_f)
+    mse_list_f.append(mse_f)
+    mae_list_f.append(mae_f)
     
     # 6.2. Evaluate the non-fuzzy model.
     y_pred = reg.predict(X_test)
     mse = calculate_mse(y_test, y_pred)
     mae = calculate_mae(y_test, y_pred)
+    mse_list.append(mse)
+    mae_list.append(mae)
     
     # 6.3. Do your other evaluations.
+
+print("========================================================================================")
+print("Fuzzy model's average MSE is:", np.mean(mse_list_f))
+print("Fuzzy model's average MAE is:", np.mean(mae_list_f))
+print("Non-fuzzy model's average MSE is:", np.mean(mse_list))
+print("Non-fuzzy model's average MAE is:", np.mean(mae_list))
+print("========================================================================================")
 ```
 Done.

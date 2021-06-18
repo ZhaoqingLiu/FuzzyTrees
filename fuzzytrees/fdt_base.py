@@ -451,6 +451,222 @@ class BaseFuzzyDecisionTree(metaclass=ABCMeta):
 
         return self._predict_proba_one(x, branch)
 
+
+# =============================================================================
+# Public wrapper class for different decision trees
+# =============================================================================
+
+
+class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
+    """
+    Wrapper class for different decision trees.
+
+    NB: The role of this class is to unify the external calls of different
+    decision tree classes and implement dependency injection for those
+    decision tree classes.
+
+    The arguments of the constructors for different decision trees should
+    belong to a subset of the following parameters.
+
+    Parameters:
+    -----------
+    fdt_class: Class, default=None
+        The fuzzy decision tree estimator specified.
+
+    disable_fuzzy: bool, default=False
+        Set whether the specified fuzzy decision tree uses the fuzzification.
+        If disable_fuzzy=True, the specified fuzzy decision tree is equivalent
+        to a naive decision tree.
+
+    X_fuzzy_dms: {array-like, sparse matrix} of shape (n_samples, n_features)
+        Three-dimensional array, and each element of the first dimension of the
+        array is a two-dimensional array of corresponding feature's fuzzy sets.
+        Each two-dimensional array is of shape of (n_samples, n_fuzzy_sets), but
+        has transformed membership degree of the feature values to corresponding
+        fuzzy sets.
+
+    fuzzification_params: FuzzificationParams, default=None
+        Class that encapsulates all the parameters of the fuzzification settings
+        to be used by the specified fuzzy decision tree.
+
+    criterion_func: {"gini", "entropy"} for a classifier, {"mse", "mae"} for a regressor
+        The criterion function used by the function that calculates the impurity
+        gain of the target values.
+
+    max_depth: int, default=float("inf")
+        The maximum depth of the tree.
+
+    min_samples_split: int, default=2
+        The minimum number of samples required to split a node. If a node has a
+        sample number above this threshold, it will be split, otherwise it
+        becomes a leaf node.
+
+    min_impurity_split: float, default=1e-7
+        The minimum impurity required to split a node. If a node's impurity is
+        above this threshold, it will be split, otherwise it becomes a leaf node.
+
+    Attributes
+    ----------
+    root: Node
+        The root node of a decision tree.
+
+    _impurity_gain_calculation_func: function
+        The function to calculate the impurity gain of the target values.
+
+    _leaf_value_calculation_func: function
+        The function to calculate the predicted value if the current node is a
+        leaf:
+        - In a classification tree, it gives the target value with the highest
+         probability.
+        - In the regression tree, it gives the average of all the target values.
+
+    _is_one_dim: bool
+        The Boolean value that indicates whether the y is a multi-dimensional set,
+        which means whether y is one-hot encoded.
+
+    _best_split_rule: SplitRule
+        The split rule including the index of the best feature to be used, and
+        the best value in the best feature.
+
+    _best_binary_subtrees: BinarySubtrees
+        The binary subtrees including two subtrees under a node, and each subtree
+        is a subset of the sample that has been split. It is one of attributes of
+        the node (including root node) in a decision tree.
+
+    _best_impurity_gain: float
+        The best impurity gain calculated based on the current split subtrees
+        during a tree building process.
+
+    _fuzzy_sets: {array-like, sparse matrix} of shape (n_features, n_coefficients)
+        All the coefficients of the degree of membership sets based on the
+        current estimator. They will be used to calculate the degree of membership
+        of the features of new samples before predicting those samples. Therefore,
+        their life cycle is consistent with that of the current estimator.
+        They are generated in the feature fuzzification before training the
+        current estimator.
+        NB: To be used in version 1.0.
+
+    References
+    ----------
+
+
+    Examples
+    --------
+
+    """
+
+    # All parameters in this constructor should have default values.
+    def __init__(self, fdt_class=None, disable_fuzzy=False, X_fuzzy_dms=None, fuzzification_params=None,
+                 criterion_func=None,
+                 max_depth=float("inf"), min_samples_split=2, min_impurity_split=1e-7, **kwargs):
+        # Construct a instance of the specified fuzzy decision tree.
+        if fdt_class is not None:
+            self.estimator = fdt_class(disable_fuzzy=disable_fuzzy, X_fuzzy_dms=X_fuzzy_dms,
+                                       fuzzification_params=fuzzification_params, criterion_func=criterion_func,
+                                       max_depth=max_depth, min_samples_split=min_samples_split,
+                                       min_impurity_split=min_impurity_split, **kwargs)
+        self.fdt_class = fdt_class
+        self.disable_fuzzy = disable_fuzzy
+        self.X_fuzzy_dms = X_fuzzy_dms
+        self.fuzzification_params = fuzzification_params
+        self.criterion_func = criterion_func
+        self.max_depth = max_depth
+        self.min_samples_split = min_samples_split
+        self.min_impurity_split = min_impurity_split
+        self.kwargs = kwargs
+
+        self.ds_pretrain = None  # A list used to contain data generated by pretraining.
+        self.df_pretrain = None  # A dataframe used to contain data generated by pretraining.
+        self.filename_ds_pretrain = None  # A name of the file used to save data generated by pretraining.
+        self.enable_pkl_mdl = False  # Set whether enable pickling fitted models.
+
+        # Ensure the directories for saving files is existing.
+        for item in DirSave:
+            if not os.path.exists(item.value):
+                os.makedirs(item.value)
+
+    def fit(self, X_train, y_train):
+        """
+        Train a decision tree estimator from the training set (X_train, y_train).
+
+        Parameters:
+        -----------
+        X_train: {array-like, sparse matrix} of shape (n_samples, n_features)
+            The training input samples.
+
+        y_train: array-like of shape (n_samples,) or (n_samples, n_outputs)
+            The target values (class labels) as integers or strings.
+        """
+        # Start training to get a fitted estimator.
+        try:
+            self.estimator.fit(X_train, y_train)
+        except Exception as e:
+            print(traceback.format_exc())
+
+    def predict(self, X):
+        """
+        Predict the target values of the input samples X.
+
+        In classification, a predicted target value is the one with the
+        largest number of samples of the same class in a leaf.
+
+        In regression, the predicted target value is the mean of the target
+        values in a leaf.
+
+        Parameters:
+        -----------
+        X: {array-like, sparse matrix} of shape (n_samples, n_features)
+            The input samples to be predicted.
+
+        Returns
+        -------
+        pred_y: list of n_outputs such arrays if n_outputs > 1
+            The target values of the input samples.
+        """
+        try:
+            return self.estimator.predict(X)
+        except Exception as e:
+            print(traceback.format_exc())
+
+    def predict_proba(self, X):
+        """
+        Predict the probabilities of the target values of the input samples X.
+
+        Parameters:
+        -----------
+        X: {array-like, sparse matrix} of shape (n_samples, n_features)
+            The input samples to be predicted.
+
+        Returns
+        -------
+        pred_y: list of n_outputs such arrays if n_outputs > 1
+            The probabilities of the target values of the input samples.
+        """
+        try:
+            return self.estimator.predict_proba(X)
+        except Exception as e:
+            print(traceback.format_exc())
+
+    def print_tree(self, tree=None, indent="  ", delimiter="-->"):
+        """
+        Recursively (in a top-to-bottom approach) print the built decision tree.
+
+        Parameters:
+        -----------
+        tree: Node
+            The root node of a decision tree.
+
+        indent: str
+            The indentation symbol used when printing subtrees.
+
+        delimiter: str
+            The delimiter between split rules and results.
+        """
+        try:
+            self.estimator.print_tree(tree=tree, indent=indent, delimiter=delimiter)
+        except Exception as e:
+            print(traceback.format_exc())
+
     # =============================================================================
     # Functions to search fuzzy parameters for FDTs and plot their evaluation
     # =============================================================================
@@ -746,219 +962,3 @@ class BaseFuzzyDecisionTree(metaclass=ABCMeta):
 
         """
         pass
-
-
-# =============================================================================
-# Public wrapper class for different decision trees
-# =============================================================================
-
-
-class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
-    """
-    Wrapper class for different decision trees.
-
-    NB: The role of this class is to unify the external calls of different
-    decision tree classes and implement dependency injection for those
-    decision tree classes.
-
-    The arguments of the constructors for different decision trees should
-    belong to a subset of the following parameters.
-
-    Parameters:
-    -----------
-    fdt_class: Class, default=None
-        The fuzzy decision tree estimator specified.
-
-    disable_fuzzy: bool, default=False
-        Set whether the specified fuzzy decision tree uses the fuzzification.
-        If disable_fuzzy=True, the specified fuzzy decision tree is equivalent
-        to a naive decision tree.
-
-    X_fuzzy_dms: {array-like, sparse matrix} of shape (n_samples, n_features)
-        Three-dimensional array, and each element of the first dimension of the
-        array is a two-dimensional array of corresponding feature's fuzzy sets.
-        Each two-dimensional array is of shape of (n_samples, n_fuzzy_sets), but
-        has transformed membership degree of the feature values to corresponding
-        fuzzy sets.
-
-    fuzzification_params: FuzzificationParams, default=None
-        Class that encapsulates all the parameters of the fuzzification settings
-        to be used by the specified fuzzy decision tree.
-
-    criterion_func: {"gini", "entropy"} for a classifier, {"mse", "mae"} for a regressor
-        The criterion function used by the function that calculates the impurity
-        gain of the target values.
-
-    max_depth: int, default=float("inf")
-        The maximum depth of the tree.
-
-    min_samples_split: int, default=2
-        The minimum number of samples required to split a node. If a node has a
-        sample number above this threshold, it will be split, otherwise it
-        becomes a leaf node.
-
-    min_impurity_split: float, default=1e-7
-        The minimum impurity required to split a node. If a node's impurity is
-        above this threshold, it will be split, otherwise it becomes a leaf node.
-
-    Attributes
-    ----------
-    root: Node
-        The root node of a decision tree.
-
-    _impurity_gain_calculation_func: function
-        The function to calculate the impurity gain of the target values.
-
-    _leaf_value_calculation_func: function
-        The function to calculate the predicted value if the current node is a
-        leaf:
-        - In a classification tree, it gives the target value with the highest
-         probability.
-        - In the regression tree, it gives the average of all the target values.
-
-    _is_one_dim: bool
-        The Boolean value that indicates whether the y is a multi-dimensional set,
-        which means whether y is one-hot encoded.
-
-    _best_split_rule: SplitRule
-        The split rule including the index of the best feature to be used, and
-        the best value in the best feature.
-
-    _best_binary_subtrees: BinarySubtrees
-        The binary subtrees including two subtrees under a node, and each subtree
-        is a subset of the sample that has been split. It is one of attributes of
-        the node (including root node) in a decision tree.
-
-    _best_impurity_gain: float
-        The best impurity gain calculated based on the current split subtrees
-        during a tree building process.
-
-    _fuzzy_sets: {array-like, sparse matrix} of shape (n_features, n_coefficients)
-        All the coefficients of the degree of membership sets based on the
-        current estimator. They will be used to calculate the degree of membership
-        of the features of new samples before predicting those samples. Therefore,
-        their life cycle is consistent with that of the current estimator.
-        They are generated in the feature fuzzification before training the
-        current estimator.
-        NB: To be used in version 1.0.
-
-    References
-    ----------
-
-
-    Examples
-    --------
-
-    """
-
-    # All parameters in this constructor should have default values.
-    def __init__(self, fdt_class=None, disable_fuzzy=False, X_fuzzy_dms=None, fuzzification_params=None,
-                 criterion_func=None,
-                 max_depth=float("inf"), min_samples_split=2, min_impurity_split=1e-7, **kwargs):
-        # Construct a instance of the specified fuzzy decision tree.
-        if fdt_class is not None:
-            self.estimator = fdt_class(disable_fuzzy=disable_fuzzy, X_fuzzy_dms=X_fuzzy_dms,
-                                       fuzzification_params=fuzzification_params, criterion_func=criterion_func,
-                                       max_depth=max_depth, min_samples_split=min_samples_split,
-                                       min_impurity_split=min_impurity_split, **kwargs)
-        self.fdt_class = fdt_class
-        self.disable_fuzzy = disable_fuzzy
-        self.X_fuzzy_dms = X_fuzzy_dms
-        self.fuzzification_params = fuzzification_params
-        self.criterion_func = criterion_func
-        self.max_depth = max_depth
-        self.min_samples_split = min_samples_split
-        self.min_impurity_split = min_impurity_split
-        self.kwargs = kwargs
-
-        self.ds_pretrain = None  # A list used to contain data generated by pretraining.
-        self.df_pretrain = None  # A dataframe used to contain data generated by pretraining.
-        self.filename_ds_pretrain = None  # A name of the file used to save data generated by pretraining.
-        self.enable_pkl_mdl = False  # Set whether enable pickling fitted models.
-
-        # Ensure the directories for saving files is existing.
-        for item in DirSave:
-            if not os.path.exists(item.value):
-                os.makedirs(item.value)
-
-    def fit(self, X_train, y_train):
-        """
-        Train a decision tree estimator from the training set (X_train, y_train).
-
-        Parameters:
-        -----------
-        X_train: {array-like, sparse matrix} of shape (n_samples, n_features)
-            The training input samples.
-
-        y_train: array-like of shape (n_samples,) or (n_samples, n_outputs)
-            The target values (class labels) as integers or strings.
-        """
-        # Start training to get a fitted estimator.
-        try:
-            self.estimator.fit(X_train, y_train)
-        except Exception as e:
-            print(traceback.format_exc())
-
-    def predict(self, X):
-        """
-        Predict the target values of the input samples X.
-
-        In classification, a predicted target value is the one with the
-        largest number of samples of the same class in a leaf.
-
-        In regression, the predicted target value is the mean of the target
-        values in a leaf.
-
-        Parameters:
-        -----------
-        X: {array-like, sparse matrix} of shape (n_samples, n_features)
-            The input samples to be predicted.
-
-        Returns
-        -------
-        pred_y: list of n_outputs such arrays if n_outputs > 1
-            The target values of the input samples.
-        """
-        try:
-            return self.estimator.predict(X)
-        except Exception as e:
-            print(traceback.format_exc())
-
-    def predict_proba(self, X):
-        """
-        Predict the probabilities of the target values of the input samples X.
-
-        Parameters:
-        -----------
-        X: {array-like, sparse matrix} of shape (n_samples, n_features)
-            The input samples to be predicted.
-
-        Returns
-        -------
-        pred_y: list of n_outputs such arrays if n_outputs > 1
-            The probabilities of the target values of the input samples.
-        """
-        try:
-            return self.estimator.predict_proba(X)
-        except Exception as e:
-            print(traceback.format_exc())
-
-    def print_tree(self, tree=None, indent="  ", delimiter="-->"):
-        """
-        Recursively (in a top-to-bottom approach) print the built decision tree.
-
-        Parameters:
-        -----------
-        tree: Node
-            The root node of a decision tree.
-
-        indent: str
-            The indentation symbol used when printing subtrees.
-
-        delimiter: str
-            The delimiter between split rules and results.
-        """
-        try:
-            self.estimator.print_tree(tree=tree, indent=indent, delimiter=delimiter)
-        except Exception as e:
-            print(traceback.format_exc())

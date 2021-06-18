@@ -32,7 +32,7 @@ from sklearn import datasets
 
 # Change it to your folder path.
 DATA_FOLDER_PATH = os.path.abspath(os.path.dirname(os.getcwd())) + '/Datasets/'
-print("+++++++++++++++++++++++++++++++++++++++++++++", DATA_FOLDER_PATH)
+# print("+++++++++++++++++++++++++++++++++++++++++++++", DATA_FOLDER_PATH)
 
 
 def load_vehicle():
@@ -180,35 +180,35 @@ def load_data_clf(ds_name):
 
 
 if __name__ == "__main__":
-    # print(DATA_FOLDER_PATH)
-    #
-    # print('Loading Vehicle')
-    # data_vehicle = load_vehicle()
-    # print('Loading Vehicle, shape', data_vehicle.shape)
-    #
-    # print('Loading Waveform')
-    # data_waveform = load_waveform()
-    # print('Loading Waveform, shape', data_waveform.shape)
-    #
-    # print('Loading German_credit')
-    # data_gc = load_German_credit()
-    # print('Loading German_credit, shape', data_gc.shape)
-    #
-    # print('Loading Chess')
-    # data_chess = load_chess()
-    # print('Loading Chess, shape', data_chess.shape)
-    #
-    # print('Loading Diabetes')
-    # data_diabetes = load_diabetes()
-    # print('Loading Diabetes, shape', data_diabetes.shape)
-    #
-    # print('Loading Iris')
-    # data_iris = load_iris()
-    # print('Loading Iris, shape', data_iris.shape)
-    #
-    # print('Loading Wine')
-    # data_wine = load_wine()
-    # print('Loading Wine, shape', data_wine.shape)
+    print(DATA_FOLDER_PATH)
+
+    print('Loading Vehicle')
+    data_vehicle = load_vehicle()
+    print('Loading Vehicle, shape', data_vehicle.shape)
+
+    print('Loading Waveform')
+    data_waveform = load_waveform()
+    print('Loading Waveform, shape', data_waveform.shape)
+
+    print('Loading German_credit')
+    data_gc = load_German_credit()
+    print('Loading German_credit, shape', data_gc.shape)
+
+    print('Loading Chess')
+    data_chess = load_chess()
+    print('Loading Chess, shape', data_chess.shape)
+
+    print('Loading Diabetes')
+    data_diabetes = load_diabetes()
+    print('Loading Diabetes, shape', data_diabetes.shape)
+
+    print('Loading Iris')
+    data_iris = load_iris()
+    print('Loading Iris, shape', data_iris.shape)
+
+    print('Loading Wine')
+    data_wine = load_wine()
+    print('Loading Wine, shape', data_wine.shape)
 
     data, target = datasets.load_boston(return_X_y=True)
     print(type(data))

@@ -80,8 +80,10 @@ def degree_of_membership_build(X_df, r_seed, conv_k, fuzzy_reg):
     # convert distance to degree of membership
     theta_f = np.log(fuzzy_reg) - np.log(1 - fuzzy_reg)
     for idx, item in enumerate(degree_of_membership_theta):
-        # x_new[:, idx] = 1 - x_new[:, idx] / item
-        x_new[:, idx] = 1 - x_new[:, idx] / item * theta_f
+        if fuzzy_reg == 0 or fuzzy_reg == 0.0 or fuzzy_reg == 1 or fuzzy_reg == 1.0:
+            x_new[:, idx] = 1 - x_new[:, idx] / item
+        else:
+            x_new[:, idx] = 1 - x_new[:, idx] / item * theta_f
     x_new[x_new < 0] = 0
 
     # TODO: Searching an optimum fuzzy threshold by a loop according the specified stride.
