@@ -27,7 +27,7 @@ class FuzzyGBDT(metaclass=ABCMeta):
         The concrete object of the class LossFunction's derived classes.
 
     _estimators: ndarray of FuzzyDecisionTreeRegressor
-        The collection of fitted sub-estimators.
+        The collection of sub-estimators as base learners.
     """
 
     def __init__(self, disable_fuzzy, X_fuzzy_dms, fuzzification_params, criterion_func, learning_rate, n_estimators,
@@ -133,7 +133,7 @@ class FuzzyGBDT(metaclass=ABCMeta):
 
 class FuzzyGBDTClassifier(FuzzyGBDT):
     """
-    A fuzzy gradient boosting decision tree classifier.
+    Fuzzy gradient boosting decision tree classifier.
 
     Parameters:
     -----------
@@ -158,7 +158,7 @@ class FuzzyGBDTClassifier(FuzzyGBDT):
         NB: There is a trade-off between learning_rate and n_estimators.
 
     n_estimators: int, default=100
-        The number of decision trees to be used.
+        The number of fuzzy decision trees to be used.
 
     validation_fraction : float, default=0.1
         The proportion of training data to set aside as validation set for
@@ -175,7 +175,7 @@ class FuzzyGBDTClassifier(FuzzyGBDT):
         iterations. The split is stratified.
 
     max_depth: int, default=3
-        The maximum depth of the tree.
+        The maximum depth of the tree to be trained.
 
     min_samples_split: int, default=2
         The minimum number of samples required to split a node. If a node has a
@@ -215,7 +215,7 @@ class FuzzyGBDTClassifier(FuzzyGBDT):
 
 class FuzzyGBDTRegressor(FuzzyGBDT):
     """
-    A fuzzy gradient boosting decision tree regressor.
+    Fuzzy gradient boosting decision tree regressor.
 
     Parameters:
     -----------
@@ -240,7 +240,7 @@ class FuzzyGBDTRegressor(FuzzyGBDT):
         NB: There is a trade-off between learning_rate and n_estimators.
 
     n_estimators: int, default=100
-        The number of decision trees to be used.
+        The number of fuzzy decision trees to be used.
 
     validation_fraction : float, default=0.1
         The proportion of training data to set aside as validation set for
@@ -257,7 +257,7 @@ class FuzzyGBDTRegressor(FuzzyGBDT):
         iterations. The split is stratified.
 
     max_depth: int, default=3
-        The maximum depth of the tree.
+        The maximum depth of the tree to be trained.
 
     min_samples_split: int, default=2
         The minimum number of samples required to split a node. If a node has a
