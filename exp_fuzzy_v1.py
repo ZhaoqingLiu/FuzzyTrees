@@ -107,7 +107,7 @@ def get_exp_results_clf(X, y, comparing_mode=ComparisionMode.FUZZY):
         # Split training and test sets by hold-out partition method.
         # X_train, X_test, y_train, y_test = train_test_split(X_fuzzy_pre, y, test_size=0.4)
 
-        kf = KFold(n_splits=10, random_state=i, shuffle=True)
+        kf = KFold(n_splits=2, random_state=i, shuffle=True)
         for train_index, test_index in kf.split(X):
             y_train, y_test = y[train_index], y[test_index]
 
@@ -422,12 +422,12 @@ def load_dataset_classification():
     # y_list.append(y)
     # dataset_name_list.append("Digits")
 
-    dataset = datasets.load_wine()
-    X = dataset.data
-    y = dataset.target
-    X_list.append(X)
-    y_list.append(y)
-    dataset_name_list.append("Wine")
+    # dataset = datasets.load_wine()
+    # X = dataset.data
+    # y = dataset.target
+    # X_list.append(X)
+    # y_list.append(y)
+    # dataset_name_list.append("Wine")
 
     return X_list, y_list, dataset_name_list
 
@@ -452,25 +452,25 @@ def load_dataset_df_classification():
 
     # Start loading data sets one by one.
 
-    dataset_df = dh.load_vehicle()
-    dataset_df_list.append(dataset_df)
-    dataset_name_list.append("Vehicle")
+    # dataset_df = dh.load_vehicle()
+    # dataset_df_list.append(dataset_df)
+    # dataset_name_list.append("Vehicle")
 
     # dataset_df = dh.load_waveform()
     # dataset_df_list.append(dataset_df)
     # dataset_name_list.append("Waveform")
 
-    dataset_df = dh.load_German_credit()
-    dataset_df_list.append(dataset_df)
-    dataset_name_list.append("German_Credit")
+    # dataset_df = dh.load_German_credit()
+    # dataset_df_list.append(dataset_df)
+    # dataset_name_list.append("German_Credit")
 
     # dataset_df = dh.load_chess()
     # dataset_df_list.append(dataset_df)
     # dataset_name_list.append("Chess")
 
-    dataset_df = dh.load_diabetes()
-    dataset_df_list.append(dataset_df)
-    dataset_name_list.append("Diabetes")
+    # dataset_df = dh.load_diabetes()
+    # dataset_df_list.append(dataset_df)
+    # dataset_name_list.append("Diabetes")
 
     return dataset_df_list, dataset_name_list
 
@@ -525,9 +525,9 @@ if __name__ == "__main__":
     # exec_exp_clf(ComparisionMode.FUZZY)
     # print("Elapsed time: {:.5}s".format(time.time() - time_start))
 
-    # time_start = time.time()
-    # exec_exp_clf(ComparisionMode.BOOSTING)
-    # print("Elapsed time: {:.5}s".format(time.time() - time_start))
+    time_start = time.time()
+    exec_exp_clf(ComparisionMode.BOOSTING)
+    print("Elapsed time: {:.5}s".format(time.time() - time_start))
 
     # time_start = time.time()
     # exec_exp_clf(ComparisionMode.MIXED)
@@ -551,8 +551,8 @@ if __name__ == "__main__":
     # Single experiment approach =======================================================================================
 
     # Single experiment approach ===============================================
-    test_classifier()
-    test_regressor()
+    # test_classifier()
+    # test_regressor()
 
     # dataset = datasets.load_iris()
     # print(dataset.keys())

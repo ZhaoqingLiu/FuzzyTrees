@@ -9,6 +9,8 @@ import numpy as np
 
 from fuzzytrees.fdt_base import FuzzyDecisionTreeWrapper
 from fuzzytrees.fdts import FuzzyCARTClassifier, FuzzyCARTRegressor
+from fuzzytrees.util_criterion_funcs import value_majority_vote, calculate_mean_value
+from fuzzytrees.util_data_processing_funcs import bootstrap_sample
 
 
 class FuzzyRDF(metaclass=ABCMeta):
@@ -81,8 +83,8 @@ class FuzzyRDF(metaclass=ABCMeta):
         The collection of sub-estimators as the base learners.
     """
 
-    def __init__(self, disable_fuzzy, fuzzification_params, criterion_func, n_estimators=100,
-                 max_depth=3, min_samples_split=2, min_impurity_split=1e-7, max_features=None):
+    def __init__(self, disable_fuzzy, fuzzification_params, criterion_func, n_estimators,
+                 max_depth, min_samples_split, min_impurity_split, max_features):
         self.disable_fuzzy = disable_fuzzy
         self.fuzzification_params = fuzzification_params
         self.criterion_func = criterion_func
@@ -92,7 +94,8 @@ class FuzzyRDF(metaclass=ABCMeta):
         self.min_impurity_split = min_impurity_split
         self.max_features = max_features
 
-        self._estimators = []  # Initialised in derived classes.
+        self._estimators = []  # To be initialised in derived classes.
+        self._res_func = None
 
     def fit(self, X_train, y_train):
         """
@@ -104,29 +107,46 @@ class FuzzyRDF(metaclass=ABCMeta):
             The input samples.
 
         y_train: array-like of shape (n_samples,)
-            Target values (strings or integers in classification, real numbers
-            in regression)
+            Target values (non-negative integers in classification,
+            real numbers in regression)
+            NB: The input array needs to be of integer dtype, otherwise a
+            TypeError is raised.
         """
         # Randomly generate n_estimators training datasets through bootstrapping sampling.
-        X_train_subsets = self.get_bootstrap_data(X_train, y_train)
+        datasets = bootstrap_sample(X_train, y_train)
 
-        # TODO: Except the columns of fuzzy degrees of membership.
+        # Get the number of the data features.
+        # NB: Except the columns of fuzzy degrees of membership.
         n_features = X_train.shape[1]
+        if not self.disable_fuzzy:
+            n_features = int(n_features / (self.fuzzification_params.conv_k + 1))
         if self.max_features is None:
             self.max_features = int(np.sqrt(n_features))
 
         # Train each tree in the forest.
+        # NB: Iterate the n_estimators training datasets generated above, training a tree in each iteration.
         for i in range(self.n_estimators):
-            # Randomly generate features
-            X_train_subset, y_train_subset = X_train_subsets[i]
+            # Randomly generate features.
+            X_train_subset, y_train_subset = datasets[i]
             idxs = np.random.choice(n_features, self.max_features, replace=True)
-            # TODO: Select the columns of fuzzy degrees of membership at the same time.
+
+            # Select the columns of fuzzy degrees of membership at the same time.
+            idxs_cp = np.copy(idxs)
+            for idx in idxs_cp:
+                # Columns of the idx-th feature's degrees of membership start from
+                # "n_original_features + feature_idx * self.fuzzification_params.conv_k + 1", and end with
+                # "n_original_features + (feature_idx + 1) * self.fuzzification_params.conv_k + 1".
+                start = idxs_cp + idx * self.fuzzification_params.conv_k + 1
+                stop = idxs_cp + (idx + 1) * self.fuzzification_params.conv_k + 1
+                idxs_dm = np.arange(start=start, stop=stop, step=1, dtype=int)
+                idxs = np.concatenate((idxs, idxs_dm), axis=0)
+
             X_train_subset = X_train_subset[:, idxs]
             self._estimators[i].fit(X_train_subset, y_train_subset)
-            self._estimators[i].feature_indices = idxs
-            print("{}-th tree fit complete.".format(i))
+            self._estimators[i].feature_idxs = idxs
+            print("{}-th tree fitting is complete.".format(i))
 
-    def predict(self, X_train, y_train):
+    def predict(self, X):
         """
         Predict class for X.
 
@@ -140,7 +160,16 @@ class FuzzyRDF(metaclass=ABCMeta):
         y_pred: ndarray of shape (n_samples,)
             The predicted values.
         """
-        pass
+        y_preds = []
+
+        for i in range(self.n_estimators):
+            idxs = self._estimators[i].feature_idxs
+            X_subset = X[:, idxs]
+            y_pred = self._estimators[i].predict(X_subset)
+            y_preds.append(y_pred)
+        y_preds = np.array(y_preds).T
+
+        return self._res_func(y_preds)
 
 
 class FuzzyRDFClassifier(FuzzyRDF):
@@ -202,7 +231,7 @@ class FuzzyRDFClassifier(FuzzyRDF):
                          min_impurity_split=min_impurity_split,
                          max_features=max_features)
 
-        # Initialise forest.
+        # Initialise the forest.
         for _ in range(self.n_estimators):
             estimator = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier,
                                                  disable_fuzzy=disable_fuzzy,
@@ -211,6 +240,8 @@ class FuzzyRDFClassifier(FuzzyRDF):
                                                  min_samples_split=min_samples_split,
                                                  min_impurity_split=min_impurity_split)
             self._estimators.append(estimator)
+        # Specify to get the final classification result by majority voting method.
+        self._res_func = value_majority_vote
 
     def fit(self, X_train, y_train):
         # Do some custom things.
@@ -253,6 +284,8 @@ class FuzzyRDFRegressor(FuzzyRDF):
                                                  min_samples_split=min_samples_split,
                                                  min_impurity_split=min_impurity_split)
             self._estimators.append(estimator)
+        # Specify to get the final regression result by averaging method.
+        self._res_func = calculate_mean_value
 
     def fit(self, X_train, y_train):
         # Do some custom things.

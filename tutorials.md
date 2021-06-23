@@ -47,13 +47,15 @@ class FuzzyCARTClassifier(BaseFuzzyDecisionTree, DecisionTreeInterface):
 ```
 
 Also, I'm developing a fuzzy CART regressor.
+
 ```python
 from fuzzytrees.fdt_base import BaseFuzzyDecisionTree, DecisionTreeInterface, CRITERIA_FUNC_REG
-from fuzzytrees.util_criterion_funcs import calculate_variance_reduction, calculate_mean
+from fuzzytrees.util_criterion_funcs import calculate_variance_reduction, calculate_mean_value
 from fuzzytrees.util_split_funcs import split_ds_2_bin
 
+
 class FuzzyCARTRegressor(BaseFuzzyDecisionTree, DecisionTreeInterface):
-    
+
     def __init__(self, disable_fuzzy=False, X_fuzzy_dms=None, fuzzification_params=None,
                  criterion_func=CRITERIA_FUNC_REG["mse"], max_depth=float("inf"), min_samples_split=2,
                  min_impurity_split=1e-7, **kwargs):
@@ -62,8 +64,8 @@ class FuzzyCARTRegressor(BaseFuzzyDecisionTree, DecisionTreeInterface):
                          min_samples_split=min_samples_split, min_impurity_split=min_impurity_split, **kwargs)
         self._split_ds_func = split_ds_2_bin
         self._impurity_gain_calc_func = calculate_variance_reduction
-        self._leaf_value_calc_func = calculate_mean
-        
+        self._leaf_value_calc_func = calculate_mean_value
+
     # NB: The functions fit(), predict(), predict_proba() and print_tree() are already defined in the super class BaseFuzzyDecisionTree.
 ```
 

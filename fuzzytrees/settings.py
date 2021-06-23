@@ -43,9 +43,9 @@ class EvaluationType(Enum):
 
 # File paths to save evaluation data, graphs, serialised models.
 class DirSave(Enum):
-    EVAL_DATA = os.getcwd() + "/data_gen/eval_data/"
-    EVAL_FIGURES = os.getcwd() + "/data_gen/eval_figures/"
-    MODELS = os.getcwd() + "/data_gen/pkl_models/"
+    EVAL_DATA = os.getcwd() + "/fuzzy_trees_v001/data_gen/eval_data/"
+    EVAL_FIGURES = os.getcwd() + "/fuzzy_trees_v001/data_gen/eval_figures/"
+    MODELS = os.getcwd() + "/fuzzy_trees_v001/data_gen/pkl_models/"
 
 
 # Number of a group of models when pretraining.

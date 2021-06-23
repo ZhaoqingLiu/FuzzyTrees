@@ -160,7 +160,7 @@ def calculate_impurity_gain_ratio(y, sub_y_1, sub_y_2, X_sub, criterion_func, p_
 
 def calculate_value_by_majority_vote(y):
     """
-    Calculate leaf value by majority vote.
+    Calculate value by majority vote.
 
     NB: Used in classification decision tree.
     """
@@ -239,9 +239,19 @@ def calculate_variance_reduction(y, sub_y_1, sub_y_2, criterion_func, p_subset_t
     return sum(variance_reduction)
 
 
-def calculate_mean(y):
+def calculate_mean_value(y):
     """
     Calculate the mean of y.
+
+    Parameters
+    ----------
+    y: array-like of shape (n_samples, n_labels)
+
+    Returns
+    -------
+    value: array-like of the shape reduced by one dimension,
+           at least a 0-d float number
+        The mean values.
     """
     value = np.mean(y, axis=0)
 
@@ -331,3 +341,121 @@ class SoftLeastSquaresFunction(LossFunction):
 
     def gradient(self, y, proba):
         return y - proba
+
+
+# =============================================================================
+# Functions for Bagging Ensembles
+# =============================================================================
+
+def majority_vote(y_preds):
+    """
+    Get the the final classification result by majority voting method.
+
+    Parameters
+    ----------
+    y_preds: array-like of shape (n_samples, n_estimators)
+        NB: The input array needs to be of integer dtype, otherwise a
+        TypeError is raised.
+
+    Returns
+    -------
+    y_pred: array-like of shape (n_samples, )
+    """
+    y_pred = []
+    for y_p in y_preds:
+        y_pred.append(np.bincount(y_p.astype("int")).argmax())
+        # np.bincount(): Count number of occurrences of each value in array of non-negative ints.
+        # np.argmax(): Return indices of the maximum values along the given axis.
+
+    return y_pred
+
+
+def mean_value(y_preds):
+    """
+    Get the final regression result by averaging method.
+
+    Parameters
+    ----------
+    y_preds: array-like of shape (n_samples, n_estimators, n_labels)
+
+    Returns
+    -------
+    y_pred: array-like of the shape (n_samples, n_labels) reduced by one dimension,
+           at least array-like of shape (n_samples, )
+    """
+    y_pred = []
+    for y_p in y_preds:
+        y_pred.append(calculate_mean_value(y_p))
+
+    return np.array(y_pred)
+
+
+if __name__ == '__main__':
+    y = [[1, 1, 2],
+         [2, 2, 1],
+         [2, 1, 2]]
+    # y = [[[0, 1], [0, 1], [1, 0]],
+    #      [[0, 1], [1, 0], [0, 1]],
+    #      [[1, 0], [0, 1], [1, 0]]]
+    # y = [["yes", "yes", "no"],
+    #      ["yes", "no", "yes"],
+    #      ["no", "yes", "no"]]
+    # y = [[1], [1], [0]]
+    y = np.array(y)
+
+    # print("y's shape:", y.shape)
+    # print(y)
+    # print("y's mean value is:", np.mean(y, axis=0))
+
+    if len(np.shape(y)) == 1:
+        y = np.expand_dims(y, axis=1)
+        print("After increasing dimensionality, y's shape:", y.shape)
+    print(y)
+
+    y = majority_vote(y)
+    print("Final classification results are:\n", y)
+
+    # # y = y.T
+    # # print("After transposition, y's shape:", y.shape)
+    # # print(y)
+    #
+    # print("Mean value of y is:", calculate_mean_value(y))
+    # # print("y's mean value is:", np.mean(y, axis=0))
+    # # print(len(np.mean(y, axis=0)))
+
+    # y = [[[2], [3], [2]],
+    #      [[2], [5], [4]],
+    #      [[5], [5], [2]]]
+    y = [[[2, 5], [3, 5], [2, 6]],
+         [[2, 5], [2, 5], [2, 4]],
+         [[2, 5], [4, 5], [2, 5]]]
+    y = np.array(y)
+    y = mean_value(y)
+    print("Final regression results are:\n", y)
+
+    # # ======================================================================================================
+    # # Test the speed of my one_hot_encode() and that of sklearn in comparison.
+    # import time
+    #
+    # y = [1, 1, 0]
+    # y = np.array(y)
+    # time_start = time.time()
+    # from fuzzytrees.util_data_processing_funcs import one_hot_encode
+    # y = one_hot_encode(y)
+    # print(y)
+    # print("Elapsed time: {:.5}s".format(time.time() - time_start))
+    #
+    # y = [1, 1, 0]
+    # y = np.array(y)
+    # y = np.expand_dims(y, axis=1)
+    # time_start = time.time()
+    # from sklearn.preprocessing import OneHotEncoder
+    # transformer = OneHotEncoder(handle_unknown='ignore')
+    # y = transformer.fit_transform(y).toarray()
+    # print(y)
+    # print("Elapsed time: {:.5}s".format(time.time() - time_start))
+    # # ======================================================================================================
+
+
+
+

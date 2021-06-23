@@ -349,9 +349,16 @@ class BaseFuzzyDecisionTree(metaclass=ABCMeta):
         for feature_idx in range(n_loop):
             # Calculate the sum of all the membership degrees of the current feature values.
             total_dm = None
+            start = None
+            stop = None
             if not self.disable_fuzzy:
-                start = (feature_idx + 1) * self.fuzzification_params.conv_k
-                stop = (feature_idx + 2) * self.fuzzification_params.conv_k
+                # start = (feature_idx + 1) * self.fuzzification_params.conv_k
+                # stop = (feature_idx + 2) * self.fuzzification_params.
+                # Columns of the idx-th features's degrees of membership start from
+                # "n_loop + feature_idx * self.fuzzification_params.conv_k + 1", and end with
+                # "n_loop + (feature_idx + 1) * self.fuzzification_params.conv_k + 1".
+                start = n_loop + feature_idx * self.fuzzification_params.conv_k + 1
+                stop = n_loop + (feature_idx + 1) * self.fuzzification_params.conv_k + 1
                 total_dm = np.sum(X[:, start:stop])
                 # print(feature_idx, "-th feature: total degree of membership:", total_dm)
 
@@ -370,13 +377,13 @@ class BaseFuzzyDecisionTree(metaclass=ABCMeta):
                     p_subset_true_dm = None
                     p_subset_false_dm = None
                     if not self.disable_fuzzy and total_dm is not None and total_dm > 0.0:
-                        start = (feature_idx + 1) * self.fuzzification_params.conv_k
-                        stop = (feature_idx + 2) * self.fuzzification_params.conv_k
+                        # start = (feature_idx + 1) * self.fuzzification_params.conv_k
+                        # stop = (feature_idx + 2) * self.fuzzification_params.conv_k
                         subset_true_dm = np.sum(subset_true[:, start:stop])
                         p_subset_true_dm = subset_true_dm / total_dm
                         # print("    ", count, "-th split: subset_true's degree of membership:", subset_true_dm)
-                        start = (feature_idx + 1) * self.fuzzification_params.conv_k
-                        stop = (feature_idx + 2) * self.fuzzification_params.conv_k
+                        # start = (feature_idx + 1) * self.fuzzification_params.conv_k
+                        # stop = (feature_idx + 2) * self.fuzzification_params.conv_k
                         subset_false_dm = np.sum(subset_false[:, start:stop])
                         p_subset_false_dm = subset_false_dm / total_dm
                         # print("    ", count, "-th split: subset_false's degree of membership:", subset_false_dm)

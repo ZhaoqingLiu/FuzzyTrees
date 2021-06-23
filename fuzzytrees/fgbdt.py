@@ -7,6 +7,8 @@
 """
 from abc import ABCMeta
 import numpy as np
+from sklearn.preprocessing import OneHotEncoder
+
 from fuzzytrees.fdt_base import FuzzyDecisionTreeWrapper, CRITERIA_FUNC_REG
 from fuzzytrees.fdts import FuzzyCARTRegressor
 from fuzzytrees.util_criterion_funcs import LeastSquaresFunction, SoftLeastSquaresFunction
@@ -209,7 +211,11 @@ class FuzzyGBDTClassifier(FuzzyGBDT):
                          min_impurity_split=min_impurity_split, is_regression=False)
 
     def fit(self, X_train, y_train):
-        y_train = one_hot_encode(y_train)
+        if len(np.shape(y_train)) == 1:
+            y_train = np.expand_dims(y_train, axis=1)
+        transformer = OneHotEncoder(handle_unknown='ignore')
+        y_train = transformer.fit_transform(y_train).toarray()
+
         super().fit(X_train=X_train, y_train=y_train)
 
 

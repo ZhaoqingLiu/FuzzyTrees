@@ -6,7 +6,7 @@
 """
 from fuzzytrees.fdt_base import BaseFuzzyDecisionTree, DecisionTreeInterface, CRITERIA_FUNC_CLF, CRITERIA_FUNC_REG
 from fuzzytrees.util_criterion_funcs import calculate_impurity_gain, calculate_value_by_majority_vote, \
-    calculate_variance_reduction, calculate_mean, calculate_impurity_gain_ratio
+    calculate_variance_reduction, calculate_mean_value, calculate_impurity_gain_ratio
 from fuzzytrees.util_split_funcs import split_ds_2_bin, split_disc_ds_2_multi, split_ds_2_multi
 
 
@@ -63,7 +63,7 @@ class FuzzyCARTRegressor(BaseFuzzyDecisionTree, DecisionTreeInterface):
                          min_samples_split=min_samples_split, min_impurity_split=min_impurity_split, **kwargs)
         self._split_ds_func = split_ds_2_bin
         self._impurity_gain_calc_func = calculate_variance_reduction
-        self._leaf_value_calc_func = calculate_mean
+        self._leaf_value_calc_func = calculate_mean_value
 
     # def fit(self, X_train, y_train):
     #     self._split_ds_func = split_ds_2_bin

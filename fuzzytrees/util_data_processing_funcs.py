@@ -200,6 +200,45 @@ def make_diagonal(x):
     return m
 
 
+# =============================================================================
+# Sampling
+# =============================================================================
+
+def bootstrap_sample(X, y, n_datasets):
+    """
+    Get a specified number of groups of independent datasets from
+    the original dataset by bootstrapping sampling method.
+
+    Parameters
+    ----------
+    X: {array-like, sparse matrix} of shape (n_samples, n_features)
+        The input samples.
+    y: array-like of shape (n_samples,)
+        Target values (non-negative integers in classification,
+        real numbers in regression)
+    n_datasets: int
+        The number of groups of datasets to be sampled.
+
+    Returns
+    -------
+    datasets: array-like
+        The specified number of groups of bootstrapping datasets.
+    """
+    n_samples = X.shape[0]
+    y = y.reshape(n_samples, 1)
+    X_y = np.concatenate((X, y), axis=1)
+    np.random.shuffle(X_y)
+
+    datasets = []
+    for _ in range(n_datasets):
+        idxs = np.random.choice(n_samples, n_samples, replace=True)
+        X_y_bootstrap = X_y[idxs, :]
+        bootstrap_X = X_y_bootstrap[:, :-1]
+        bootstrap_y = X_y_bootstrap[:, -1:]
+        datasets.append((bootstrap_X, bootstrap_y))  # TODO: Test bug if using [bootstrap_X, bootstrap_y]
+    return datasets
+
+
 if __name__ == '__main__':
     # Test for mapping [0, infinity] to [0, 1]
     a = np.arange(0, 1, 0.01)
