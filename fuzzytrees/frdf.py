@@ -127,7 +127,7 @@ class FuzzyRDF(metaclass=ABCMeta):
         # NB: Iterate the n_estimators training datasets generated above, training a tree in each iteration.
         for i in range(self.n_estimators):
             # Randomly generate features.
-            (X_train_subset, y_train_subset) = datasets[i]
+            X_train_subset, y_train_subset = datasets[i]
             idxs = np.random.choice(n_features, self.max_features, replace=True)
 
             if not self.disable_fuzzy:

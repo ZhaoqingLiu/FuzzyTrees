@@ -204,7 +204,7 @@ def make_diagonal(x):
 # Functions for Sampling
 # =============================================================================
 
-def sample_in_bootstrap(X, y, n_datasets, n_samples=None, random_state=None):
+def sample_in_bootstrap(X, y, n_datasets, n_samples=None):
     """
     Sample a specified number of collections of independent datasets from
     an original dataset in bootstrapping sampling method.
@@ -229,10 +229,6 @@ def sample_in_bootstrap(X, y, n_datasets, n_samples=None, random_state=None):
         Number of samples in each dataset to generate. If left to None
         this is automatically set to the first dimension of X.
 
-    random_state: int, RandomState instance or None, default=None
-        Determines random number generation for shuffling the data. Pass
-        an int for reproducible results across multiple function calls.
-
     Returns
     -------
     datasets: sequence of array-like
@@ -242,8 +238,8 @@ def sample_in_bootstrap(X, y, n_datasets, n_samples=None, random_state=None):
     len_X = X.shape[0]
     y = y.reshape(len_X, 1)  # Increase the number of dimensions. Be equivalent to: np.expand_dims(y, axis=1)
     X_y = np.concatenate((X, y), axis=1)  # Be equivalent to: np.hstack((X, y))
-    np.random.shuffle(X_y)
-
+    np.random.shuffle(X_y)  # NB: Bootstrap never uses a random_state, i.e., never np.random.seed(random_state) before.
+    np.random.random_sample()
     if n_samples is None:
         n_samples = len_X
 
@@ -251,9 +247,9 @@ def sample_in_bootstrap(X, y, n_datasets, n_samples=None, random_state=None):
     for _ in range(n_datasets):
         idxs = np.random.choice(len_X, n_samples, replace=True)
         X_y_bootstrap = X_y[idxs, :]
-        bootstrap_X = X_y_bootstrap[:, :-1]
-        bootstrap_y = X_y_bootstrap[:, -1]
+        X_bootstrap = X_y_bootstrap[:, :-1]
+        y_bootstrap = X_y_bootstrap[:, -1]
 
-        datasets.append((bootstrap_X, bootstrap_y))  # TODO: Test bug if using [bootstrap_X, bootstrap_y]
+        datasets.append([X_bootstrap, y_bootstrap])
 
     return datasets
