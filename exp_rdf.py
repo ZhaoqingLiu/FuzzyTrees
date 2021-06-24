@@ -42,7 +42,7 @@ def main():
     fclf = FuzzyRDFClassifier(disable_fuzzy=False,
                               fuzzification_params=fuzzification_params,
                               criterion_func=CRITERIA_FUNC_CLF["gini"],
-                              n_estimators=10,
+                              n_estimators=100,
                               max_depth=5)
     fclf.fit(X_train_f, y_train)
 
@@ -50,7 +50,7 @@ def main():
     clf = FuzzyRDFClassifier(disable_fuzzy=True,
                              fuzzification_params=fuzzification_params,
                              criterion_func=CRITERIA_FUNC_CLF["gini"],
-                             n_estimators=10,
+                             n_estimators=100,
                              max_depth=5)
     clf.fit(X_train, y_train)
 
