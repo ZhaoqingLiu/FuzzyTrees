@@ -201,51 +201,59 @@ def make_diagonal(x):
 
 
 # =============================================================================
-# Sampling
+# Functions for Sampling
 # =============================================================================
 
-def bootstrap_sample(X, y, n_datasets):
+def sample_in_bootstrap(X, y, n_datasets, n_samples=None, random_state=None):
     """
-    Get a specified number of groups of independent datasets from
-    the original dataset by bootstrapping sampling method.
+    Sample a specified number of collections of independent datasets from
+    an original dataset in bootstrapping sampling method.
 
     Parameters
     ----------
-    X: {array-like, sparse matrix} of shape (n_samples, n_features)
-        The input samples.
+    X: sequence of {array-like, sparse matrix} of shape
+        (n_samples, n_features), at least (n_samples,)
+        Indexable data-structures can be arrays, lists, dataframes or
+        scipy sparse matrices with consistent first dimension.
+        Input samples in the format of indexable data structure.
+
     y: array-like of shape (n_samples,)
         Target values (non-negative integers in classification,
-        real numbers in regression)
+        real numbers in regression). Its first dimension has to be the
+        same as that of X.
+
     n_datasets: int
-        The number of groups of datasets to be sampled.
+        Number of groups of datasets to be sampled.
+
+    n_samples: int, default=None
+        Number of samples in each dataset to generate. If left to None
+        this is automatically set to the first dimension of X.
+
+    random_state: int, RandomState instance or None, default=None
+        Determines random number generation for shuffling the data. Pass
+        an int for reproducible results across multiple function calls.
 
     Returns
     -------
-    datasets: array-like
-        The specified number of groups of bootstrapping datasets.
+    datasets: sequence of array-like
+        Specified number of collections of bootstrapping sampled datasets.
+        Number of samples in each dataset is the first dimension of the X.
     """
-    n_samples = X.shape[0]
-    y = y.reshape(n_samples, 1)
-    X_y = np.concatenate((X, y), axis=1)
+    len_X = X.shape[0]
+    y = y.reshape(len_X, 1)  # Increase the number of dimensions. Be equivalent to: np.expand_dims(y, axis=1)
+    X_y = np.concatenate((X, y), axis=1)  # Be equivalent to: np.hstack((X, y))
     np.random.shuffle(X_y)
+
+    if n_samples is None:
+        n_samples = len_X
 
     datasets = []
     for _ in range(n_datasets):
-        idxs = np.random.choice(n_samples, n_samples, replace=True)
+        idxs = np.random.choice(len_X, n_samples, replace=True)
         X_y_bootstrap = X_y[idxs, :]
         bootstrap_X = X_y_bootstrap[:, :-1]
-        bootstrap_y = X_y_bootstrap[:, -1:]
+        bootstrap_y = X_y_bootstrap[:, -1]
+
         datasets.append((bootstrap_X, bootstrap_y))  # TODO: Test bug if using [bootstrap_X, bootstrap_y]
+
     return datasets
-
-
-if __name__ == '__main__':
-    # Test for mapping [0, infinity] to [0, 1]
-    a = np.arange(0, 1, 0.01)
-    print(a)
-    b = 1 - 1/(1+100*a)
-    print(b)
-
-    b = np.log(a) - np.log(1-a)
-    print(b)
-

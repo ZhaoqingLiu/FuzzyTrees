@@ -10,6 +10,7 @@ TODO:
     3. Upgrade program from Python to Cython to speed up the algorithms.
 """
 import os
+import numpy as np
 from fuzzytrees.settings import DirSave
 from fuzzytrees.util_comm import get_today_str
 
@@ -55,3 +56,14 @@ if __name__ == '__main__':
         os.makedirs(dir)
 
     pass
+
+    # =======================================================================================
+    # Test for mapping [0, infinity] to [0, 1]
+    a = np.arange(0, 1, 0.01)
+    print(a)
+    b = 1 - 1 / (1 + 100 * a)
+    print(b)
+
+    b = np.log(a) - np.log(1 - a)
+    print(b)
+    # =======================================================================================

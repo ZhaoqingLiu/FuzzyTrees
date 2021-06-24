@@ -401,12 +401,12 @@ def load_dataset_classification():
     y_list = []
     dataset_name_list = []
 
-    dataset = datasets.load_iris()
-    X = dataset.data
-    y = dataset.target
-    X_list.append(X)
-    y_list.append(y)
-    dataset_name_list.append("Iris")
+    # dataset = datasets.load_iris()
+    # X = dataset.data
+    # y = dataset.target
+    # X_list.append(X)
+    # y_list.append(y)
+    # dataset_name_list.append("Iris")
 
     # dataset = datasets.load_breast_cancer()
     # X = dataset.data
@@ -468,9 +468,9 @@ def load_dataset_df_classification():
     # dataset_df_list.append(dataset_df)
     # dataset_name_list.append("Chess")
 
-    # dataset_df = dh.load_diabetes()
-    # dataset_df_list.append(dataset_df)
-    # dataset_name_list.append("Diabetes")
+    dataset_df = dh.load_diabetes()
+    dataset_df_list.append(dataset_df)
+    dataset_name_list.append("Diabetes")
 
     return dataset_df_list, dataset_name_list
 
@@ -521,13 +521,13 @@ if __name__ == "__main__":
     # exec_exp_clf(ComparisionMode.FF5)
     # print("Elapsed time: {:.5}s".format(time.time() - time_start))
 
-    # time_start = time.time()
-    # exec_exp_clf(ComparisionMode.FUZZY)
-    # print("Elapsed time: {:.5}s".format(time.time() - time_start))
-
     time_start = time.time()
-    exec_exp_clf(ComparisionMode.BOOSTING)
+    exec_exp_clf(ComparisionMode.FUZZY)
     print("Elapsed time: {:.5}s".format(time.time() - time_start))
+
+    # time_start = time.time()
+    # exec_exp_clf(ComparisionMode.BOOSTING)
+    # print("Elapsed time: {:.5}s".format(time.time() - time_start))
 
     # time_start = time.time()
     # exec_exp_clf(ComparisionMode.MIXED)

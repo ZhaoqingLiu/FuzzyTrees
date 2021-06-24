@@ -357,8 +357,8 @@ class BaseFuzzyDecisionTree(metaclass=ABCMeta):
                 # Columns of the idx-th features's degrees of membership start from
                 # "n_loop + feature_idx * self.fuzzification_params.conv_k + 1", and end with
                 # "n_loop + (feature_idx + 1) * self.fuzzification_params.conv_k + 1".
-                start = n_loop + feature_idx * self.fuzzification_params.conv_k + 1
-                stop = n_loop + (feature_idx + 1) * self.fuzzification_params.conv_k + 1
+                start = n_loop + feature_idx * self.fuzzification_params.conv_k
+                stop = n_loop + (feature_idx + 1) * self.fuzzification_params.conv_k
                 total_dm = np.sum(X[:, start:stop])
                 # print(feature_idx, "-th feature: total degree of membership:", total_dm)
 

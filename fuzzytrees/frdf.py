@@ -9,8 +9,8 @@ import numpy as np
 
 from fuzzytrees.fdt_base import FuzzyDecisionTreeWrapper
 from fuzzytrees.fdts import FuzzyCARTClassifier, FuzzyCARTRegressor
-from fuzzytrees.util_criterion_funcs import value_majority_vote, calculate_mean_value
-from fuzzytrees.util_data_processing_funcs import bootstrap_sample
+from fuzzytrees.util_criterion_funcs import majority_vote, mean_value
+from fuzzytrees.util_data_processing_funcs import sample_in_bootstrap
 
 
 class FuzzyRDF(metaclass=ABCMeta):
@@ -113,12 +113,12 @@ class FuzzyRDF(metaclass=ABCMeta):
             TypeError is raised.
         """
         # Randomly generate n_estimators training datasets through bootstrapping sampling.
-        datasets = bootstrap_sample(X_train, y_train)
+        datasets = sample_in_bootstrap(X_train, y_train, n_datasets=self.n_estimators)
 
         # Get the number of the data features.
-        # NB: Except the columns of fuzzy degrees of membership.
         n_features = X_train.shape[1]
         if not self.disable_fuzzy:
+            # NB: Except the columns of fuzzy degrees of membership.
             n_features = int(n_features / (self.fuzzification_params.conv_k + 1))
         if self.max_features is None:
             self.max_features = int(np.sqrt(n_features))
@@ -127,19 +127,20 @@ class FuzzyRDF(metaclass=ABCMeta):
         # NB: Iterate the n_estimators training datasets generated above, training a tree in each iteration.
         for i in range(self.n_estimators):
             # Randomly generate features.
-            X_train_subset, y_train_subset = datasets[i]
+            (X_train_subset, y_train_subset) = datasets[i]
             idxs = np.random.choice(n_features, self.max_features, replace=True)
 
-            # Select the columns of fuzzy degrees of membership at the same time.
-            idxs_cp = np.copy(idxs)
-            for idx in idxs_cp:
-                # Columns of the idx-th feature's degrees of membership start from
-                # "n_original_features + feature_idx * self.fuzzification_params.conv_k + 1", and end with
-                # "n_original_features + (feature_idx + 1) * self.fuzzification_params.conv_k + 1".
-                start = idxs_cp + idx * self.fuzzification_params.conv_k + 1
-                stop = idxs_cp + (idx + 1) * self.fuzzification_params.conv_k + 1
-                idxs_dm = np.arange(start=start, stop=stop, step=1, dtype=int)
-                idxs = np.concatenate((idxs, idxs_dm), axis=0)
+            if not self.disable_fuzzy:
+                # Select the columns of fuzzy degrees of membership at the same time.
+                idxs_cp = np.copy(idxs)
+                for idx in idxs_cp:
+                    # Columns of the idx-th feature's degrees of membership start from
+                    # "n_original_features + feature_idx * self.fuzzification_params.conv_k + 1", and end with
+                    # "n_original_features + (feature_idx + 1) * self.fuzzification_params.conv_k + 1".
+                    start = n_features + idx * self.fuzzification_params.conv_k
+                    stop = n_features + (idx + 1) * self.fuzzification_params.conv_k
+                    idxs_dm = np.arange(start=start, stop=stop, step=1, dtype=int)
+                    idxs = np.concatenate((idxs, idxs_dm), axis=0)
 
             X_train_subset = X_train_subset[:, idxs]
             self._estimators[i].fit(X_train_subset, y_train_subset)
@@ -236,17 +237,20 @@ class FuzzyRDFClassifier(FuzzyRDF):
             estimator = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier,
                                                  disable_fuzzy=disable_fuzzy,
                                                  fuzzification_params=fuzzification_params,
-                                                 criterion_func=criterion_func, max_depth=max_depth,
+                                                 criterion_func=criterion_func,
+                                                 max_depth=max_depth,
                                                  min_samples_split=min_samples_split,
                                                  min_impurity_split=min_impurity_split)
             self._estimators.append(estimator)
+
         # Specify to get the final classification result by majority voting method.
-        self._res_func = value_majority_vote
+        self._res_func = majority_vote
 
     def fit(self, X_train, y_train):
         # Do some custom things.
 
         super().fit(X_train=X_train, y_train=y_train)
+
 
 class FuzzyRDFRegressor(FuzzyRDF):
     """
@@ -280,12 +284,14 @@ class FuzzyRDFRegressor(FuzzyRDF):
             estimator = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTRegressor,
                                                  disable_fuzzy=disable_fuzzy,
                                                  fuzzification_params=fuzzification_params,
-                                                 criterion_func=criterion_func, max_depth=max_depth,
+                                                 criterion_func=criterion_func,
+                                                 max_depth=max_depth,
                                                  min_samples_split=min_samples_split,
                                                  min_impurity_split=min_impurity_split)
             self._estimators.append(estimator)
+
         # Specify to get the final regression result by averaging method.
-        self._res_func = calculate_mean_value
+        self._res_func = mean_value
 
     def fit(self, X_train, y_train):
         # Do some custom things.
