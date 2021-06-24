@@ -1,4 +1,4 @@
-# FuzzyTrees
+# FuzzyTrees ![MIT](https://img.shields.io/badge/license-MIT-brightgreen)
 
 FuzzyTrees is a lightweight framework designed for rapidly developing various fuzzy decision tree algorithms.
 It has three features.
