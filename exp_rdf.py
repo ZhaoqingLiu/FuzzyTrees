@@ -4,6 +4,8 @@
 @date  : 24/6/21 6:28 pm
 @desc  :
 """
+import time
+
 import numpy as np
 from sklearn import datasets
 from sklearn.metrics import accuracy_score
@@ -42,37 +44,30 @@ def main():
     fclf = FuzzyRDFClassifier(disable_fuzzy=False,
                               fuzzification_params=fuzzification_params,
                               criterion_func=CRITERIA_FUNC_CLF["gini"],
-                              n_estimators=100,
-                              max_depth=5)
+                              n_estimators=10,
+                              max_depth=5,
+                              multi_proc=True)
     fclf.fit(X_train_f, y_train)
 
-    # 4.2. Using a non-fuzzy classifier (You can customise the arguments in your constructor and their default values).
-    clf = FuzzyRDFClassifier(disable_fuzzy=True,
-                             fuzzification_params=fuzzification_params,
-                             criterion_func=CRITERIA_FUNC_CLF["gini"],
-                             n_estimators=100,
-                             max_depth=5)
-    clf.fit(X_train, y_train)
+    while True:
+        if fclf.multi_proc_state:
+            # 5. Look at the models.
+            # 5.1. Look at the fuzzy model.
 
-    # 5. Look at the models.
-    # 5.1. Look at the fuzzy model.
-    # 5.2. Look at the non-fuzzy model.
+            print("========================================================================================")
+            # 6. Evaluate the models.
+            # 6.1. Evaluate the fuzzy model.
+            y_pred_f = fclf.predict(X_test_f)
+            acc_f = accuracy_score(y_test, y_pred_f)
+            print("Fuzzy model's accuracy is:", acc_f)
 
-    print("========================================================================================")
-    # 6. Evaluate the models.
-    # 6.1. Evaluate the fuzzy model.
-    y_pred_f = fclf.predict(X_test_f)
-    acc_f = accuracy_score(y_test, y_pred_f)
-    print("Fuzzy model's accuracy is:", acc_f)
+            # 6.3. Do your other evaluations.
+            print("========================================================================================")
 
-    # 6.2. Evaluate the non-fuzzy model.
-    y_pred = clf.predict(X_test)
-    acc = accuracy_score(y_test, y_pred)
-    print("Non-fuzzy model's accuracy is:", acc)
-
-    # 6.3. Do your other evaluations.
-    print("========================================================================================")
+            break
 
 
 if __name__ == '__main__':
+    time_start = time.time()
     main()
+    print("Total elapsed time: {:.5}s".format(time.time() - time_start))

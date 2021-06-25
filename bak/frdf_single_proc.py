@@ -4,13 +4,11 @@
 @date  : 02/02/2021 3:31 pm
 @desc  :
 """
-import multiprocessing
 from abc import ABCMeta
 import numpy as np
 
 from fuzzytrees.fdt_base import FuzzyDecisionTreeWrapper
 from fuzzytrees.fdts import FuzzyCARTClassifier, FuzzyCARTRegressor
-from fuzzytrees.settings import NUM_CPU_CORES_REQ
 from fuzzytrees.util_criterion_funcs import majority_vote, mean_value
 from fuzzytrees.util_data_processing_funcs import resample_bootstrap
 
@@ -83,19 +81,10 @@ class FuzzyRDF(metaclass=ABCMeta):
     ----------
     _estimators: ndarray of FuzzyDecisionTree
         The collection of sub-estimators as the base learners.
-
-    multi_proc_state: bool, default=False
-        Whether the forest is fitted successfully when training the
-        decision trees in multi-process mode.
-
-    _res_func: function, default=None
-        In classification, get the final result from the classes given by the 
-        forest by majority voting method. In regression, calculate the average 
-        of the predicted values given by the forest as the final result.
     """
 
     def __init__(self, disable_fuzzy, fuzzification_params, criterion_func, n_estimators,
-                 max_depth, min_samples_split, min_impurity_split, max_features, multi_proc):
+                 max_depth, min_samples_split, min_impurity_split, max_features):
         self.disable_fuzzy = disable_fuzzy
         self.fuzzification_params = fuzzification_params
         self.criterion_func = criterion_func
@@ -104,15 +93,13 @@ class FuzzyRDF(metaclass=ABCMeta):
         self.min_samples_split = min_samples_split
         self.min_impurity_split = min_impurity_split
         self.max_features = max_features
-        self.multi_proc = multi_proc
 
-        self._estimators = []  # Forest initialised in derived classes.
-        self.multi_proc_state = False
+        self._estimators = []  # To be initialised in derived classes.
         self._res_func = None
 
     def fit(self, X_train, y_train):
         """
-        Fit the fuzzy random decision forest model (in multi-process mode).
+        Fit the fuzzy random decision forest model.
 
         Parameters
         ----------
@@ -138,45 +125,30 @@ class FuzzyRDF(metaclass=ABCMeta):
 
         # Train each tree in the forest.
         # NB: Iterate the n_estimators training subsets generated above, training a tree in each iteration.
-        if self.multi_proc:
-            # In multi-process mode.
-            # Create a connection used to communicate between main process and its child processes.
-            q = multiprocessing.Manager().Queue()
-            # Create a pool for main process to manage its child processes in parallel.
-            pool = multiprocessing.Pool(processes=NUM_CPU_CORES_REQ)
-            for i in range(self.n_estimators):
-                X_train_subset, y_train_subset = subsets[i]
-                pool.apply_async(self._fit_one, args=(i, n_features, X_train_subset, y_train_subset,))
-            pool.close()
-            pool.join()
-            self.multi_proc_state = True
-        else:
-            # In single-process mode.
-            for i in range(self.n_estimators):
-                X_train_subset, y_train_subset = subsets[i]
-                self._fit_one(i, n_features, X_train_subset, y_train_subset)
-            self.multi_proc_state = True
+        for i in range(self.n_estimators):
+            X_train_subset, y_train_subset = subsets[i]
 
-    def _fit_one(self, i, n_features, X_train_subset, y_train_subset):
-        # Randomly select features.
-        idxs = np.random.choice(n_features, self.max_features, replace=True)
-        if not self.disable_fuzzy:
-            # Select the columns of fuzzy degrees of membership at the same time.
-            idxs_cp = np.copy(idxs)
-            for idx in idxs_cp:
-                # Columns of the idx-th feature's degrees of membership start from
-                # "n_original_features + feature_idx * self.fuzzification_params.conv_k + 1", and end with
-                # "n_original_features + (feature_idx + 1) * self.fuzzification_params.conv_k + 1".
-                start = n_features + idx * self.fuzzification_params.conv_k
-                stop = n_features + (idx + 1) * self.fuzzification_params.conv_k
-                idxs_dm = np.arange(start=start, stop=stop, step=1, dtype=int)
-                idxs = np.concatenate((idxs, idxs_dm), axis=0)
-        X_train_subset = X_train_subset[:, idxs]
+            # Randomly select features.
+            idxs = np.random.choice(n_features, self.max_features, replace=True)
 
-        # Fit an estimator and record the indexes of fitted features to prepare for predictions.
-        self._estimators[i].fit(X_train_subset, y_train_subset)
-        self._estimators[i].feature_idxs = idxs
-        print("{}-th tree fitting is complete.".format(i))
+            if not self.disable_fuzzy:
+                # Select the columns of fuzzy degrees of membership at the same time.
+                idxs_cp = np.copy(idxs)
+                for idx in idxs_cp:
+                    # Columns of the idx-th feature's degrees of membership start from
+                    # "n_original_features + feature_idx * self.fuzzification_params.conv_k + 1", and end with
+                    # "n_original_features + (feature_idx + 1) * self.fuzzification_params.conv_k + 1".
+                    start = n_features + idx * self.fuzzification_params.conv_k
+                    stop = n_features + (idx + 1) * self.fuzzification_params.conv_k
+                    idxs_dm = np.arange(start=start, stop=stop, step=1, dtype=int)
+                    idxs = np.concatenate((idxs, idxs_dm), axis=0)
+
+            X_train_subset = X_train_subset[:, idxs]
+
+            # Fit an estimator and record the indexes of fitted features to prepare for predictions.
+            self._estimators[i].fit(X_train_subset, y_train_subset)
+            self._estimators[i].feature_idxs = idxs
+            print("{}-th tree fitting is complete.".format(i))
 
     def predict(self, X):
         """
@@ -253,7 +225,7 @@ class FuzzyRDFClassifier(FuzzyRDF):
     """
 
     def __init__(self, disable_fuzzy, fuzzification_params, criterion_func, n_estimators=100,
-                 max_depth=3, min_samples_split=2, min_impurity_split=1e-7, max_features=None, multi_proc=True):
+                 max_depth=3, min_samples_split=2, min_impurity_split=1e-7, max_features=None):
         super().__init__(disable_fuzzy=disable_fuzzy,
                          fuzzification_params=fuzzification_params,
                          criterion_func=criterion_func,
@@ -261,8 +233,7 @@ class FuzzyRDFClassifier(FuzzyRDF):
                          max_depth=max_depth,
                          min_samples_split=min_samples_split,
                          min_impurity_split=min_impurity_split,
-                         max_features=max_features,
-                         multi_proc=multi_proc)
+                         max_features=max_features)
 
         # Initialise the forest.
         for _ in range(self.n_estimators):
@@ -301,7 +272,7 @@ class FuzzyRDFRegressor(FuzzyRDF):
     """
 
     def __init__(self, disable_fuzzy, fuzzification_params, criterion_func, n_estimators=100,
-                 max_depth=3, min_samples_split=2, min_impurity_split=1e-7, max_features=None, multi_proc=True):
+                 max_depth=3, min_samples_split=2, min_impurity_split=1e-7, max_features=None):
         super().__init__(disable_fuzzy=disable_fuzzy,
                          fuzzification_params=fuzzification_params,
                          criterion_func=criterion_func,
@@ -309,8 +280,7 @@ class FuzzyRDFRegressor(FuzzyRDF):
                          max_depth=max_depth,
                          min_samples_split=min_samples_split,
                          min_impurity_split=min_impurity_split,
-                         max_features=max_features,
-                         multi_proc=multi_proc)
+                         max_features=max_features)
 
         # Initialise forest.
         for _ in range(self.n_estimators):

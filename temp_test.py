@@ -50,20 +50,26 @@ if __name__ == '__main__':
     # b = a - 1
     # print(b)
 
-    dir = DirSave.EVAL_DATA.value + get_today_str()
-    print(os.path.exists(dir))
-    if not os.path.exists(dir) or not os.path.isdir(dir):
-        os.makedirs(dir)
-
-    pass
+    # dir = DirSave.EVAL_DATA.value + get_today_str()
+    # print(os.path.exists(dir))
+    # if not os.path.exists(dir) or not os.path.isdir(dir):
+    #     os.makedirs(dir)
 
     # =======================================================================================
-    # Test for mapping [0, infinity] to [0, 1]
-    a = np.arange(0, 1, 0.01)
-    print(a)
-    b = 1 - 1 / (1 + 100 * a)
-    print(b)
+    # # Test for mapping [0, infinity] to [0, 1]
+    # a = np.arange(0, 1, 0.01)
+    # print(a)
+    # b = 1 - 1 / (1 + 100 * a)
+    # print(b)
+    #
+    # b = np.log(a) - np.log(1 - a)
+    # print(b)
 
-    b = np.log(a) - np.log(1 - a)
-    print(b)
     # =======================================================================================
+    # Compare the speed of random.sample() and numpy.random.choice():
+
+    X = [[1, 2, 3],
+         [4, 5, 6]]
+    X = np.array(X)
+    print(X.shape[1:])
+    print(np.prod(X.shape[1:]))

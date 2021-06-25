@@ -10,7 +10,6 @@ import pandas as pd
 from sklearn.cluster import KMeans
 from sklearn.metrics import pairwise_distances
 
-
 """
 Functions in this module are for preprocessing data:
     1. Transform numerical variables to fuzzy degree of membership.
@@ -116,7 +115,8 @@ def extract_fuzzy_features(X, conv_k=5, fuzzy_reg=0.0):
     n_samples, n_features = np.shape(X)
     X_fuzzy_dms = np.empty([n_samples, 0])
     for feature_idx in range(n_features):
-        X_fuzzy_dm, _, _ = degree_of_membership_build(r_seed=0, X_df=pd.DataFrame(X[:, feature_idx]), conv_k=conv_k, fuzzy_reg=fuzzy_reg)
+        X_fuzzy_dm, _, _ = degree_of_membership_build(r_seed=0, X_df=pd.DataFrame(X[:, feature_idx]), conv_k=conv_k,
+                                                      fuzzy_reg=fuzzy_reg)
         X_fuzzy_dms = np.concatenate((X_fuzzy_dms, X_fuzzy_dm), axis=1)
     # print("************* X_fuzzy_dms's shape:", np.shape(X_fuzzy_dms))
     return X_fuzzy_dms
@@ -203,53 +203,141 @@ def make_diagonal(x):
 # =============================================================================
 # Functions for Sampling
 # =============================================================================
+"""
+## Definitions
+- A population can be defined as including all people or items with the 
+  characteristic one wishes to understand.
+- Each observation measures one or more properties (such as weight, 
+  location, colour) of observable bodies distinguished as independent 
+  objects or individuals.
 
-def sample_in_bootstrap(X, y, n_datasets, n_samples=None):
+## Sampling methods
+### 1. Simple random sampling
+### 2. Systematic sampling
+### 3. Stratified sampling
+### 4. Probability-proportional-to-size sampling
+### 5. Cluster sampling
+### 6. Quota sampling
+### 7. Minimax sampling
+### 8. Accidental sampling
+### 9. Voluntary sampling
+### 10. Line-intercept sampling
+### 11. Panel sampling
+### 12. Snowball sampling
+### 13. Theoretical sampling
+"""
+
+
+def resample_bootstrap(X, y, n_subsets, n_samples_sub=None):
     """
-    Sample a specified number of collections of independent datasets from
-    an original dataset in bootstrapping sampling method.
+    Draw a specified number of collections of independent subsets in
+    bootstrapping sampling method.
+    This is a sampling scheme with replacement ('WR' - an element may
+    appear multiple times in the one sample).
 
     Parameters
     ----------
     X: sequence of {array-like, sparse matrix} of shape
-        (n_samples, n_features), at least (n_samples,)
+        (n_samples_super, n_features), at least (n_samples_super,)
         Indexable data-structures can be arrays, lists, dataframes or
         scipy sparse matrices with consistent first dimension.
-        Input samples in the format of indexable data structure.
+        The input samples in the format of indexable data-structure.
 
-    y: array-like of shape (n_samples,)
-        Target values (non-negative integers in classification,
-        real numbers in regression). Its first dimension has to be the
-        same as that of X.
+    y: array-like of shape (n_samples_super,)
+        The target values (class labels), which are non-negative integers
+        in classification and real numbers in regression.
+        Its first dimension is the same as that of X.
 
-    n_datasets: int
-        Number of groups of datasets to be sampled.
+    n_subsets: int
+        Number of collections of subsets to generate.
 
-    n_samples: int, default=None
-        Number of samples in each dataset to generate. If left to None
+    n_samples_sub: int, default=None
+        Number of samples in each subset to generate. If left to None
         this is automatically set to the first dimension of X.
 
     Returns
     -------
-    datasets: sequence of array-like
-        Specified number of collections of bootstrapping sampled datasets.
-        Number of samples in each dataset is the first dimension of the X.
+    subsets: sequence of array-like
+        Bootstrapping subsets generated. The number of samples in each 
+        subset is the first dimension of the X.
     """
-    len_X = X.shape[0]
-    y = y.reshape(len_X, 1)  # Increase the number of dimensions. Be equivalent to: np.expand_dims(y, axis=1)
+    n_samples_super = X.shape[0]
+    y = y.reshape(n_samples_super, 1)  # Be equivalent to: np.expand_dims(y, axis=1)
     X_y = np.concatenate((X, y), axis=1)  # Be equivalent to: np.hstack((X, y))
     np.random.shuffle(X_y)  # NB: Bootstrap never uses a random_state, i.e., never np.random.seed(random_state) before.
-    np.random.random_sample()
-    if n_samples is None:
-        n_samples = len_X
 
-    datasets = []
-    for _ in range(n_datasets):
-        idxs = np.random.choice(len_X, n_samples, replace=True)
+    if n_samples_sub is None:
+        n_samples_sub = n_samples_super
+
+    subsets = []
+    for _ in range(n_subsets):
+        idxs = np.random.choice(n_samples_super, n_samples_sub, replace=True)
         X_y_bootstrap = X_y[idxs, :]
         X_bootstrap = X_y_bootstrap[:, :-1]
         y_bootstrap = X_y_bootstrap[:, -1]
 
-        datasets.append([X_bootstrap, y_bootstrap])
+        subsets.append([X_bootstrap, y_bootstrap])
 
-    return datasets
+    return subsets
+
+
+def resample_simple_random(X, y, n_subsets, n_samples_sub=None):
+    """
+    Randomly draw a specified number of collections of independent
+    subsets in simple random sampling method.
+    This is a sampling scheme without replacement ('WOR' - no element
+    can be selected more than once in the same sample).
+
+    NB: The simple random sampling method first numbers all the
+    observations in the population to make them indexable, and then
+    randomly draws a number of observations from the indexable
+    population to form each sample though a raffle/lots or a list of
+    random numbers.
+
+    Parameters
+    ----------
+    X: sequence of {array-like, sparse matrix} of shape
+        (n_samples_super, n_features), at least (n_samples_super,)
+        Indexable data-structures can be arrays, lists, dataframes or
+        scipy sparse matrices with consistent first dimension.
+        The input samples in the format of indexable data-structure.
+
+    y: array-like of shape (n_samples_super,)
+        The target values (class labels), which are non-negative integers
+        in classification and real numbers in regression.
+        Its first dimension is the same as that of X.
+
+    n_subsets: int
+        Number of collections of subsets to generate.
+
+    n_samples_sub: int, default=None
+        Number of samples in each subset to generate. If left to None
+        this is automatically set to the first dimension of X.
+
+    Returns
+    -------
+    subsets: sequence of array-like
+        Bootstrapping subsets generated. The number of samples in each
+        subset is the first dimension of the X.
+    """
+    try:
+        n_samples_super = X.shape[0]
+        y = y.reshape(n_samples_super, 1)
+        X_y = np.concatenate((X, y), axis=1)
+        np.random.shuffle(X_y)
+
+        if n_samples_sub is None:
+            n_samples_sub = n_samples_super
+
+        subsets = []
+        for _ in range(n_subsets):
+            idxs = np.random.choice(n_samples_super, n_samples_sub, replace=False)
+            X_y_bootstrap = X_y[idxs, :]
+            X_bootstrap = X_y_bootstrap[:, :-1]
+            y_bootstrap = X_y_bootstrap[:, -1]
+
+            subsets.append([X_bootstrap, y_bootstrap])
+
+        return subsets
+    except:
+        print('The sample size is greater than the population size.')
