@@ -246,20 +246,21 @@ def resample_bootstrap(X, y, n_subsets, n_samples_sub=None):
     y: array-like of shape (n_samples_super,)
         The target values (class labels), which are non-negative integers
         in classification and real numbers in regression.
-        Its first dimension is the same as that of X.
+        Its first dimension has to be the same as that of X.
 
     n_subsets: int
-        Number of collections of subsets to generate.
+        The number of collections of subsets to generate.
 
     n_samples_sub: int, default=None
-        Number of samples in each subset to generate. If left to None
-        this is automatically set to the first dimension of X.
+        Sample size in each subset to generate. If left to None this is
+        automatically set to the first dimension of X.
 
     Returns
     -------
-    subsets: sequence of array-like
-        Bootstrapping subsets generated. The number of samples in each 
-        subset is the first dimension of the X.
+    X_subsets, y_subsets: tuple, where each is a sequence of array-like
+        The tuple of generated bootstrapping subsets, where the first element
+        is the subsets of X and the second element is the subsets of y. The
+        sample size of each subset is the first dimension of the X.
     """
     n_samples_super = X.shape[0]
     y = y.reshape(n_samples_super, 1)  # Be equivalent to: np.expand_dims(y, axis=1)
@@ -269,16 +270,18 @@ def resample_bootstrap(X, y, n_subsets, n_samples_sub=None):
     if n_samples_sub is None:
         n_samples_sub = n_samples_super
 
-    subsets = []
+    X_subsets = []
+    y_subsets = []
     for _ in range(n_subsets):
         idxs = np.random.choice(n_samples_super, n_samples_sub, replace=True)
         X_y_bootstrap = X_y[idxs, :]
         X_bootstrap = X_y_bootstrap[:, :-1]
         y_bootstrap = X_y_bootstrap[:, -1]
 
-        subsets.append([X_bootstrap, y_bootstrap])
+        X_subsets.append(X_bootstrap)
+        y_subsets.append(y_bootstrap)
 
-    return subsets
+    return X_subsets, y_subsets
 
 
 def resample_simple_random(X, y, n_subsets, n_samples_sub=None):
@@ -305,39 +308,43 @@ def resample_simple_random(X, y, n_subsets, n_samples_sub=None):
     y: array-like of shape (n_samples_super,)
         The target values (class labels), which are non-negative integers
         in classification and real numbers in regression.
-        Its first dimension is the same as that of X.
+        Its first dimension has to be the same as that of X.
 
     n_subsets: int
-        Number of collections of subsets to generate.
+        The number of collections of subsets to generate.
 
     n_samples_sub: int, default=None
-        Number of samples in each subset to generate. If left to None
-        this is automatically set to the first dimension of X.
+        Sample size in each subset to generate. If left to None this is
+        automatically set to the first dimension of X.
 
     Returns
     -------
-    subsets: sequence of array-like
-        Bootstrapping subsets generated. The number of samples in each
-        subset is the first dimension of the X.
+    X_subsets, y_subsets: tuple, where each is a sequence of array-like
+        The tuple of generated bootstrapping subsets, where the first element
+        is the subsets of X and the second element is the subsets of y. The
+        sample size of each subset is the first dimension of the X.
     """
     try:
         n_samples_super = X.shape[0]
-        y = y.reshape(n_samples_super, 1)
-        X_y = np.concatenate((X, y), axis=1)
-        np.random.shuffle(X_y)
+        y = y.reshape(n_samples_super, 1)  # Be equivalent to: np.expand_dims(y, axis=1)
+        X_y = np.concatenate((X, y), axis=1)  # Be equivalent to: np.hstack((X, y))
+        np.random.shuffle(
+            X_y)  # NB: Bootstrap never uses a random_state, i.e., never np.random.seed(random_state) before.
 
         if n_samples_sub is None:
             n_samples_sub = n_samples_super
 
-        subsets = []
+        X_subsets = []
+        y_subsets = []
         for _ in range(n_subsets):
-            idxs = np.random.choice(n_samples_super, n_samples_sub, replace=False)
+            idxs = np.random.choice(n_samples_super, n_samples_sub, replace=True)
             X_y_bootstrap = X_y[idxs, :]
             X_bootstrap = X_y_bootstrap[:, :-1]
             y_bootstrap = X_y_bootstrap[:, -1]
 
-            subsets.append([X_bootstrap, y_bootstrap])
+            X_subsets.append(X_bootstrap)
+            y_subsets.append(y_bootstrap)
 
-        return subsets
+        return X_subsets, y_subsets
     except:
         print('The sample size is greater than the population size.')

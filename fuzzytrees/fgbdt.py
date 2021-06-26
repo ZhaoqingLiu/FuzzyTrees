@@ -32,12 +32,12 @@ class FuzzyGBDT(metaclass=ABCMeta):
         The collection of sub-estimators as base learners.
     """
 
-    def __init__(self, disable_fuzzy, X_fuzzy_dms, fuzzification_params, criterion_func, learning_rate, n_estimators,
+    def __init__(self, disable_fuzzy, X_fuzzy_dms, fuzzification_options, criterion_func, learning_rate, n_estimators,
                  validation_fraction, n_iter_no_change, max_depth, min_samples_split, min_impurity_split,
                  is_regression):
         self.disable_fuzzy = disable_fuzzy
         self.X_fuzzy_dms = X_fuzzy_dms
-        self.fuzzification_params = fuzzification_params
+        self.fuzzification_options = fuzzification_options
         self.criterion_func = criterion_func
         self.learning_rate = learning_rate
         self.n_estimators = n_estimators
@@ -57,13 +57,13 @@ class FuzzyGBDT(metaclass=ABCMeta):
         for i in range(self.n_estimators):
             # self._estimators.append(
             #     FuzzyDecisionTreeRegressor(disable_fuzzy=self.disable_fuzzy, X_fuzzy_dms=self.X_fuzzy_dms,
-            #                                fuzzification_params=self.fuzzification_params,
+            #                                fuzzification_options=self.fuzzification_options,
             #                                criterion_func=self.criterion_func, max_depth=self.max_depth,
             #                                min_samples_split=self.min_samples_split,
             #                                min_impurity_split=self.min_impurity_split))
             estimator = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTRegressor,
                                                  disable_fuzzy=disable_fuzzy,
-                                                 fuzzification_params=fuzzification_params,
+                                                 fuzzification_options=fuzzification_options,
                                                  criterion_func=criterion_func, max_depth=max_depth,
                                                  min_samples_split=min_samples_split,
                                                  min_impurity_split=min_impurity_split)
@@ -144,9 +144,9 @@ class FuzzyGBDTClassifier(FuzzyGBDT):
         If disable_fuzzy=True, the specified fuzzy decision tree is equivalent
         to a naive decision tree.
 
-    fuzzification_params: FuzzificationParams, default=None
-        Class that encapsulates all the parameters of the fuzzification settings
-        to be used by the specified fuzzy decision tree.
+    fuzzification_options: FuzzificationOptions, default=None
+        Protocol message class that encapsulates all the options of the
+        fuzzification settings used by the specified fuzzy decision tree.
 
     criterion_func: {"mse", "mae"}, default="mse"
         The criterion function used by the function that calculates the impurity
@@ -200,11 +200,11 @@ class FuzzyGBDTClassifier(FuzzyGBDT):
         The collection of fitted sub-estimators.
     """
 
-    def __init__(self, disable_fuzzy=False, X_fuzzy_dms=None, fuzzification_params=None,
+    def __init__(self, disable_fuzzy=False, X_fuzzy_dms=None, fuzzification_options=None,
                  criterion_func=CRITERIA_FUNC_REG["mse"], learning_rate=0.1, n_estimators=100, validation_fraction=0.1,
                  n_iter_no_change=None, max_depth=3, min_samples_split=2, min_impurity_split=1e-7):
         super().__init__(disable_fuzzy=disable_fuzzy, X_fuzzy_dms=X_fuzzy_dms,
-                         fuzzification_params=fuzzification_params, criterion_func=criterion_func,
+                         fuzzification_options=fuzzification_options, criterion_func=criterion_func,
                          learning_rate=learning_rate, n_estimators=n_estimators,
                          validation_fraction=validation_fraction, n_iter_no_change=n_iter_no_change,
                          max_depth=max_depth, min_samples_split=min_samples_split,
@@ -230,9 +230,9 @@ class FuzzyGBDTRegressor(FuzzyGBDT):
         If disable_fuzzy=True, the specified fuzzy decision tree is equivalent
         to a naive decision tree.
 
-    fuzzification_params: FuzzificationParams, default=None
-        Class that encapsulates all the parameters of the fuzzification settings
-        to be used by the specified fuzzy decision tree.
+    fuzzification_options: FuzzificationOptions, default=None
+        Protocol message class that encapsulates all the options of the
+        fuzzification settings used by the specified fuzzy decision tree.
 
     criterion_func: {"mse", "mae"}, default="mse"
         The criterion function used by the function that calculates the impurity
@@ -286,11 +286,11 @@ class FuzzyGBDTRegressor(FuzzyGBDT):
         The collection of fitted sub-estimators.
     """
 
-    def __init__(self, disable_fuzzy=False, X_fuzzy_dms=None, fuzzification_params=None,
+    def __init__(self, disable_fuzzy=False, X_fuzzy_dms=None, fuzzification_options=None,
                  criterion_func=CRITERIA_FUNC_REG["mse"], learning_rate=0.1, n_estimators=100, validation_fraction=0.1,
                  n_iter_no_change=None, max_depth=3, min_samples_split=2, min_impurity_split=1e-7):
         super().__init__(disable_fuzzy=disable_fuzzy, X_fuzzy_dms=X_fuzzy_dms,
-                         fuzzification_params=fuzzification_params, criterion_func=criterion_func,
+                         fuzzification_options=fuzzification_options, criterion_func=criterion_func,
                          learning_rate=learning_rate, n_estimators=n_estimators,
                          validation_fraction=validation_fraction, n_iter_no_change=n_iter_no_change,
                          max_depth=max_depth, min_samples_split=min_samples_split,

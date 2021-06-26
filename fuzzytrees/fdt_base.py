@@ -39,11 +39,10 @@ CRITERIA_FUNC_REG = {"mse": calculate_variance, "mae": calculate_standard_deviat
 #              "CART": [calculate_gini, calculate_impurity_gain,]}
 
 
-class FuzzificationParams:
+class FuzzificationOptions:
     """
-    Class that encapsulates all the parameters
-    (excluding functions) of the fuzzification
-    settings to be used by a fuzzy decision tree.
+    A protocol message class that encapsulates all the options (excluding
+    functions) of the fuzzification settings used by a fuzzy model.
 
     Parameters
     ----------
@@ -63,6 +62,29 @@ class FuzzificationParams:
         self.feature_filter_func_param = feature_filter_func_param
         self.dataset_df = dataset_df
         self.dataset_mms_df = dataset_mms_df
+
+
+class MultiProcessOptions:
+    """
+    A protocol message class that encapsulates all the options (excluding
+    functions) of the multi-process settings.
+
+    Parameters
+    ----------
+    n_cpu_cores_req: int, default=None
+        The number of CPU cores to request. If left to None this is
+        automatically set to the number of all CPU cores available.
+
+    allow_growth: bool, default=False
+        Whether to dynamically request more CPU resources.
+
+    Attributes
+    ----------
+
+    """
+    def __init__(self, n_cpu_cores_req=None, allow_growth=False):
+        self.n_cpu_cores_req = n_cpu_cores_req
+        self.allow_growth = allow_growth
 
 
 # =============================================================================
@@ -212,12 +234,12 @@ class BaseFuzzyDecisionTree(metaclass=ABCMeta):
     """
 
     # The parameters in this constructor don't need to have default values.
-    def __init__(self, disable_fuzzy, X_fuzzy_dms, fuzzification_params, criterion_func, max_depth, min_samples_split,
+    def __init__(self, disable_fuzzy, X_fuzzy_dms, fuzzification_options, criterion_func, max_depth, min_samples_split,
                  min_impurity_split,
                  **kwargs):
         self.disable_fuzzy = disable_fuzzy
         self.X_fuzzy_dms = X_fuzzy_dms
-        self.fuzzification_params = fuzzification_params
+        self.fuzzification_options = fuzzification_options
         self.criterion_func = criterion_func
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
@@ -344,7 +366,7 @@ class BaseFuzzyDecisionTree(metaclass=ABCMeta):
         n_loop = n_features
         if not self.disable_fuzzy:
             n_loop = int(n_features / (
-                    self.fuzzification_params.conv_k + 1))  # denominator=conv_k + 1. If the FCM algorithm selects n optimal fuzzy sets, the calculation here will be deprecated.
+                    self.fuzzification_options.conv_k + 1))  # denominator=conv_k + 1. If the FCM algorithm selects n optimal fuzzy sets, the calculation here will be deprecated.
 
         for feature_idx in range(n_loop):
             # Calculate the sum of all the membership degrees of the current feature values.
@@ -352,13 +374,11 @@ class BaseFuzzyDecisionTree(metaclass=ABCMeta):
             start = None
             stop = None
             if not self.disable_fuzzy:
-                # start = (feature_idx + 1) * self.fuzzification_params.conv_k
-                # stop = (feature_idx + 2) * self.fuzzification_params.
                 # Columns of the idx-th features's degrees of membership start from
-                # "n_loop + feature_idx * self.fuzzification_params.conv_k + 1", and end with
-                # "n_loop + (feature_idx + 1) * self.fuzzification_params.conv_k + 1".
-                start = n_loop + feature_idx * self.fuzzification_params.conv_k
-                stop = n_loop + (feature_idx + 1) * self.fuzzification_params.conv_k
+                # "n_loop + feature_idx * self.fuzzification_options.conv_k", and end with
+                # "n_loop + (feature_idx + 1) * self.fuzzification_options.conv_k".
+                start = n_loop + feature_idx * self.fuzzification_options.conv_k
+                stop = n_loop + (feature_idx + 1) * self.fuzzification_options.conv_k
                 total_dm = np.sum(X[:, start:stop])
                 # print(feature_idx, "-th feature: total degree of membership:", total_dm)
 
@@ -377,13 +397,9 @@ class BaseFuzzyDecisionTree(metaclass=ABCMeta):
                     p_subset_true_dm = None
                     p_subset_false_dm = None
                     if not self.disable_fuzzy and total_dm is not None and total_dm > 0.0:
-                        # start = (feature_idx + 1) * self.fuzzification_params.conv_k
-                        # stop = (feature_idx + 2) * self.fuzzification_params.conv_k
                         subset_true_dm = np.sum(subset_true[:, start:stop])
                         p_subset_true_dm = subset_true_dm / total_dm
                         # print("    ", count, "-th split: subset_true's degree of membership:", subset_true_dm)
-                        # start = (feature_idx + 1) * self.fuzzification_params.conv_k
-                        # stop = (feature_idx + 2) * self.fuzzification_params.conv_k
                         subset_false_dm = np.sum(subset_false[:, start:stop])
                         p_subset_false_dm = subset_false_dm / total_dm
                         # print("    ", count, "-th split: subset_false's degree of membership:", subset_false_dm)
@@ -492,9 +508,9 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
         has transformed membership degree of the feature values to corresponding
         fuzzy sets.
 
-    fuzzification_params: FuzzificationParams, default=None
-        Class that encapsulates all the parameters of the fuzzification settings
-        to be used by the specified fuzzy decision tree.
+    fuzzification_options: FuzzificationOptions, default=None
+        Protocol message class that encapsulates all the options of the
+        fuzzification settings used by the specified fuzzy decision tree.
 
     criterion_func: {"gini", "entropy"} for a classifier, {"mse", "mae"} for a regressor
         The criterion function used by the function that calculates the impurity
@@ -563,19 +579,19 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
     """
 
     # All parameters in this constructor should have default values.
-    def __init__(self, fdt_class=None, disable_fuzzy=False, X_fuzzy_dms=None, fuzzification_params=None,
+    def __init__(self, fdt_class=None, disable_fuzzy=False, X_fuzzy_dms=None, fuzzification_options=None,
                  criterion_func=None,
                  max_depth=float("inf"), min_samples_split=2, min_impurity_split=1e-7, **kwargs):
         # Construct a instance of the specified fuzzy decision tree.
         if fdt_class is not None:
             self.estimator = fdt_class(disable_fuzzy=disable_fuzzy, X_fuzzy_dms=X_fuzzy_dms,
-                                       fuzzification_params=fuzzification_params, criterion_func=criterion_func,
+                                       fuzzification_options=fuzzification_options, criterion_func=criterion_func,
                                        max_depth=max_depth, min_samples_split=min_samples_split,
                                        min_impurity_split=min_impurity_split, **kwargs)
         self.fdt_class = fdt_class
         self.disable_fuzzy = disable_fuzzy
         self.X_fuzzy_dms = X_fuzzy_dms
-        self.fuzzification_params = fuzzification_params
+        self.fuzzification_options = fuzzification_options
         self.criterion_func = criterion_func
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split

@@ -22,7 +22,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split, KFold
 from sklearn.tree import DecisionTreeClassifier
 
-from fuzzytrees.fdt_base import FuzzificationParams, FuzzyDecisionTreeWrapper, CRITERIA_FUNC_CLF, CRITERIA_FUNC_REG
+from fuzzytrees.fdt_base import FuzzificationOptions, FuzzyDecisionTreeWrapper, CRITERIA_FUNC_CLF, CRITERIA_FUNC_REG
 from fuzzytrees.fdts import FuzzyCARTClassifier, FuzzyCARTRegressor
 from fuzzytrees.fgbdt import FuzzyGBDTClassifier
 from fuzzytrees.util_criterion_funcs import calculate_mse, calculate_mae
@@ -80,19 +80,19 @@ def get_exp_results_clf(X, y, comparing_mode=ComparisionMode.FUZZY):
 
     # Preprocess features for using fuzzy decision tree.
     X_fuzzy_pre = X.copy()
-    fuzzification_params = None
+    fuzzification_options = None
     X_dms = None
     if comparing_mode is ComparisionMode.FF3:
-        fuzzification_params = FuzzificationParams(conv_k=3)
+        fuzzification_options = FuzzificationOptions(conv_k=3)
         X_dms = extract_fuzzy_features(X_fuzzy_pre, conv_k=3)
     elif comparing_mode is ComparisionMode.FF4:
-        fuzzification_params = FuzzificationParams(conv_k=4)
+        fuzzification_options = FuzzificationOptions(conv_k=4)
         X_dms = extract_fuzzy_features(X_fuzzy_pre, conv_k=4)
     elif comparing_mode is ComparisionMode.FF5:
-        fuzzification_params = FuzzificationParams(conv_k=5)
+        fuzzification_options = FuzzificationOptions(conv_k=5)
         X_dms = extract_fuzzy_features(X_fuzzy_pre, conv_k=5)
     else:
-        fuzzification_params = FuzzificationParams(conv_k=5)
+        fuzzification_options = FuzzificationOptions(conv_k=5)
         # - Step 1: Standardise feature scaling.
         # X_fuzzy_pre[:, :] -= X_fuzzy_pre[:, :].min()
         # X_fuzzy_pre[:, :] /= X_fuzzy_pre[:, :].max()
@@ -114,7 +114,7 @@ def get_exp_results_clf(X, y, comparing_mode=ComparisionMode.FUZZY):
             # Using a fuzzy decision tree. =============================================================================
             X_train, X_test = X_plus_dms[train_index], X_plus_dms[test_index]
             accuracy = use_fuzzy_trees(comparing_mode=comparing_mode, X_train=X_train, X_test=X_test, y_train=y_train,
-                                       y_test=y_test, fuzzification_params=fuzzification_params)
+                                       y_test=y_test, fuzzification_options=fuzzification_options)
             fuzzy_accuracy_list.append(accuracy)
 
             # Using a naive decision tree. =============================================================================
@@ -133,33 +133,33 @@ def get_exp_results_clf(X, y, comparing_mode=ComparisionMode.FUZZY):
     return fuzzy_accuracy_list, naive_accuracy_list
 
 
-def use_fuzzy_trees(comparing_mode, X_train, X_test, y_train, y_test, fuzzification_params):
+def use_fuzzy_trees(comparing_mode, X_train, X_test, y_train, y_test, fuzzification_options):
     time_start = time.time()  # Record the start time.
 
     clf = None
     if comparing_mode is ComparisionMode.NAIVE:
         # My NDT vs. sklearn NDT
         clf = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier, disable_fuzzy=True,
-                                       fuzzification_params=fuzzification_params,
+                                       fuzzification_options=fuzzification_options,
                                        criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
     elif comparing_mode is ComparisionMode.FF3 or comparing_mode is ComparisionMode.FF4 or comparing_mode is ComparisionMode.FF5:
         # With only Feature Fuzzification vs. NDT
         clf = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier, disable_fuzzy=True,
-                                       fuzzification_params=fuzzification_params,
+                                       fuzzification_options=fuzzification_options,
                                        criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
     elif comparing_mode is ComparisionMode.FUZZY:
         # FDT vs. NDT
         clf = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier, disable_fuzzy=False,
-                                       fuzzification_params=fuzzification_params,
+                                       fuzzification_options=fuzzification_options,
                                        criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
     elif comparing_mode is ComparisionMode.BOOSTING:
         # Gradient boosting FDT vs. Gradient boosting NDT
-        clf = FuzzyGBDTClassifier(disable_fuzzy=False, fuzzification_params=fuzzification_params,
+        clf = FuzzyGBDTClassifier(disable_fuzzy=False, fuzzification_options=fuzzification_options,
                                   criterion_func=CRITERIA_FUNC_REG["mse"], learning_rate=0.1, n_estimators=100,
                                   max_depth=5)
     elif comparing_mode is ComparisionMode.MIXED:
         # Gradient boosting Mixture of FDT and NDT vs. Gradient boosting NDT
-        clf = FuzzyGBDTClassifier(disable_fuzzy=False, fuzzification_params=fuzzification_params,
+        clf = FuzzyGBDTClassifier(disable_fuzzy=False, fuzzification_options=fuzzification_options,
                                   is_trees_mixed=True, criterion_func=CRITERIA_FUNC_REG["mse"], learning_rate=0.1,
                                   n_estimators=100,
                                   max_depth=5)  # TODO: Add one more argument "is_trees_mixed", default=False.
@@ -219,8 +219,8 @@ def test_classifier():
     # 2. Preprocess the dataset.
     # 2.1. Do fuzzification preprocessing.
     X_fuzzy_pre = X.copy()
-    fuzzification_params = FuzzificationParams(conv_k=5)
-    X_dms = extract_fuzzy_features(X_fuzzy_pre, conv_k=fuzzification_params.conv_k)
+    fuzzification_options = FuzzificationOptions(conv_k=5)
+    X_dms = extract_fuzzy_features(X_fuzzy_pre, conv_k=fuzzification_options.conv_k)
     X_plus_dms = np.concatenate((X, X_dms), axis=1)
 
     # 2.2. Do your other data preprocessing, e.g. identifying the feature values and target values, processing the missing values, etc.
@@ -237,7 +237,7 @@ def test_classifier():
         # 4. Train the models.
         # 4.1. Using a fuzzy classifier (You can customise the arguments in your constructor and their default values).
         fclf = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier, disable_fuzzy=False,
-                                        fuzzification_params=fuzzification_params,
+                                        fuzzification_options=fuzzification_options,
                                         criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
         fclf.fit(X_train_f, y_train)
 
@@ -279,8 +279,8 @@ def test_regressor():
     # 2. Preprocess the dataset.
     # 2.1. Do fuzzification preprocessing.
     X_fuzzy_pre = X.copy()
-    fuzzification_params = FuzzificationParams(conv_k=5)
-    X_dms = extract_fuzzy_features(X_fuzzy_pre, conv_k=fuzzification_params.conv_k)
+    fuzzification_options = FuzzificationOptions(conv_k=5)
+    X_dms = extract_fuzzy_features(X_fuzzy_pre, conv_k=fuzzification_options.conv_k)
     X_plus_dms = np.concatenate((X, X_dms), axis=1)
 
     # 2.2. Do your other data preprocessing, e.g. identifying the feature values and target values, processing the missing values, etc.
@@ -299,7 +299,7 @@ def test_regressor():
         # 4. Train the models.
         # 4.1. Using a fuzzy regressor (You can customise the arguments in your constructor and their default values).
         freg = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTRegressor, disable_fuzzy=False,
-                                        fuzzification_params=fuzzification_params,
+                                        fuzzification_options=fuzzification_options,
                                         criterion_func=CRITERIA_FUNC_REG["mse"], max_depth=5)
         freg.fit(X_train_f, y_train)
 
@@ -342,12 +342,12 @@ def test_regressor():
     # X, y = datasets.load_diabetes(return_X_y=True)
     # X, y = datasets.load_linnerud(return_X_y=True)
     # X, y = datasets.load_boston(return_X_y=True)
-    # fuzzification_params = FuzzificationParams(conv_k=5)
+    # fuzzification_options = FuzzificationOptions(conv_k=5)
     # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
     #
     # # fuzzy_model = FuzzyDecisionTreeRegressor()
     # freg = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTRegressor, disable_fuzzy=False,
-    #                                 fuzzification_params=fuzzification_params,
+    #                                 fuzzification_options=fuzzification_options,
     #                                 criterion_func=CRITERIA_FUNC_REG["mse"], max_depth=5)
     # freg.fit(X_train, y_train)
     # # fuzzy_model.print_tree()

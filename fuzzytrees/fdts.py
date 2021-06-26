@@ -21,16 +21,16 @@ class FuzzyCARTClassifier(BaseFuzzyDecisionTree, DecisionTreeInterface):
     The CART algorithm can handle both continuous/numerical and discrete/categorical
     variables, and can be used for both classification and regression.
 
-    NB: See FuzzyDecisionTreeProxy for descriptions of all parameters
+    NB: See FuzzyDecisionTreeWrapper for descriptions of all parameters
     and attributes in this class.
     """
 
     # All parameters in this constructor should have default values.
-    def __init__(self, disable_fuzzy=False, X_fuzzy_dms=None, fuzzification_params=None,
+    def __init__(self, disable_fuzzy=False, X_fuzzy_dms=None, fuzzification_options=None,
                  criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=float("inf"), min_samples_split=2,
                  min_impurity_split=1e-7, **kwargs):
         super().__init__(disable_fuzzy=disable_fuzzy, X_fuzzy_dms=X_fuzzy_dms,
-                         fuzzification_params=fuzzification_params, criterion_func=criterion_func, max_depth=max_depth,
+                         fuzzification_options=fuzzification_options, criterion_func=criterion_func, max_depth=max_depth,
                          min_samples_split=min_samples_split, min_impurity_split=min_impurity_split, **kwargs)
         self._split_ds_func = split_ds_2_bin
         self._impurity_gain_calc_func = calculate_impurity_gain
@@ -50,16 +50,16 @@ class FuzzyCARTRegressor(BaseFuzzyDecisionTree, DecisionTreeInterface):
     The CART algorithm can handle both continuous/numerical and discrete/categorical
     variables, and can be used for both classification and regression.
 
-    NB: See FuzzyDecisionTreeProxy for descriptions of all parameters
+    NB: See FuzzyDecisionTreeWrapper for descriptions of all parameters
     and attributes in this class.
     """
 
     # All parameters in this constructor should have default values.
-    def __init__(self, disable_fuzzy=False, X_fuzzy_dms=None, fuzzification_params=None,
+    def __init__(self, disable_fuzzy=False, X_fuzzy_dms=None, fuzzification_options=None,
                  criterion_func=CRITERIA_FUNC_REG["mse"], max_depth=float("inf"), min_samples_split=2,
                  min_impurity_split=1e-7, **kwargs):
         super().__init__(disable_fuzzy=disable_fuzzy, X_fuzzy_dms=X_fuzzy_dms,
-                         fuzzification_params=fuzzification_params, criterion_func=criterion_func, max_depth=max_depth,
+                         fuzzification_options=fuzzification_options, criterion_func=criterion_func, max_depth=max_depth,
                          min_samples_split=min_samples_split, min_impurity_split=min_impurity_split, **kwargs)
         self._split_ds_func = split_ds_2_bin
         self._impurity_gain_calc_func = calculate_variance_reduction
@@ -81,16 +81,16 @@ class FuzzyID3Classifier(BaseFuzzyDecisionTree, DecisionTreeInterface):
     The ID3 algorithm can only handle discrete/categorical variables and can
     only be used for classification.
 
-    NB: See FuzzyDecisionTreeProxy for descriptions of all parameters
+    NB: See FuzzyDecisionTreeWrapper for descriptions of all parameters
     and attributes in this class.
     """
 
     # All parameters in this constructor should have default values.
-    def __init__(self, disable_fuzzy=False, X_fuzzy_dms=None, fuzzification_params=None,
+    def __init__(self, disable_fuzzy=False, X_fuzzy_dms=None, fuzzification_options=None,
                  criterion_func=CRITERIA_FUNC_CLF["entropy"], max_depth=float("inf"), min_samples_split=2,
                  min_impurity_split=1e-7, **kwargs):
         super().__init__(disable_fuzzy=disable_fuzzy, X_fuzzy_dms=X_fuzzy_dms,
-                         fuzzification_params=fuzzification_params, criterion_func=criterion_func, max_depth=max_depth,
+                         fuzzification_options=fuzzification_options, criterion_func=criterion_func, max_depth=max_depth,
                          min_samples_split=min_samples_split, min_impurity_split=min_impurity_split, **kwargs)
 
     def fit(self, X_train, y_train):
@@ -107,16 +107,16 @@ class FuzzyC45Classifier(BaseFuzzyDecisionTree, DecisionTreeInterface):
     The C4.5 algorithm can handle both continuous/numerical and discrete/categorical
     variables, but can only be used for classification.
 
-    NB: See FuzzyDecisionTreeProxy for descriptions of all parameters
+    NB: See FuzzyDecisionTreeWrapper for descriptions of all parameters
     and attributes in this class.
     """
 
     # All parameters in this constructor should have default values.
-    def __init__(self, disable_fuzzy=False, X_fuzzy_dms=None, fuzzification_params=None,
+    def __init__(self, disable_fuzzy=False, X_fuzzy_dms=None, fuzzification_options=None,
                  criterion_func=CRITERIA_FUNC_CLF["entropy"], max_depth=float("inf"), min_samples_split=2,
                  min_impurity_split=1e-7, **kwargs):
         super().__init__(disable_fuzzy=disable_fuzzy, X_fuzzy_dms=X_fuzzy_dms,
-                         fuzzification_params=fuzzification_params, criterion_func=criterion_func, max_depth=max_depth,
+                         fuzzification_options=fuzzification_options, criterion_func=criterion_func, max_depth=max_depth,
                          min_samples_split=min_samples_split, min_impurity_split=min_impurity_split, **kwargs)
 
     def fit(self, X_train, y_train):

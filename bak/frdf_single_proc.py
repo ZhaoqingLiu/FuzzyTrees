@@ -83,10 +83,10 @@ class FuzzyRDF(metaclass=ABCMeta):
         The collection of sub-estimators as the base learners.
     """
 
-    def __init__(self, disable_fuzzy, fuzzification_params, criterion_func, n_estimators,
+    def __init__(self, disable_fuzzy, fuzzification_options, criterion_func, n_estimators,
                  max_depth, min_samples_split, min_impurity_split, max_features):
         self.disable_fuzzy = disable_fuzzy
-        self.fuzzification_params = fuzzification_params
+        self.fuzzification_options = fuzzification_options
         self.criterion_func = criterion_func
         self.n_estimators = n_estimators
         self.max_depth = max_depth
@@ -119,7 +119,7 @@ class FuzzyRDF(metaclass=ABCMeta):
         n_features = X_train.shape[1]
         if not self.disable_fuzzy:
             # NB: Except the columns of fuzzy degrees of membership.
-            n_features = int(n_features / (self.fuzzification_params.conv_k + 1))
+            n_features = int(n_features / (self.fuzzification_options.conv_k + 1))
         if self.max_features is None:
             self.max_features = int(np.sqrt(n_features))
 
@@ -136,10 +136,10 @@ class FuzzyRDF(metaclass=ABCMeta):
                 idxs_cp = np.copy(idxs)
                 for idx in idxs_cp:
                     # Columns of the idx-th feature's degrees of membership start from
-                    # "n_original_features + feature_idx * self.fuzzification_params.conv_k + 1", and end with
-                    # "n_original_features + (feature_idx + 1) * self.fuzzification_params.conv_k + 1".
-                    start = n_features + idx * self.fuzzification_params.conv_k
-                    stop = n_features + (idx + 1) * self.fuzzification_params.conv_k
+                    # "n_original_features + feature_idx * self.fuzzification_options.conv_k + 1", and end with
+                    # "n_original_features + (feature_idx + 1) * self.fuzzification_options.conv_k + 1".
+                    start = n_features + idx * self.fuzzification_options.conv_k
+                    stop = n_features + (idx + 1) * self.fuzzification_options.conv_k
                     idxs_dm = np.arange(start=start, stop=stop, step=1, dtype=int)
                     idxs = np.concatenate((idxs, idxs_dm), axis=0)
 
@@ -190,9 +190,9 @@ class FuzzyRDFClassifier(FuzzyRDF):
         If disable_fuzzy=True, the specified fuzzy decision tree is equivalent
         to a naive decision tree.
 
-    fuzzification_params: FuzzificationParams, default=None
-        Class that encapsulates all the parameters of the fuzzification settings
-        to be used by the specified fuzzy decision tree.
+    fuzzification_options: FuzzificationOptions, default=None
+        Protocol message class that encapsulates all the options of the
+        fuzzification settings used by the specified fuzzy decision tree.
 
     criterion_func: {"mse", "mae"}, default="mse"
         The criterion function used by the function that calculates the impurity
@@ -224,10 +224,10 @@ class FuzzyRDFClassifier(FuzzyRDF):
         The collection of sub-estimators as base learners.
     """
 
-    def __init__(self, disable_fuzzy, fuzzification_params, criterion_func, n_estimators=100,
+    def __init__(self, disable_fuzzy, fuzzification_options, criterion_func, n_estimators=100,
                  max_depth=3, min_samples_split=2, min_impurity_split=1e-7, max_features=None):
         super().__init__(disable_fuzzy=disable_fuzzy,
-                         fuzzification_params=fuzzification_params,
+                         fuzzification_options=fuzzification_options,
                          criterion_func=criterion_func,
                          n_estimators=n_estimators,
                          max_depth=max_depth,
@@ -239,7 +239,7 @@ class FuzzyRDFClassifier(FuzzyRDF):
         for _ in range(self.n_estimators):
             estimator = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier,
                                                  disable_fuzzy=disable_fuzzy,
-                                                 fuzzification_params=fuzzification_params,
+                                                 fuzzification_options=fuzzification_options,
                                                  criterion_func=criterion_func,
                                                  max_depth=max_depth,
                                                  min_samples_split=min_samples_split,
@@ -271,10 +271,10 @@ class FuzzyRDFRegressor(FuzzyRDF):
         The collection of sub-estimators as base learners.
     """
 
-    def __init__(self, disable_fuzzy, fuzzification_params, criterion_func, n_estimators=100,
+    def __init__(self, disable_fuzzy, fuzzification_options, criterion_func, n_estimators=100,
                  max_depth=3, min_samples_split=2, min_impurity_split=1e-7, max_features=None):
         super().__init__(disable_fuzzy=disable_fuzzy,
-                         fuzzification_params=fuzzification_params,
+                         fuzzification_options=fuzzification_options,
                          criterion_func=criterion_func,
                          n_estimators=n_estimators,
                          max_depth=max_depth,
@@ -286,7 +286,7 @@ class FuzzyRDFRegressor(FuzzyRDF):
         for _ in range(self.n_estimators):
             estimator = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTRegressor,
                                                  disable_fuzzy=disable_fuzzy,
-                                                 fuzzification_params=fuzzification_params,
+                                                 fuzzification_options=fuzzification_options,
                                                  criterion_func=criterion_func,
                                                  max_depth=max_depth,
                                                  min_samples_split=min_samples_split,

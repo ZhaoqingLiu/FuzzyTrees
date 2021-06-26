@@ -10,7 +10,6 @@ import numpy as np
 
 from fuzzytrees.fdt_base import FuzzyDecisionTreeWrapper
 from fuzzytrees.fdts import FuzzyCARTClassifier, FuzzyCARTRegressor
-from fuzzytrees.settings import NUM_CPU_CORES_REQ
 from fuzzytrees.util_criterion_funcs import majority_vote, mean_value
 from fuzzytrees.util_data_processing_funcs import resample_bootstrap
 
@@ -78,36 +77,21 @@ class FuzzyRDF(metaclass=ABCMeta):
     5. RColorBrewer, S. and Liaw, M.A., 2018. Package ‘randomForest’.
         University of California, Berkeley: Berkeley, CA, USA.
     ------------------------------------------------------------------------
-
-    Attributes
-    ----------
-    _estimators: ndarray of FuzzyDecisionTree
-        The collection of sub-estimators as the base learners.
-
-    multi_proc_state: bool, default=False
-        Whether the forest is fitted successfully when training the
-        decision trees in multi-process mode.
-
-    _res_func: function, default=None
-        In classification, get the final result from the classes given by the 
-        forest by majority voting method. In regression, calculate the average 
-        of the predicted values given by the forest as the final result.
     """
 
-    def __init__(self, disable_fuzzy, fuzzification_params, criterion_func, n_estimators,
-                 max_depth, min_samples_split, min_impurity_split, max_features, multi_proc):
+    def __init__(self, disable_fuzzy, fuzzification_options, criterion_func, n_estimators,
+                 max_depth, min_samples_split, min_impurity_split, max_features, multi_process_options):
         self.disable_fuzzy = disable_fuzzy
-        self.fuzzification_params = fuzzification_params
+        self.fuzzification_options = fuzzification_options
         self.criterion_func = criterion_func
         self.n_estimators = n_estimators
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
         self.min_impurity_split = min_impurity_split
         self.max_features = max_features
-        self.multi_proc = multi_proc
+        self.multi_process_options = multi_process_options
 
         self._estimators = []  # Forest initialised in derived classes.
-        self.multi_proc_state = False
         self._res_func = None
 
     def fit(self, X_train, y_train):
@@ -126,38 +110,34 @@ class FuzzyRDF(metaclass=ABCMeta):
             TypeError is raised.
         """
         # Randomly select n_estimators training subsets through bootstrapping sampling.
-        subsets = resample_bootstrap(X_train, y_train, n_subsets=self.n_estimators)
+        X_train_subsets, y_train_subsets = resample_bootstrap(X_train, y_train, n_subsets=self.n_estimators)
 
         # Get the number of the data features.
         n_features = X_train.shape[1]
         if not self.disable_fuzzy:
             # NB: Except the columns of fuzzy degrees of membership.
-            n_features = int(n_features / (self.fuzzification_params.conv_k + 1))
+            n_features = int(n_features / (self.fuzzification_options.conv_k + 1))
+
         if self.max_features is None:
             self.max_features = int(np.sqrt(n_features))
 
         # Train each tree in the forest.
         # NB: Iterate the n_estimators training subsets generated above, training a tree in each iteration.
-        if self.multi_proc:
+        if self.multi_process_options:  # When self.multi_process_options is not None
             # In multi-process mode.
-            # Create a connection used to communicate between main process and its child processes.
-            q = multiprocessing.Manager().Queue()
             # Create a pool for main process to manage its child processes in parallel.
-            pool = multiprocessing.Pool(processes=NUM_CPU_CORES_REQ)
+            pool = multiprocessing.Pool(processes=multiprocessing.cpu_count() if self.multi_process_options.n_cpu_cores_req is None else self.multi_process_options.n_cpu_cores_req)
+            estimators = multiprocessing.Manager().list(self._estimators)
             for i in range(self.n_estimators):
-                X_train_subset, y_train_subset = subsets[i]
-                pool.apply_async(self._fit_one, args=(i, n_features, X_train_subset, y_train_subset,))
+                pool.apply_async(self._fit_one, args=(i, n_features, X_train_subsets[i], y_train_subsets[i], estimators,))
             pool.close()
             pool.join()
-            self.multi_proc_state = True
         else:
             # In single-process mode.
             for i in range(self.n_estimators):
-                X_train_subset, y_train_subset = subsets[i]
-                self._fit_one(i, n_features, X_train_subset, y_train_subset)
-            self.multi_proc_state = True
+                self._fit_one(i, n_features, X_train_subsets[i], y_train_subsets[i])
 
-    def _fit_one(self, i, n_features, X_train_subset, y_train_subset):
+    def _fit_one(self, i, n_features, X_train_subset, y_train_subset, estimators):
         # Randomly select features.
         idxs = np.random.choice(n_features, self.max_features, replace=True)
         if not self.disable_fuzzy:
@@ -165,17 +145,17 @@ class FuzzyRDF(metaclass=ABCMeta):
             idxs_cp = np.copy(idxs)
             for idx in idxs_cp:
                 # Columns of the idx-th feature's degrees of membership start from
-                # "n_original_features + feature_idx * self.fuzzification_params.conv_k + 1", and end with
-                # "n_original_features + (feature_idx + 1) * self.fuzzification_params.conv_k + 1".
-                start = n_features + idx * self.fuzzification_params.conv_k
-                stop = n_features + (idx + 1) * self.fuzzification_params.conv_k
+                # "n_original_features + feature_idx * self.fuzzification_options.conv_k + 1", and end with
+                # "n_original_features + (feature_idx + 1) * self.fuzzification_options.conv_k + 1".
+                start = n_features + idx * self.fuzzification_options.conv_k
+                stop = n_features + (idx + 1) * self.fuzzification_options.conv_k
                 idxs_dm = np.arange(start=start, stop=stop, step=1, dtype=int)
                 idxs = np.concatenate((idxs, idxs_dm), axis=0)
         X_train_subset = X_train_subset[:, idxs]
 
         # Fit an estimator and record the indexes of fitted features to prepare for predictions.
-        self._estimators[i].fit(X_train_subset, y_train_subset)
-        self._estimators[i].feature_idxs = idxs
+        estimators[i].fit(X_train_subset, y_train_subset)
+        estimators[i].feature_idxs = idxs
         print("{}-th tree fitting is complete.".format(i))
 
     def predict(self, X):
@@ -218,9 +198,99 @@ class FuzzyRDFClassifier(FuzzyRDF):
         If disable_fuzzy=True, the specified fuzzy decision tree is equivalent
         to a naive decision tree.
 
-    fuzzification_params: FuzzificationParams, default=None
-        Class that encapsulates all the parameters of the fuzzification settings
-        to be used by the specified fuzzy decision tree.
+    fuzzification_options: FuzzificationOptions, default=None
+        Protocol message class that encapsulates all the options of the
+        fuzzification settings used by the specified fuzzy decision tree.
+
+    criterion_func: {"gini", "entropy"}, default="gini"
+        The criterion function used by the function that calculates the impurity
+        gain of the target values.
+        NB: Only use a criterion function for decision tree regressor.
+
+    n_estimators: int, default=100
+        The number of fuzzy decision trees to be used.
+
+    max_depth: int, default=3
+        The maximum depth of the tree to be trained.
+
+    min_samples_split: int, default=2
+        The minimum number of samples required to split a node. If a node has a
+        sample number above this threshold, it will be split, otherwise it
+        becomes a leaf node.
+
+    min_impurity_split: float, default=1e-7
+        The minimum impurity required to split a node. If a node's impurity is
+        above this threshold, it will be split, otherwise it becomes a leaf node.
+
+    max_features: int, default=None
+        The maximum threshold value of the qualified feature number in the
+        training dataset when training each fuzzy decision tree.
+
+    multi_process_options: MultiProcessOptions, default=None
+        Protocol message class that encapsulates all the options of the
+        multi-process settings.
+
+    Attributes
+    ----------
+    _estimators: ndarray of FuzzyDecisionTreeClassification
+        The collection of sub-estimators as base learners.
+
+    _res_func: function, default=None
+        In classification, get the final result from the classes given by the
+        forest by majority voting method. In regression, calculate the average
+        of the predicted values given by the forest as the final result.
+    """
+
+    def __init__(self, disable_fuzzy, fuzzification_options, criterion_func, n_estimators=100,
+                 max_depth=3, min_samples_split=2, min_impurity_split=1e-7, max_features=None,
+                 multi_process_options=None):
+        super().__init__(disable_fuzzy=disable_fuzzy,
+                         fuzzification_options=fuzzification_options,
+                         criterion_func=criterion_func,
+                         n_estimators=n_estimators,
+                         max_depth=max_depth,
+                         min_samples_split=min_samples_split,
+                         min_impurity_split=min_impurity_split,
+                         max_features=max_features,
+                         multi_process_options=multi_process_options)
+
+        # Initialise the forest.
+        for _ in range(self.n_estimators):
+            estimator = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier,
+                                                 disable_fuzzy=disable_fuzzy,
+                                                 fuzzification_options=fuzzification_options,
+                                                 criterion_func=criterion_func,
+                                                 max_depth=max_depth,
+                                                 min_samples_split=min_samples_split,
+                                                 min_impurity_split=min_impurity_split)
+            self._estimators.append(estimator)
+
+        # Specify to get the final classification result by majority voting method.
+        self._res_func = majority_vote
+
+    def fit(self, X_train, y_train):
+        # Do some custom things.
+
+        super().fit(X_train=X_train, y_train=y_train)
+
+
+class FuzzyRDFRegressor(FuzzyRDF):
+    """
+    Fuzzy random decision forests regressor.
+
+    NB: For regression tasks, the mean or average prediction of
+    the individual trees is returned.
+
+    Parameters:
+    -----------
+    disable_fuzzy: bool, default=False
+        Set whether the specified fuzzy decision tree uses the fuzzification.
+        If disable_fuzzy=True, the specified fuzzy decision tree is equivalent
+        to a naive decision tree.
+
+    fuzzification_options: FuzzificationOptions, default=None
+        Protocol message class that encapsulates all the options of the
+        fuzzification settings used by the specified fuzzy decision tree.
 
     criterion_func: {"mse", "mae"}, default="mse"
         The criterion function used by the function that calculates the impurity
@@ -246,77 +316,39 @@ class FuzzyRDFClassifier(FuzzyRDF):
         The maximum threshold value of the qualified feature number in the
         training dataset when training each fuzzy decision tree.
 
-    Attributes
-    ----------
-    _estimators: ndarray of FuzzyDecisionTreeClassification
-        The collection of sub-estimators as base learners.
-    """
-
-    def __init__(self, disable_fuzzy, fuzzification_params, criterion_func, n_estimators=100,
-                 max_depth=3, min_samples_split=2, min_impurity_split=1e-7, max_features=None, multi_proc=True):
-        super().__init__(disable_fuzzy=disable_fuzzy,
-                         fuzzification_params=fuzzification_params,
-                         criterion_func=criterion_func,
-                         n_estimators=n_estimators,
-                         max_depth=max_depth,
-                         min_samples_split=min_samples_split,
-                         min_impurity_split=min_impurity_split,
-                         max_features=max_features,
-                         multi_proc=multi_proc)
-
-        # Initialise the forest.
-        for _ in range(self.n_estimators):
-            estimator = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier,
-                                                 disable_fuzzy=disable_fuzzy,
-                                                 fuzzification_params=fuzzification_params,
-                                                 criterion_func=criterion_func,
-                                                 max_depth=max_depth,
-                                                 min_samples_split=min_samples_split,
-                                                 min_impurity_split=min_impurity_split)
-            self._estimators.append(estimator)
-
-        # Specify to get the final classification result by majority voting method.
-        self._res_func = majority_vote
-
-    def fit(self, X_train, y_train):
-        # Do some custom things.
-
-        super().fit(X_train=X_train, y_train=y_train)
-
-
-class FuzzyRDFRegressor(FuzzyRDF):
-    """
-    Fuzzy random decision forests regressor.
-
-    NB: For regression tasks, the mean or average prediction of
-    the individual trees is returned.
-
-    Parameters:
-    -----------
+    multi_process_options: MultiProcessOptions, default=None
+        Protocol message class that encapsulates all the options of the
+        multi-process settings.
 
     Attributes
     ----------
     _estimators: ndarray of FuzzyDecisionTreeRegressor
         The collection of sub-estimators as base learners.
+
+    _res_func: function, default=None
+        In classification, get the final result from the classes given by the
+        forest by majority voting method. In regression, calculate the average
+        of the predicted values given by the forest as the final result.
     """
 
-    def __init__(self, disable_fuzzy, fuzzification_params, criterion_func, n_estimators=100,
-                 max_depth=3, min_samples_split=2, min_impurity_split=1e-7, max_features=None, multi_proc=True):
+    def __init__(self, disable_fuzzy, fuzzification_options, criterion_func, n_estimators=100,
+                 max_depth=3, min_samples_split=2, min_impurity_split=1e-7, max_features=None,
+                 multi_process_options=None):
         super().__init__(disable_fuzzy=disable_fuzzy,
-                         fuzzification_params=fuzzification_params,
+                         fuzzification_options=fuzzification_options,
                          criterion_func=criterion_func,
                          n_estimators=n_estimators,
                          max_depth=max_depth,
                          min_samples_split=min_samples_split,
                          min_impurity_split=min_impurity_split,
                          max_features=max_features,
-                         multi_proc=multi_proc)
+                         multi_process_options=multi_process_options)
 
         # Initialise forest.
         for _ in range(self.n_estimators):
             estimator = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTRegressor,
                                                  disable_fuzzy=disable_fuzzy,
-                                                 fuzzification_params=fuzzification_params,
+                                                 fuzzification_options=fuzzification_options,
                                                  criterion_func=criterion_func,
                                                  max_depth=max_depth,
                                                  min_samples_split=min_samples_split,

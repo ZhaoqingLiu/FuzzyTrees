@@ -28,23 +28,26 @@ $ pip install -r requirements.txt
 
 ## Development example
 For example, I'm implementing a fuzzy CART classifier.
+
 ```python
 from fuzzytrees.fdt_base import BaseFuzzyDecisionTree, DecisionTreeInterface, CRITERIA_FUNC_CLF
 from fuzzytrees.util_criterion_funcs import calculate_impurity_gain, calculate_value_by_majority_vote
 from fuzzytrees.util_split_funcs import split_ds_2_bin
 
+
 class FuzzyCARTClassifier(BaseFuzzyDecisionTree, DecisionTreeInterface):
-    
-    def __init__(self, disable_fuzzy=False, X_fuzzy_dms=None, fuzzification_params=None,
+
+    def __init__(self, disable_fuzzy=False, X_fuzzy_dms=None, fuzzification_options=None,
                  criterion_func=CRITERIA_FUNC_CLF["entropy"], max_depth=float("inf"), min_samples_split=2,
                  min_impurity_split=1e-7, **kwargs):
         super().__init__(disable_fuzzy=disable_fuzzy, X_fuzzy_dms=X_fuzzy_dms,
-                         fuzzification_params=fuzzification_params, criterion_func=criterion_func, max_depth=max_depth,
+                         fuzzification_options=fuzzification_options, criterion_func=criterion_func,
+                         max_depth=max_depth,
                          min_samples_split=min_samples_split, min_impurity_split=min_impurity_split, **kwargs)
         self._split_ds_func = split_ds_2_bin
         self._impurity_gain_calc_func = calculate_impurity_gain
         self._leaf_value_calc_func = calculate_value_by_majority_vote
-        
+
     # NB: The functions fit(), predict(), predict_proba() and print_tree() are already defined in the super class BaseFuzzyDecisionTree.
 ```
 
@@ -53,8 +56,9 @@ See the [tutorials](./tutorials.md) for more details on developing based on Fuzz
 
 ## Usage example
 Let's take machine learning using the fuzzy CART classifier as an example.
+
 ```python
-from fuzzytrees.fdt_base import FuzzificationParams, FuzzyDecisionTreeWrapper, CRITERIA_FUNC_CLF
+from fuzzytrees.fdt_base import FuzzificationOptions, FuzzyDecisionTreeWrapper, CRITERIA_FUNC_CLF
 from fuzzytrees.fdts import FuzzyCARTClassifier
 from fuzzytrees.util_data_processing_funcs import extract_fuzzy_features
 from sklearn import datasets
@@ -70,8 +74,8 @@ y = data.iloc[:, -1:].values
 # 2. Preprocess the dataset.
 # 2.1. Do fuzzification preprocessing.
 X_fuzzy_pre = X.copy()
-fuzzification_params = FuzzificationParams(conv_k=5)
-X_dms = extract_fuzzy_features(X_fuzzy_pre, conv_k=fuzzification_params.conv_k)
+fuzzification_options = FuzzificationOptions(conv_k=5)
+X_dms = extract_fuzzy_features(X_fuzzy_pre, conv_k=fuzzification_options.conv_k)
 X_plus_dms = np.concatenate((X, X_dms), axis=1)
 
 # 2.2. Do your other data preprocessing, e.g. identifying the feature values and target values, processing the missing values, etc.
@@ -84,37 +88,37 @@ for train_index, test_index in kf.split(X):
     y_train, y_test = y[train_index], y[test_index]
     X_train_f, X_test_f = X_plus_dms[train_index], X_plus_dms[test_index]
     X_train, X_test = X[train_index], X[test_index]
-    
+
     # 4. Train the models.
     # 4.1. Using a fuzzy classifier (You can customise the arguments in your constructor and their default values).
-    fclf = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier, disable_fuzzy=False, 
-                                    fuzzification_params=fuzzification_params,
+    fclf = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier, disable_fuzzy=False,
+                                    fuzzification_options=fuzzification_options,
                                     criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
     fclf.fit(X_train_f, y_train)
-    
+
     # 4.2. Using a non-fuzzy classifier (You can customise the arguments in your constructor and their default values).
     clf = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier, disable_fuzzy=True,
                                    criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
     clf.fit(X_train, y_train)
-    
+
     # 5. Look at the models.
     # 5.1. Look at the fuzzy model.
     fclf.print_tree()
-    
+
     # 5.2. Look at the non-fuzzy model.
     clf.print_tree()
-    
+
     # 6. Evaluate the models.
     # 6.1. Evaluate the fuzzy model.
     y_pred_f = fclf.predict(X_test_f)
     acc_f = accuracy_score(y_test, y_pred_f)
     acc_list_f.append(acc_f)
-    
+
     # 6.2. Evaluate the non-fuzzy model.
     y_pred = clf.predict(X_test)
     acc = accuracy_score(y_test, y_pred)
     acc_list.append(acc)
-    
+
     # 6.3. Do your other evaluations.
 
 print("========================================================================================")
