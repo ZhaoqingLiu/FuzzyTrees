@@ -717,10 +717,10 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
         -------
 
         """
-        # Create a connection used to communicate between main process and its child processes.
+        # Create a connection used to communicate between master process and its sub-processes.
         q = multiprocessing.Manager().Queue()
 
-        # Create a pool for main process to manage its child processes in parallel.
+        # Create a pool for master process to manage its sub-processes in parallel.
         pool = multiprocessing.Pool(processes=NUM_CPU_CORES_REQ)
 
         # Pretrain different groups of classifiers and get each group's evaluation scores in parallel.
@@ -728,7 +728,7 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
             for conv_k in range(conv_k_lim[0], conv_k_lim[1] + 1, conv_k_lim[2]):
                 fuzzy_reg = fuzzy_reg_lim[0]
                 while fuzzy_reg <= fuzzy_reg_lim[1]:
-                    # Start a child process to fit a group of classifiers on a specified dataset and
+                    # Start a sub-process to fit a group of classifiers on a specified dataset and
                     # get the mean of their evaluation scores.
                     pool.apply_async(self._get_one_mean_fuzzy_clf, args=(q, ds_name, conv_k, fuzzy_reg,))
                     fuzzy_reg = float(Decimal(str(fuzzy_reg)) + Decimal(str(fuzzy_reg_lim[2])))
@@ -736,7 +736,7 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
         pool.close()
         pool.join()
 
-        # Encapsulate and save all data received from the child processes.
+        # Encapsulate and save all data received from the sub-processes.
         self._encapsulate_save_data_fuzzy_clf(q=q)
 
     def _get_one_mean_fuzzy_clf(self, q, ds_name, conv_k, fuzzy_reg):
@@ -820,7 +820,7 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
         print("    |-- Mean test acc:", acc_test_mean, "  std:", std_test)
         print("    |-- ========================================================================================")
 
-        # Put the data in the connection between the main process and its child processes.
+        # Put the data in the connection between the master process and its sub-processes.
         # !!! NB: The data should be a 2-dimensional ndarray, or a dictionary with key,
         # which is the dataset name, and value, which is a 2-d matrix ndarray.
         if not q.full():
@@ -876,8 +876,8 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
 
     def _encapsulate_save_data_fuzzy_clf(self, q):
         """
-        Encapsulate and save all data received from the child processes
-        when pretraining a group of fuzzy classifiers.
+        Encapsulate and save all data received from the sub-processes when
+        pretraining a group of fuzzy classifiers.
 
         Save the data in memory for immediate plotting, and a copy of the
         data in a file for future plotting against historical data.
@@ -890,7 +890,7 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
         -------
 
         """
-        # Get data via connection between main process and its child processes.
+        # Get data via connection between master process and its sub-processes.
         while not q.empty():
             # q.put([[ds_name, conv_k, fuzzy_reg, err_train_mean, std_train, err_test_mean, std_test]])
             data = q.get()
@@ -909,7 +909,7 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
             self.df_pretrain = pd.DataFrame(data=self.ds_pretrain, columns=column_names)
             filename = DirSave.EVAL_DATA.value + get_today_str() + "_" + EvaluationType.FUZZY_REG_VS_ERR_ON_CONV_K.value + ".csv"
             self.df_pretrain.to_csv(filename)
-        print("Main Process (%s) Saved data as the shape:".format(os.getpid()), self.df_pretrain)
+        print("Main Process {} saved data as the shape:".format(os.getpid()), self.df_pretrain)
 
     def plot_fuzzy_reg_vs_err(self, filename=None):
         """

@@ -182,46 +182,7 @@ class FuzzyRDF(metaclass=ABCMeta):
 
     def predict(self, X):
         """
-        Predict results for X.
-
-        ------------------------------------------------------------------------
-        When to use multiple processes?
-        Divide a prediction calculation into subunits and run them in
-        multi-process mode, making sure that each subunit is sufficiently
-        complex. Otherwise, when the complexity of each subunit falls below
-        a certain threshold, depending on the hardware and software
-        environment, the time consumed by CPU scheduling will be greater
-        than the time saved by multiple processes. As an example, here is
-        a comparison of the elapsed times for multi-process predict() and
-        non-multi-process predict() on the dataset provided by
-        sklearn.datasets.load_digits().
-
-        100 fuzzy trees with other parameters by default：
-            Time elapsed to load data: 0.049551s
-            Time elapsed to preprocess fuzzification: 1.6184s
-            Time elapsed to partition data: 0.0041816s
-            Time elapsed to train a fuzzy classifier: 5.7213s
-            Time elapsed to predict by the fuzzy classifier:
-                (Multi-process predict()) 8.3837s;
-                (Non-multi-process predict()) 0.22926s
-
-        1,000 fuzzy trees with other parameters by default:
-            Time elapsed to load data: 0.049702s
-            Time elapsed to preprocess fuzzification: 1.6178s
-            Time elapsed to partition data: 0.0043864s
-            Time elapsed to train a fuzzy classifier: 52.689s
-            Time elapsed to predict by the fuzzy classifier:
-                (Multi-process predict()) 817.67s;
-                (Non-multi-process predict()) 2.2753s
-
-        10,000 fuzzy trees with other parameters by default:
-            Time elapsed to load data: 0.050004s
-            Time elapsed to preprocess fuzzification: 1.6821s
-            Time elapsed to partition data: 0.0041745s
-            Time elapsed to train a fuzzy classifier: 515.57s
-            Time elapsed to predict by the fuzzy classifier:
-                (Multi-process predict()) unknown (probably greater than 100 * 817.67s);
-                (Non-multi-process predict()) 23.225s
+        Predict class for X.
 
         Parameters
         ----------
@@ -235,14 +196,58 @@ class FuzzyRDF(metaclass=ABCMeta):
         """
         y_preds = []
 
-        for i in range(self.n_estimators):
-            idxs = self._estimators[i].feature_idxs
-            X_subset = X[:, idxs]
-            y_pred = self._estimators[i].predict(X_subset)
-            y_preds.append(y_pred)
+        if self.multi_process_options:  # When self.multi_process_options is not None
+            # In multi-process mode.
+            with multiprocessing.Manager() as mg:
+                # Create a connection used to communicate between main process and its child processes.
+                q = multiprocessing.Manager().Queue()
+                # Create a pool for main process to manage its child processes in parallel.
+                pool = multiprocessing.Pool(processes=self._n_processes)
+                for i in range(self.n_estimators):
+                    pool.apply_async(self._predict_by_one, args=(X, i, q,))
+
+                pool.close()
+                pool.join()
+
+                # Add all the predictions returned by the sub-processes into the result set.
+                while not q.empty():
+                    y_pred = q.get()
+                    y_preds.append(y_pred)
+        else:
+            # In single-process mode.
+            for i in range(self.n_estimators):
+                y_preds.append(self._predict_by_one(X, i))
+
+        print("Totally {} predictions.".format(len(y_preds)))
         y_preds = np.array(y_preds).T
 
         return self._res_func(y_preds)
+
+    def _predict_by_one(self, X, i, q=None):
+        """
+        Predict one result using one estimator in the forest.
+
+        Parameters
+        ----------
+        X
+        i
+        q
+
+        Returns
+        -------
+
+        """
+        idxs = self._estimators[i].feature_idxs
+        X_subset = X[:, idxs]
+        y_pred = self._estimators[i].predict(X_subset)
+
+        # In multi-process mode, the prediction needs to be passed back to the master process because
+        # the sub-process cannot update the global variables in the master process.
+        if self.multi_process_options:
+            if not q.full():
+                q.put(y_pred)
+        else:
+            return y_pred
 
 
 class FuzzyRDFClassifier(FuzzyRDF):

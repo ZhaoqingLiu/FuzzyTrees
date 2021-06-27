@@ -23,7 +23,7 @@ if __name__ == '__main__':
     clf = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier, disable_fuzzy=False,
                                    fuzzification_options=FuzzificationOptions(),
                                    criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=10)
-    clf.search_fuzzy_params_4_clf(ds_name_list=ds_name_list, conv_k_lim=(3, 5, 1), fuzzy_reg_lim=(0.0, 1.0, 0.01))
+    clf.search_fuzzy_params_4_clf(ds_name_list=ds_name_list, conv_k_lim=(2, 10, 1), fuzzy_reg_lim=(0.0, 1.0, 0.01))
 
     # Show the fuzzy regulation coefficient versus training error and test error by the FDT proxy.
     clf.plot_fuzzy_reg_vs_err()
