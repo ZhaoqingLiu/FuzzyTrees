@@ -10,7 +10,7 @@ It allows you quickly extend new components according to particular fuzzy decisi
 You can easily understand any algorithm as long as it follows these uniform APIs.
 To easily extend new components, FuzzyTrees has provided you with a set of supporting and easy-to-use utilities, e.g. the splitting and splitting criterion calculation functions available in the most popular decision tree algorithms CART, ID3, and C4.5.
 
-- Finally, you can use the [fuzzy CART](./fuzzytrees/fdt_base.py), [fuzzy ID3](./fuzzytrees/fdt_base.py), [fuzzy C4.5](./fuzzytrees/fdt_base.py), [fuzzy GBDT](./fuzzytrees/fgbdt.py), and [fuzzy RDF](./fuzzytrees/frdf.py) algorithms provided by FuzzyTrees as examples for developing new algorithms, or for conducting a variety of empirical studies.
+- Finally, you can use the [fuzzy CART](./fuzzytrees/fdt_base.py), [fuzzy GBDT](./fuzzytrees/fgbdt.py), and [fuzzy RDF](./fuzzytrees/frdf.py) algorithms provided by FuzzyTrees as examples for developing new algorithms, or for conducting a variety of empirical studies.
 
 
 ## Installation
@@ -62,7 +62,7 @@ from fuzzytrees.fdt_base import FuzzificationOptions, FuzzyDecisionTreeWrapper, 
 from fuzzytrees.fdts import FuzzyCARTClassifier
 from fuzzytrees.util_data_processing_funcs import extract_fuzzy_features
 from sklearn import datasets
-from sklearn.model_selection import KFold
+from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 import numpy as np
 
@@ -81,49 +81,41 @@ X_plus_dms = np.concatenate((X, X_dms), axis=1)
 # 2.2. Do your other data preprocessing, e.g. identifying the feature values and target values, processing the missing values, etc.
 
 # 3. Partition the dataset.
-acc_list_f = []
-acc_list = []
-kf = KFold(n_splits=2, random_state=None, shuffle=True)
-for train_index, test_index in kf.split(X):
-    y_train, y_test = y[train_index], y[test_index]
-    X_train_f, X_test_f = X_plus_dms[train_index], X_plus_dms[test_index]
-    X_train, X_test = X[train_index], X[test_index]
+X_train_f, X_test_f, y_train_f, y_test_f = train_test_split(X_plus_dms, y, test_size=0.4, random_state=22)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, random_state=22)
 
-    # 4. Train the models.
-    # 4.1. Using a fuzzy classifier (You can customise the arguments in your constructor and their default values).
-    fclf = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier, disable_fuzzy=False,
-                                    fuzzification_options=fuzzification_options,
-                                    criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
-    fclf.fit(X_train_f, y_train)
+# 4. Train the models.
+# 4.1. Using a fuzzy classifier (You can customise the arguments in your constructor and their default values).
+fclf = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier, disable_fuzzy=False,
+                                fuzzification_options=fuzzification_options,
+                                criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
+fclf.fit(X_train_f, y_train_f)
 
-    # 4.2. Using a non-fuzzy classifier (You can customise the arguments in your constructor and their default values).
-    clf = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier, disable_fuzzy=True,
-                                   criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
-    clf.fit(X_train, y_train)
+# 4.2. Using a non-fuzzy classifier (You can customise the arguments in your constructor and their default values).
+clf = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier, disable_fuzzy=True,
+                               criterion_func=CRITERIA_FUNC_CLF["gini"], max_depth=5)
+clf.fit(X_train, y_train)
 
-    # 5. Look at the models.
-    # 5.1. Look at the fuzzy model.
-    fclf.print_tree()
+# 5. Look at the models.
+# 5.1. Look at the fuzzy model.
+fclf.print_tree()
 
-    # 5.2. Look at the non-fuzzy model.
-    clf.print_tree()
-
-    # 6. Evaluate the models.
-    # 6.1. Evaluate the fuzzy model.
-    y_pred_f = fclf.predict(X_test_f)
-    acc_f = accuracy_score(y_test, y_pred_f)
-    acc_list_f.append(acc_f)
-
-    # 6.2. Evaluate the non-fuzzy model.
-    y_pred = clf.predict(X_test)
-    acc = accuracy_score(y_test, y_pred)
-    acc_list.append(acc)
-
-    # 6.3. Do your other evaluations.
+# 5.2. Look at the non-fuzzy model.
+clf.print_tree()
 
 print("========================================================================================")
-print("Fuzzy model's average accuracy is:", np.mean(acc_list_f))
-print("Non-fuzzy model's average accuracy is:", np.mean(acc_list))
+# 6. Evaluate the models.
+# 6.1. Evaluate the fuzzy model.
+y_pred_f = fclf.predict(X_test_f)
+acc_f = accuracy_score(y_test, y_pred_f)
+print("Fuzzy model's accuracy is:", acc_f)
+
+# 6.2. Evaluate the non-fuzzy model.
+y_pred = clf.predict(X_test)
+acc = accuracy_score(y_test, y_pred)
+print("Non-fuzzy model's accuracy is:", acc)
+
+# 6.3. Do your other evaluations.
 print("========================================================================================")
 ```
 
@@ -137,7 +129,7 @@ See the [tutorials](./tutorials.md) for more details on using fuzzy decision tre
 
 ## Credits
 FuzzyTrees was developed by:
-- Zhaoqing Liu (FuzzyTrees framework, [fuzzy CART](./fuzzytrees/fdt_base.py), [fuzzy ID3](./fuzzytrees/fdt_base.py), [fuzzy C4.5](./fuzzytrees/fdt_base.py), [fuzzy GBDT](./fuzzytrees/fgbdt.py), [fuzzy RDF](./fuzzytrees/frdf.py))
+- Zhaoqing Liu (FuzzyTrees framework, [fuzzy CART](./fuzzytrees/fdt_base.py), [fuzzy GBDT](./fuzzytrees/fgbdt.py), [fuzzy RDF](./fuzzytrees/frdf.py))
 - Anjin Liu ([Fuzzy c-mean algorithm](./fuzzytrees/util_data_processing_funcs.py) for fuzzification in preprocessing)
 
 
