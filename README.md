@@ -44,8 +44,11 @@ class FuzzyCARTClassifier(BaseFuzzyDecisionTree, DecisionTreeInterface):
                          fuzzification_options=fuzzification_options, criterion_func=criterion_func,
                          max_depth=max_depth,
                          min_samples_split=min_samples_split, min_impurity_split=min_impurity_split, **kwargs)
+        # Specify the function used to split the dataset at each node.
         self._split_ds_func = split_ds_2_bin
+        # Specify the function used to calculate the criteria against which each split point is selected during induction.
         self._impurity_gain_calc_func = calculate_impurity_gain
+        # Specify the function used to calculate the value of each leaf node.
         self._leaf_value_calc_func = calculate_value_by_majority_vote
 
     # NB: The functions fit(), predict(), predict_proba() and print_tree() are already defined in the super class BaseFuzzyDecisionTree.

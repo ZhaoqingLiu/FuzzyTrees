@@ -32,15 +32,13 @@ class FuzzyCARTClassifier(BaseFuzzyDecisionTree, DecisionTreeInterface):
         super().__init__(disable_fuzzy=disable_fuzzy, X_fuzzy_dms=X_fuzzy_dms,
                          fuzzification_options=fuzzification_options, criterion_func=criterion_func, max_depth=max_depth,
                          min_samples_split=min_samples_split, min_impurity_split=min_impurity_split, **kwargs)
+        # Specify the function used to split the dataset at each node.
         self._split_ds_func = split_ds_2_bin
+        # Specify the function used to calculate the criteria against
+        # which each split point is selected during induction.
         self._impurity_gain_calc_func = calculate_impurity_gain
+        # Specify the function used to calculate the value of each leaf node.
         self._leaf_value_calc_func = calculate_value_by_majority_vote
-
-    # def fit(self, X_train, y_train):
-    #     self._split_ds_func = split_ds_2_bin
-    #     self._impurity_gain_calc_func = calculate_impurity_gain
-    #     self._leaf_value_calc_func = calculate_value_by_majority_vote
-    #     super().fit(X_train=X_train, y_train=y_train)
 
 
 class FuzzyCARTRegressor(BaseFuzzyDecisionTree, DecisionTreeInterface):
@@ -61,15 +59,13 @@ class FuzzyCARTRegressor(BaseFuzzyDecisionTree, DecisionTreeInterface):
         super().__init__(disable_fuzzy=disable_fuzzy, X_fuzzy_dms=X_fuzzy_dms,
                          fuzzification_options=fuzzification_options, criterion_func=criterion_func, max_depth=max_depth,
                          min_samples_split=min_samples_split, min_impurity_split=min_impurity_split, **kwargs)
+        # Specify the function used to split the dataset at each node.
         self._split_ds_func = split_ds_2_bin
+        # Specify the function used to calculate the criteria against
+        # which each split point is selected during induction.
         self._impurity_gain_calc_func = calculate_variance_reduction
+        # Specify the function used to calculate the value of each leaf node.
         self._leaf_value_calc_func = calculate_mean_value
-
-    # def fit(self, X_train, y_train):
-    #     self._split_ds_func = split_ds_2_bin
-    #     self._impurity_gain_calc_func = calculate_variance_reduction
-    #     self._leaf_value_calc_func = calculate_mean
-    #     super().fit(X_train=X_train, y_train=y_train)
 
 
 class FuzzyID3Classifier(BaseFuzzyDecisionTree, DecisionTreeInterface):
@@ -92,12 +88,13 @@ class FuzzyID3Classifier(BaseFuzzyDecisionTree, DecisionTreeInterface):
         super().__init__(disable_fuzzy=disable_fuzzy, X_fuzzy_dms=X_fuzzy_dms,
                          fuzzification_options=fuzzification_options, criterion_func=criterion_func, max_depth=max_depth,
                          min_samples_split=min_samples_split, min_impurity_split=min_impurity_split, **kwargs)
-
-    def fit(self, X_train, y_train):
+        # Specify the function used to split the dataset at each node.
         self._split_ds_func = split_disc_ds_2_multi
+        # Specify the function used to calculate the criteria against
+        # which each split point is selected during induction.
         self._impurity_gain_calc_func = calculate_impurity_gain
+        # Specify the function used to calculate the value of each leaf node.
         self._leaf_value_calc_func = calculate_value_by_majority_vote
-        super().fit(X_train=X_train, y_train=y_train)
 
 
 class FuzzyC45Classifier(BaseFuzzyDecisionTree, DecisionTreeInterface):
@@ -118,10 +115,11 @@ class FuzzyC45Classifier(BaseFuzzyDecisionTree, DecisionTreeInterface):
         super().__init__(disable_fuzzy=disable_fuzzy, X_fuzzy_dms=X_fuzzy_dms,
                          fuzzification_options=fuzzification_options, criterion_func=criterion_func, max_depth=max_depth,
                          min_samples_split=min_samples_split, min_impurity_split=min_impurity_split, **kwargs)
-
-    def fit(self, X_train, y_train):
+        # Specify the function used to split the dataset at each node.
         self._split_ds_func = split_ds_2_multi
+        # Specify the function used to calculate the criteria against
+        # which each split point is selected during induction.
         self._impurity_gain_calc_func = calculate_impurity_gain_ratio
+        # Specify the function used to calculate the value of each leaf node.
         self._leaf_value_calc_func = calculate_value_by_majority_vote
-        super().fit(X_train=X_train, y_train=y_train)
 
