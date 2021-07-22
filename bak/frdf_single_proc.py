@@ -9,8 +9,8 @@ import numpy as np
 
 from fuzzytrees.fdt_base import FuzzyDecisionTreeWrapper
 from fuzzytrees.fdts import FuzzyCARTClassifier, FuzzyCARTRegressor
-from fuzzytrees.util_criterion_funcs import majority_vote, mean_value
-from fuzzytrees.util_data_processing_funcs import resample_bootstrap
+from fuzzytrees.util_tree_criterion_funcs import majority_vote, mean_value
+from fuzzytrees.util_preprocessing_funcs import resample_bootstrap
 
 
 class FuzzyRDF(metaclass=ABCMeta):
@@ -18,23 +18,24 @@ class FuzzyRDF(metaclass=ABCMeta):
     Base fuzzy random decision forests (RF) class that encapsulates all
     base functions to be inherited by all derived classes (and attributes,
     if required). This algorithm is a fuzzy extension of the random decision
-    forests proposed by Tin Kam Ho[1].
+    forests proposed by Tin Kam Ho [1]_.
 
 
     Warning: This class should not be used directly.
     Use derived classes instead.
 
-    ------------------------------------------------------------------------
+    Notes
+    -----
     About RF
-    The first algorithm for random decision forests was created by
-    Tin Kam Ho[1] using the random subspace method,[2] which, in Ho's
-    formulation, is a way to implement the "stochastic discrimination"
-    approach to classification proposed by Eugene Kleinberg.
-    An extension of the algorithm was developed by Leo Breiman[4] and
-    Adele Cutler.[5] The extension combines Breiman's "bagging" idea and
-    random selection of features, introduced first by Ho[1] and later
-    independently by Amit and Geman[3] in order to construct a collection
-    of decision trees with controlled variance.
+    The first algorithm for random decision forests was created by Tin Kam Ho [1]_
+    using the random subspace method [2]_, which, in Ho's formulation, is a way to
+    implement the "stochastic discrimination" approach to classification proposed
+    by Eugene Kleinberg.
+    An extension of the algorithm was developed by Leo Breiman [4]_ and Adele Cutler
+    [5]_. The extension combines Breiman's "bagging" idea and random selection of
+    features, introduced first by Ho [1]_ and later independently by Amit and
+    Geman [3]_ in order to construct a collection of decision trees with controlled
+    variance.
 
     The randomness of RF is reflected in two aspects:
     1. RF uses the bootstrapping sampling method to randomly selects n samples
@@ -58,29 +59,24 @@ class FuzzyRDF(metaclass=ABCMeta):
         Let M be the total number of features of data and m be the number
         of selected features. Generally, the value can be tried from the
         following usual practices:
-        - For classification problems, m = 1 / 3 * M;
-        - For regression problems, m = log_2 (M + 1);
-        - By defaults, m = sqrt(M).
+        - For classification problems, :math:`m = 1 / 3 * M`;
+        - For regression problems, :math:`m = log_2 (M + 1)`;
+        - By defaults, :math:`m = sqrt(M)`.
 
     References
-    1. Ho, T.K., 1995, August. Random decision forests. In Proceedings
-        of 3rd international conference on document analysis and
-        recognition (Vol. 1, pp. 278-282). IEEE.
-    2. Ho, T.K., 1998. The random subspace method for constructing
-        decision forests. IEEE transactions on pattern analysis and
-        machine intelligence, 20(8), pp.832-844.
-    3. Amit, Y. and Geman, D., 1997. Shape quantization and recognition
-        with randomized trees. Neural computation, 9(7), pp.1545-1588.
-    4. Breiman, L., 2001. Random forests. Machine learning, 45(1),
-        pp.5-32.
-    5. RColorBrewer, S. and Liaw, M.A., 2018. Package ‘randomForest’.
-        University of California, Berkeley: Berkeley, CA, USA.
-    ------------------------------------------------------------------------
-
-    Attributes
     ----------
-    _estimators: ndarray of FuzzyDecisionTree
-        The collection of sub-estimators as the base learners.
+    .. [1] Ho, T.K., 1995, August. Random decision forests. In Proceedings
+           of 3rd international conference on document analysis and
+           recognition (Vol. 1, pp. 278-282). IEEE.
+    .. [2] Ho, T.K., 1998. The random subspace method for constructing
+           decision forests. IEEE transactions on pattern analysis and
+           machine intelligence, 20(8), pp.832-844.
+    .. [3] Amit, Y. and Geman, D., 1997. Shape quantization and recognition
+           with randomized trees. Neural computation, 9(7), pp.1545-1588.
+    .. [4] Breiman, L., 2001. Random forests. Machine learning, 45(1),
+           pp.5-32.
+    .. [5] RColorBrewer, S. and Liaw, M.A., 2018. Package ‘randomForest’.
+           University of California, Berkeley: Berkeley, CA, USA.
     """
 
     def __init__(self, disable_fuzzy, fuzzification_options, criterion_func, n_estimators,

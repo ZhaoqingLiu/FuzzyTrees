@@ -16,7 +16,7 @@ $ pip install -r requirements.txt
 ## Development
 If you are developing a new fuzzy decision tree algorithm, 
 all you need to do is specify the fuzzy rule-based functions in the constructor \_\_init\_\_() of your fuzzy decision tree class. 
-See the utilities [util_data_processing_funcs](./fuzzytrees/util_data_processing_funcs.py), [util_split_funcs](./fuzzytrees/util_split_funcs.py) and [util_criterion_funcs](./fuzzytrees/util_criterion_funcs.py) for details on the fuzzy rules-based functions.
+See the utilities [util_data_processing_funcs](fuzzytrees/util_preprocessing_funcs.py), [util_split_funcs](fuzzytrees/util_tree_split_funcs.py) and [util_criterion_funcs](fuzzytrees/util_tree_criterion_funcs.py) for details on the fuzzy rules-based functions.
 
 In addition to the utilities provided by FuzzyTrees, if you need to customise your own fuzzy-based functions, 
 i.e. fuzzification preprocessing, splitting, splitting criterion calculation, and leaf node value calculation functions, 
@@ -29,8 +29,8 @@ For example, I'm implementing a fuzzy CART classifier.
 
 ```python
 from fuzzytrees.fdt_base import BaseFuzzyDecisionTree, DecisionTreeInterface, CRITERIA_FUNC_CLF
-from fuzzytrees.util_criterion_funcs import calculate_impurity_gain, calculate_value_by_majority_vote
-from fuzzytrees.util_split_funcs import split_ds_2_bin
+from fuzzytrees.util_tree_criterion_funcs import calculate_impurity_gain, calculate_value_by_majority_vote
+from fuzzytrees.util_tree_split_funcs import split_ds_2_bin
 
 
 class FuzzyCARTClassifier(BaseFuzzyDecisionTree, DecisionTreeInterface):
@@ -39,7 +39,8 @@ class FuzzyCARTClassifier(BaseFuzzyDecisionTree, DecisionTreeInterface):
                  criterion_func=CRITERIA_FUNC_CLF["entropy"], max_depth=float("inf"), min_samples_split=2,
                  min_impurity_split=1e-7, **kwargs):
         super().__init__(disable_fuzzy=disable_fuzzy, X_fuzzy_dms=X_fuzzy_dms,
-                         fuzzification_options=fuzzification_options, criterion_func=criterion_func, max_depth=max_depth,
+                         fuzzification_options=fuzzification_options, criterion_func=criterion_func,
+                         max_depth=max_depth,
                          min_samples_split=min_samples_split, min_impurity_split=min_impurity_split, **kwargs)
         # Specify the function used to split the dataset at each node.
         self._split_ds_func = split_ds_2_bin
@@ -55,8 +56,8 @@ Also, I'm developing a fuzzy CART regressor.
 
 ```python
 from fuzzytrees.fdt_base import BaseFuzzyDecisionTree, DecisionTreeInterface, CRITERIA_FUNC_REG
-from fuzzytrees.util_criterion_funcs import calculate_variance_reduction, calculate_mean_value
-from fuzzytrees.util_split_funcs import split_ds_2_bin
+from fuzzytrees.util_tree_criterion_funcs import calculate_variance_reduction, calculate_mean_value
+from fuzzytrees.util_tree_split_funcs import split_ds_2_bin
 
 
 class FuzzyCARTRegressor(BaseFuzzyDecisionTree, DecisionTreeInterface):
@@ -65,7 +66,8 @@ class FuzzyCARTRegressor(BaseFuzzyDecisionTree, DecisionTreeInterface):
                  criterion_func=CRITERIA_FUNC_REG["mse"], max_depth=float("inf"), min_samples_split=2,
                  min_impurity_split=1e-7, **kwargs):
         super().__init__(disable_fuzzy=disable_fuzzy, X_fuzzy_dms=X_fuzzy_dms,
-                         fuzzification_options=fuzzification_options, criterion_func=criterion_func, max_depth=max_depth,
+                         fuzzification_options=fuzzification_options, criterion_func=criterion_func,
+                         max_depth=max_depth,
                          min_samples_split=min_samples_split, min_impurity_split=min_impurity_split, **kwargs)
         # Specify the function used to split the dataset at each node.
         self._split_ds_func = split_ds_2_bin
@@ -87,7 +89,7 @@ Let's take machine learning using the fuzzy CART classifier as an example.
 ```python
 from fuzzytrees.fdt_base import FuzzificationOptions, FuzzyDecisionTreeWrapper, CRITERIA_FUNC_CLF
 from fuzzytrees.fdts import FuzzyCARTClassifier
-from fuzzytrees.util_data_processing_funcs import extract_fuzzy_features
+from fuzzytrees.util_preprocessing_funcs import extract_fuzzy_features
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
@@ -151,8 +153,8 @@ Let's take machine learning using the fuzzy CART regressor as another example.
 ```python
 from fuzzytrees.fdt_base import FuzzificationOptions, FuzzyDecisionTreeWrapper, CRITERIA_FUNC_REG
 from fuzzytrees.fdts import FuzzyCARTRegressor
-from fuzzytrees.util_data_processing_funcs import extract_fuzzy_features
-from fuzzytrees.util_criterion_funcs import calculate_mse, calculate_mae
+from fuzzytrees.util_preprocessing_funcs import extract_fuzzy_features
+from fuzzytrees.util_tree_criterion_funcs import calculate_mse, calculate_mae
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
 import numpy as np

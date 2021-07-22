@@ -353,13 +353,13 @@ def majority_vote(y_preds):
 
     Parameters
     ----------
-    y_preds: array-like of shape (n_samples, n_estimators)
+    y_preds : array-like of shape (n_samples, n_estimators)
         NB: The input array needs to be of integer dtype, otherwise a
         TypeError is raised.
 
     Returns
     -------
-    y_pred: array-like of shape (n_samples, )
+    array-like of shape (n_samples, )
     """
     y_pred = []
     for y_p in y_preds:

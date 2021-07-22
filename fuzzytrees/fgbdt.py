@@ -11,8 +11,8 @@ from sklearn.preprocessing import OneHotEncoder
 
 from fuzzytrees.fdt_base import FuzzyDecisionTreeWrapper, CRITERIA_FUNC_REG
 from fuzzytrees.fdts import FuzzyCARTRegressor
-from fuzzytrees.util_criterion_funcs import LeastSquaresFunction, SoftLeastSquaresFunction
-from fuzzytrees.util_data_processing_funcs import one_hot_encode
+from fuzzytrees.util_tree_criterion_funcs import LeastSquaresFunction, SoftLeastSquaresFunction
+from fuzzytrees.util_preprocessing_funcs import one_hot_encode
 
 
 class FuzzyGBDT(metaclass=ABCMeta):

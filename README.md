@@ -1,5 +1,4 @@
 # FuzzyTrees ![MIT](https://img.shields.io/badge/license-MIT-brightgreen)
-
 FuzzyTrees is a lightweight framework designed for rapidly developing various fuzzy decision tree algorithms.
 It has three features.
 
@@ -31,8 +30,8 @@ For example, I'm implementing a fuzzy CART classifier.
 
 ```python
 from fuzzytrees.fdt_base import BaseFuzzyDecisionTree, DecisionTreeInterface, CRITERIA_FUNC_CLF
-from fuzzytrees.util_criterion_funcs import calculate_impurity_gain, calculate_value_by_majority_vote
-from fuzzytrees.util_split_funcs import split_ds_2_bin
+from fuzzytrees.util_tree_criterion_funcs import calculate_impurity_gain, calculate_value_by_majority_vote
+from fuzzytrees.util_tree_split_funcs import split_ds_2_bin
 
 
 class FuzzyCARTClassifier(BaseFuzzyDecisionTree, DecisionTreeInterface):
@@ -63,7 +62,7 @@ Let's take machine learning using the fuzzy CART classifier as an example.
 ```python
 from fuzzytrees.fdt_base import FuzzificationOptions, FuzzyDecisionTreeWrapper, CRITERIA_FUNC_CLF
 from fuzzytrees.fdts import FuzzyCARTClassifier
-from fuzzytrees.util_data_processing_funcs import extract_fuzzy_features
+from fuzzytrees.util_preprocessing_funcs import extract_fuzzy_features
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
@@ -133,12 +132,10 @@ See the [tutorials](./tutorials.md) for more details on using fuzzy decision tre
 ## Credits
 FuzzyTrees was developed by:
 - Zhaoqing Liu (FuzzyTrees framework, [fuzzy CART](./fuzzytrees/fdt_base.py), [fuzzy GBDT](./fuzzytrees/fgbdt.py), [fuzzy RDF](./fuzzytrees/frdf.py))
-- Anjin Liu ([Fuzzy c-mean algorithm](./fuzzytrees/util_data_processing_funcs.py) for fuzzification in preprocessing)
+- Anjin Liu ([Fuzzy feature extraction](fuzzytrees/util_preprocessing_funcs.py) for fuzzification in preprocessing)
 
 
-License
-----
-
+## License
 MIT License
 
 Copyright (c) 2021 Zhaoqing Liu
