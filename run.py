@@ -14,7 +14,7 @@ from fuzzytrees.util_preprocessing_funcs import extract_fuzzy_features
 from fuzzytrees.util_tree_criterion_funcs import calculate_mse, calculate_mae
 
 
-def usage_fuzzy_cart_clf():
+def use_fuzzy_cart_clf():
     """Example using the Fuzzy CART classifier."""
     # 1. Load the dataset.
     X, y = datasets.load_wine(return_X_y=True)
@@ -67,7 +67,7 @@ def usage_fuzzy_cart_clf():
     print("========================================================================================")
 
 
-def usage_fuzzy_cart_reg():
+def use_fuzzy_cart_reg():
     """Example using the Fuzzy CART regressor."""
     # 1. Load the dataset.
     X, y = datasets.load_diabetes(return_X_y=True)
@@ -125,5 +125,5 @@ def usage_fuzzy_cart_reg():
 
 
 if __name__ == '__main__':
-    usage_fuzzy_cart_clf()
-    usage_fuzzy_cart_reg()
+    use_fuzzy_cart_clf()
+    use_fuzzy_cart_reg()
