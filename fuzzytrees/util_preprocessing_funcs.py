@@ -34,11 +34,6 @@ def degree_of_membership_build(X_df, r_seed, conv_k, fuzzy_reg):
     @author : Anjin Liu
     @email : Anjin.Liu@uts.edu.au
 
-    TODO: To be deprecated in version 1.0.
-        This function will be integrated into the FCM module,
-        which extracts the fuzzy features of all samples in a
-        data set before starting training.
-
     Parameters
     ----------
     X_df : DataFrame
@@ -60,12 +55,9 @@ def degree_of_membership_build(X_df, r_seed, conv_k, fuzzy_reg):
     degree_of_membership_theta:
 
     """
-    # TODO: categorical feature handling
-    # TODO: missing value handling
     x_np = X_df.values
     x_np = x_np.reshape(-1, 1)
 
-    # TODO: c-means, self-organize-map
     kmeans = KMeans(n_clusters=conv_k, random_state=r_seed).fit(x_np)
     x_new = kmeans.transform(x_np)
     centriods = kmeans.cluster_centers_
@@ -85,15 +77,6 @@ def degree_of_membership_build(X_df, r_seed, conv_k, fuzzy_reg):
             x_new[:, idx] = 1 - x_new[:, idx] / item * theta_f
     x_new[x_new < 0] = 0
 
-    # TODO: Searching an optimum fuzzy threshold by a loop according the specified stride.
-    # np.where(x_new > fuzzy_th, x_new, 0.0)
-    # np.where(x_new > fuzzy_th and x_new <= (1 - fuzzy_th), x_new, 1.0)
-    # x_new[x_new <= fuzzy_th] = 0
-    # x_new[x_new > (1 - fuzzy_th)] = 1
-    # print("++++++++++++++++++++++++++++++++++++++")
-    # print(x_new)
-    # print("++++++++++++++++++++++++++++++++++++++")
-
     return x_new, centriods, degree_of_membership_theta
 
 
@@ -107,9 +90,6 @@ def extract_fuzzy_features(X, conv_k=5, fuzzy_reg=0.0):
 
     @author: Anjin Liu
     @email: Anjin.Liu@uts.edu.au
-
-    TODO: To be deprecated in version 1.0.
-    TODO: To be verified by experiment: When using cross validation, which performance is better doing this before or after the partition of the data sets?
     """
     # print("************* X's shape:", np.shape(X))
     n_samples, n_features = np.shape(X)

@@ -8,7 +8,7 @@ Created on Thu Nov 19 11:15:33 2020
 @author: Zhaoqing Liu
 @email: Zhaoqing.Liu-1@student.uts.edu.au
 @date: 29/01/2021 10:32 pm
-@desc: TODO: the followings
+@desc:
     1. Add more data set loading functions (in addition to the five data sets
         Vehicle, Waveform, German Credit, Chess, and Diabetes).
     2. Use encoder to encode the features if there are categorical variables,
@@ -103,7 +103,6 @@ def load_German_credit():
 
 
 def load_chess():
-    # TODO
     """
     (a) Database originally generated and described by Alen Shapiro.
     (b) Donor/Coder: Rob Holte (holte@uottawa.bitnet).  The database

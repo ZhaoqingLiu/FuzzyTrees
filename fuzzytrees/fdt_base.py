@@ -725,6 +725,8 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
 
         # Pretrain different groups of classifiers and get each group's evaluation scores in parallel.
         for ds_name in ds_name_list:
+            # Iteratively searching an optimum number of fuzzy clusters and
+            # fuzzy regulation coefficient by a specified stride.
             for conv_k in range(conv_k_lim[0], conv_k_lim[1] + 1, conv_k_lim[2]):
                 fuzzy_reg = fuzzy_reg_lim[0]
                 while fuzzy_reg <= fuzzy_reg_lim[1]:
