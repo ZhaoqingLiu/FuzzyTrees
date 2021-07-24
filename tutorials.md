@@ -96,9 +96,7 @@ from sklearn.metrics import accuracy_score
 import numpy as np
 
 # 1. Load the dataset.
-data = datasets.load_wine(as_frame=True).frame
-X = data.iloc[:, :-1].values
-y = data.iloc[:, -1:].values
+X, y = datasets.load_wine(return_X_y=True)
 
 # 2. Preprocess the dataset.
 # 2.1. Do fuzzification preprocessing.
@@ -136,7 +134,7 @@ print("=========================================================================
 # 6. Evaluate the models.
 # 6.1. Evaluate the fuzzy model.
 y_pred_f = fclf.predict(X_test_f)
-acc_f = accuracy_score(y_test, y_pred_f)
+acc_f = accuracy_score(y_test_f, y_pred_f)
 print("Fuzzy model's accuracy is:", acc_f)
 
 # 6.2. Evaluate the non-fuzzy model.
@@ -180,7 +178,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, random_
 freg = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTRegressor, disable_fuzzy=False,
                                 fuzzification_options=fuzzification_options,
                                 criterion_func=CRITERIA_FUNC_REG["mse"], max_depth=5)
-freg.fit(X_train_f, y_train)
+freg.fit(X_train_f, y_train_f)
 
 # 4.2. Using a non-fuzzy regressor (You can customise the arguments in your constructor and their default values).
 reg = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTRegressor, disable_fuzzy=True,
@@ -198,8 +196,8 @@ print("=========================================================================
 # 6. Evaluate the models.
 # 6.1. Evaluate the fuzzy model.
 y_pred_f = freg.predict(X_test_f)
-mse_f = calculate_mse(y_test, y_pred_f)
-mae_f = calculate_mae(y_test, y_pred_f)
+mse_f = calculate_mse(y_test_f, y_pred_f)
+mae_f = calculate_mae(y_test_f, y_pred_f)
 print("Fuzzy model's average MSE is:", mse_f)
 print("Fuzzy model's average MAE is:", mae_f)
 

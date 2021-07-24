@@ -69,9 +69,7 @@ from sklearn.metrics import accuracy_score
 import numpy as np
 
 # 1. Load the dataset.
-data = datasets.load_wine(as_frame=True).frame
-X = data.iloc[:, :-1].values
-y = data.iloc[:, -1:].values
+X, y = datasets.load_wine(return_X_y=True)
 
 # 2. Preprocess the dataset.
 # 2.1. Do fuzzification preprocessing.
@@ -109,7 +107,7 @@ print("=========================================================================
 # 6. Evaluate the models.
 # 6.1. Evaluate the fuzzy model.
 y_pred_f = fclf.predict(X_test_f)
-acc_f = accuracy_score(y_test, y_pred_f)
+acc_f = accuracy_score(y_test_f, y_pred_f)
 print("Fuzzy model's accuracy is:", acc_f)
 
 # 6.2. Evaluate the non-fuzzy model.
