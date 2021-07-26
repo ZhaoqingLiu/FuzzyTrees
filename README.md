@@ -132,11 +132,15 @@ FuzzyTrees was developed by:
 - Zhaoqing Liu (FuzzyTrees framework, [fuzzy CART](./fuzzytrees/fdt_base.py), [fuzzy GBDT](./fuzzytrees/fgbdt.py), [fuzzy RDF](./fuzzytrees/frdf.py))
 - Anjin Liu ([Fuzzy feature extraction](fuzzytrees/util_preprocessing_funcs.py) for fuzzification in preprocessing)
 
+FuzzyTrees is under the supervision of:
+- Dist Prof Jie Lu
+- A/Prof Guangquan Zhang
+
 
 ## License
 MIT License
 
-Copyright (c) 2021 Zhaoqing Liu
+Copyright (c) 2021 Australian Artificial Intelligence Institute, UTS
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
