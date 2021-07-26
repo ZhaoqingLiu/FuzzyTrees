@@ -1,3 +1,11 @@
+# Development files
+*.csv
+*.zip
+TODO/
+temp_test/
+exp/
+bak/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -26,10 +34,6 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
-TODO/
-temp_test/
-exp/
-bak/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
