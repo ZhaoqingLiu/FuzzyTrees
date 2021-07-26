@@ -115,6 +115,13 @@ class BaseFuzzyRDF(metaclass=ABCMeta):
         """
         Fit the fuzzy random decision forest model (in multi-process mode).
 
+        Process consists of:
+        St.1. Randomly resample instances through bootstrapping sampling (WR).
+        St.2. Random select features.
+        St.3. Construct trees.
+        St.4. Majority vote (for classification) or simple average (for regression) to
+              prevent overfitting and reduce variance.
+
         Parameters
         ----------
         X_train: {array-like, sparse matrix} of shape (n_samples, n_features)
