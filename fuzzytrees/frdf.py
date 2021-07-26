@@ -119,7 +119,7 @@ class BaseFuzzyRDF(metaclass=ABCMeta):
         St.1. Randomly resample instances through bootstrapping sampling (WR).
         St.2. Random select features.
         St.3. Construct trees.
-        St.4. Majority vote (for classification) or simple average (for regression) to
+        St.4. Majority vote (classification) or simple average (regression) to
               prevent overfitting and reduce variance.
 
         Parameters
