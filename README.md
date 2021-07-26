@@ -158,6 +158,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 
-Contact us: Geo.Liu@outlook.com
+Contact us: Zhaoqing.Liu-1@student.uts.edu.au
 
 

@@ -52,7 +52,7 @@ setup(
     keywords=['algorithm', 'fuzzy', 'fuzzy tree', 'decision tree', 'fuzzy algorithm'],
     # Specify the package document format as Markdown.
     long_description_content_type='text/markdown',
-    author='Zhaoqing Liu',
+    author='Zhaoqing Liu, Anjin Liu, Jie Lu, Guangquan Zhang',
     author_email='Zhaoqing.Liu-1@student.uts.edu.au',
     url='https://github.com/ZhaoqingLiu/FuzzyTrees',
     download_url='https://github.com/ZhaoqingLiu/FuzzyTrees/archive/refs/tags/v_001.tar.gz',
