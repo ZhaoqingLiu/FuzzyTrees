@@ -39,7 +39,7 @@ def read_requirements(filename):
 
 setup(
     # package name.
-    name='fuzzytrees',
+    name='fdts',
     # Specify package information.
     packages=['fuzzytrees'],
     # package version.

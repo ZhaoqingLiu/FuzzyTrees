@@ -15,7 +15,7 @@ To easily extend new components, FuzzyTrees has provided you with a set of suppo
 ## Installation
 ###  Getting it
 ```shell
-$ pip install fuzzytrees
+$ pip install fdts
 ```
 
 ###  Importing all dependencies
