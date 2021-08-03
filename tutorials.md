@@ -3,7 +3,7 @@
 ## Installation
 ###  Getting it
 ```shell
-$ pip install fuzzytrees
+$ pip install fdts
 ```
 
 ###  Importing all dependencies
