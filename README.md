@@ -1,16 +1,12 @@
 # FuzzyTrees ![MIT](https://img.shields.io/badge/license-MIT-brightgreen)
-FuzzyTrees is a lightweight framework designed for rapidly developing various fuzzy decision tree algorithms.
-It has three features.
+FuzzyTrees is a lightweight framework designed for the rapid development of fuzzy decision tree algorithms.
+FuzzyTrees offers a variety of benefits including:
 
-- Firstly, FuzzyTrees is a supporting architecture for development. 
-It allows you quickly extend new components according to particular fuzzy decision tree requirements and build your own complete algorithm solutions.
+- **Support in development solutions**: FuzzyTrees allows the user to extend new components quickly, according to particular fuzzy decision tree requirements, and build complete algorithm solutions.
 
-- Secondly, FuzzyTrees provides a set of APIs for extending components. 
-You can easily understand any algorithm as long as it follows these uniform APIs.
-To easily extend new components, FuzzyTrees has provided you with a set of supporting and easy-to-use utilities, e.g. the splitting and splitting criterion calculation functions available in the most popular decision tree algorithms CART, ID3, and C4.5.
+- **Extending components with a set of APIs**: Any algorithm can be easily understood by following FuzzyTrees’ uniform APIs. To extend new components with ease, FuzzyTrees provides a set of supporting and easy-to-use utilities, e.g. the splitting and splitting criterion calculation functions available in the most widely used decision tree algorithms, CART, ID3, and C4.5.
 
-- Finally, you can use the [fuzzy CART](fuzzytrees/fdt_base.py), [fuzzy GBDT](fuzzytrees/fgbdt.py), and [fuzzy RDF](fuzzytrees/frdf.py) algorithms provided by FuzzyTrees as examples for developing new algorithms, or for conducting a variety of empirical studies.
-
+- **Examples for algorithm development**: The FuzzyTrees algorithms, [fuzzy CART](fuzzytrees/fdt_base.py), [fuzzy GBDT](fuzzytrees/fgbdt.py) and fuzzy RDF[fuzzy RDF](fuzzytrees/frdf.py) can be used as examples for developing new algorithms or for conducting a variety of empirical studies.
 
 ## Installation
 ###  Getting it
