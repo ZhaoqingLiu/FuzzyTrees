@@ -132,7 +132,7 @@ See the [tutorials](./tutorials.md) for more details on using fuzzy decision tre
 ## License
 MIT License
 
-Copyright (c) 2021 Australian Artificial Intelligence Institute, UTS
+Copyright (c) 2021 UTS Australian Artificial Intelligence Institute
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
