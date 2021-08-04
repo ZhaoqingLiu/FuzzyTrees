@@ -8,19 +8,19 @@ FuzzyTrees is a lightweight framework designed for the rapid development of fuzz
 - **Examples for algorithm development**: The FuzzyTrees algorithms, [fuzzy CART](fuzzytrees/fdt_base.py), [fuzzy GBDT](fuzzytrees/fgbdt.py) and fuzzy RDF[fuzzy RDF](fuzzytrees/frdf.py) can be used as examples for developing new algorithms or for conducting a variety of empirical studies.
 
 ## Installation
-###  Getting it
+###  Getting It
 ```shell
 $ pip install fdts
 ```
 
-###  Importing all dependencies
+###  Importing All Dependencies
 Go to the root directory where FuzzyTrees is installed, and then
 ```shell
 $ pip install -r requirements.txt
 ```
 
 
-## Development example
+## A Development Example
 For example, I'm implementing a fuzzy CART classifier.
 
 ```python
@@ -51,7 +51,7 @@ class FuzzyCARTClassifier(BaseFuzzyDecisionTree, DecisionTreeInterface):
 See the [tutorials](./tutorials.md) for more details on developing based on FuzzyTrees.
 
 
-## Usage example
+## A Usage Example
 Let's take machine learning using the fuzzy CART classifier as an example.
 
 ```python
@@ -122,7 +122,7 @@ See the [tutorials](./tutorials.md) for more details on using fuzzy decision tre
 - [Tutorials](./tutorials.md)
 
 
-## Development team
+## Development Team
 - Zhaoqing Liu (FuzzyTrees framework, [fuzzy CART](fuzzytrees/fdt_base.py), [fuzzy GBDT](fuzzytrees/fgbdt.py), [fuzzy RDF](fuzzytrees/frdf.py))
 - Dr. Anjin Liu ([Fuzzy feature extraction](fuzzytrees/util_preprocessing_funcs.py) for fuzzification in preprocessing)
 - Dist. Prof. Jie Lu
