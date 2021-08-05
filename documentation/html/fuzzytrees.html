@@ -1,0 +1,1985 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>fuzzytrees package &mdash; FuzzyTrees 0.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="fuzzytrees" href="modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> FuzzyTrees
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">fuzzytrees</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">fuzzytrees package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-fuzzytrees.fdt_base">fuzzytrees.fdt_base module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-fuzzytrees.fdts">fuzzytrees.fdts module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-fuzzytrees.fgbdt">fuzzytrees.fgbdt module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-fuzzytrees.frdf">fuzzytrees.frdf module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-fuzzytrees.settings">fuzzytrees.settings module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-fuzzytrees.util_comm">fuzzytrees.util_comm module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-fuzzytrees.util_data_handler">fuzzytrees.util_data_handler module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-fuzzytrees.util_logging">fuzzytrees.util_logging module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-fuzzytrees.util_plotter">fuzzytrees.util_plotter module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-fuzzytrees.util_preprocessing_funcs">fuzzytrees.util_preprocessing_funcs module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-fuzzytrees.util_tree_criterion_funcs">fuzzytrees.util_tree_criterion_funcs module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-fuzzytrees.util_tree_split_funcs">fuzzytrees.util_tree_split_funcs module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-fuzzytrees">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">FuzzyTrees</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="modules.html">fuzzytrees</a> &raquo;</li>
+        
+      <li>fuzzytrees package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/fuzzytrees.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="fuzzytrees-package">
+<h1>fuzzytrees package<a class="headerlink" href="#fuzzytrees-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-fuzzytrees.fdt_base">
+<span id="fuzzytrees-fdt-base-module"></span><h2>fuzzytrees.fdt_base module<a class="headerlink" href="#module-fuzzytrees.fdt_base" title="Permalink to this headline">¶</a></h2>
+<p>&#64;author : Zhaoqing Liu
+&#64;email  : <a class="reference external" href="mailto:Zhaoqing&#46;Liu-1&#37;&#52;&#48;student&#46;uts&#46;edu&#46;au">Zhaoqing<span>&#46;</span>Liu-1<span>&#64;</span>student<span>&#46;</span>uts<span>&#46;</span>edu<span>&#46;</span>au</a></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="fuzzytrees.fdt_base.BaseFuzzyDecisionTree">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">fuzzytrees.fdt_base.</span></span><span class="sig-name descname"><span class="pre">BaseFuzzyDecisionTree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">disable_fuzzy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_fuzzy_dms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fuzzification_options</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criterion_func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_depth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_samples_split</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_impurity_split</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.fdt_base.BaseFuzzyDecisionTree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Base fuzzy decision tree class that encapsulates all base functions to be
+inherited by all derived classes (and attributes, if required).</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This interface should not be used directly.
+Use derived algorithm classes instead.</p>
+</div>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>See FuzzyDecisionTreeWrapper for descriptions of all parameters
+and attributes in this class.</p>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="fuzzytrees.fdt_base.BaseFuzzyDecisionTree.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_train</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.fdt_base.BaseFuzzyDecisionTree.fit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fuzzytrees.fdt_base.BaseFuzzyDecisionTree.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.fdt_base.BaseFuzzyDecisionTree.predict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fuzzytrees.fdt_base.BaseFuzzyDecisionTree.predict_proba">
+<span class="sig-name descname"><span class="pre">predict_proba</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.fdt_base.BaseFuzzyDecisionTree.predict_proba" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fuzzytrees.fdt_base.BaseFuzzyDecisionTree.print_tree">
+<span class="sig-name descname"><span class="pre">print_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'</span>&#160; <span class="pre">'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delimiter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'=&gt;'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.fdt_base.BaseFuzzyDecisionTree.print_tree" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fuzzytrees.fdt_base.BinarySubtrees">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">fuzzytrees.fdt_base.</span></span><span class="sig-name descname"><span class="pre">BinarySubtrees</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subset_true_X</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset_true_y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset_false_X</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subset_false_y</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.fdt_base.BinarySubtrees" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A class that encapsulates two subtrees under a node, and each subtree has
+two subsets of the samples’ features and target values that has been split.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>subset_true_X</strong> (<em>array-like of shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>)</em>) – The subset of feature values of the samples that meet the split_rule
+after splitting.</p></li>
+<li><p><strong>subset_true_y</strong> (<em>array-like of shape</em><em> (</em><em>n_samples</em><em>,</em><em>) or </em><em>(</em><em>n_samples</em><em>, </em><em>n_outputs</em><em>)</em>) – The subset of target values of the samples that meet the split_rule
+after splitting.</p></li>
+<li><p><strong>subset_false_X</strong> (<em>array-like of shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>)</em>) – The subset of feature values of the samples that do not meet the
+split_rule after splitting.</p></li>
+<li><p><strong>subset_false_y</strong> (<em>array-like of shape</em><em> (</em><em>n_samples</em><em>,</em><em>) or </em><em>(</em><em>n_samples</em><em>, </em><em>n_outputs</em><em>)</em>) – The subset of target values of the samples that do not meet the
+split_rule after splitting.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fuzzytrees.fdt_base.DecisionTreeInterface">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">fuzzytrees.fdt_base.</span></span><span class="sig-name descname"><span class="pre">DecisionTreeInterface</span></span><a class="headerlink" href="#fuzzytrees.fdt_base.DecisionTreeInterface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Interface for decision tree classes based on different algorithms.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This interface should not be used directly.
+Use derived algorithm classes instead.</p>
+</div>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>The purpose of this interface is to establish protocols
+for functions (excluding constructor and attributes) in
+classification decision trees and regression decision trees
+that to be developed.</p>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="fuzzytrees.fdt_base.DecisionTreeInterface.fit">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_train</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.fdt_base.DecisionTreeInterface.fit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fuzzytrees.fdt_base.DecisionTreeInterface.predict">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.fdt_base.DecisionTreeInterface.predict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fuzzytrees.fdt_base.DecisionTreeInterface.predict_proba">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">predict_proba</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.fdt_base.DecisionTreeInterface.predict_proba" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fuzzytrees.fdt_base.DecisionTreeInterface.print_tree">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">print_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'</span>&#160; <span class="pre">'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delimiter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'=&gt;'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.fdt_base.DecisionTreeInterface.print_tree" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fuzzytrees.fdt_base.FuzzificationOptions">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">fuzzytrees.fdt_base.</span></span><span class="sig-name descname"><span class="pre">FuzzificationOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conv_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conv_k</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_filter_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_filter_func_param</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_df</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dataset_mms_df</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_fuzzy_dms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.fdt_base.FuzzificationOptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A protocol message class that encapsulates all the options (excluding
+functions) of the fuzzification settings used by a fuzzy model.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fuzzytrees.fdt_base.FuzzyDecisionTreeWrapper">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">fuzzytrees.fdt_base.</span></span><span class="sig-name descname"><span class="pre">FuzzyDecisionTreeWrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fdt_class</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">disable_fuzzy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_fuzzy_dms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fuzzification_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criterion_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_samples_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_impurity_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-07</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.fdt_base.FuzzyDecisionTreeWrapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fuzzytrees.fdt_base.DecisionTreeInterface" title="fuzzytrees.fdt_base.DecisionTreeInterface"><code class="xref py py-class docutils literal notranslate"><span class="pre">fuzzytrees.fdt_base.DecisionTreeInterface</span></code></a></p>
+<p>Wrapper class for different decision trees.</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>The role of this class is to unify the external calls of different
+decision tree classes and implement dependency injection for those
+decision tree classes.</p>
+<p>The arguments of the constructors for different decision trees should
+belong to a subset of the following parameters.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fdt_class</strong> (<em>Class</em><em>, </em><em>default=None</em>) – The fuzzy decision tree estimator specified.</p></li>
+<li><p><strong>disable_fuzzy</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Set whether the specified fuzzy decision tree uses the fuzzification.
+If disable_fuzzy=True, the specified fuzzy decision tree is equivalent
+to a naive decision tree.</p></li>
+<li><p><strong>X_fuzzy_dms</strong> (<em>array-like of shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>)</em>) – Three-dimensional array, and each element of the first dimension of the
+array is a two-dimensional array of corresponding feature’s fuzzy sets.
+Each two-dimensional array is of shape of (n_samples, n_fuzzy_sets), but
+has transformed membership degree of the feature values to corresponding
+fuzzy sets.</p></li>
+<li><p><strong>fuzzification_options</strong> (<a class="reference internal" href="#fuzzytrees.fdt_base.FuzzificationOptions" title="fuzzytrees.fdt_base.FuzzificationOptions"><em>FuzzificationOptions</em></a><em>, </em><em>default=None</em>) – Protocol message class that encapsulates all the options of the
+fuzzification settings used by the specified fuzzy decision tree.</p></li>
+<li><p><strong>criterion_func</strong> (<em>{&quot;gini&quot;</em><em>, </em><em>&quot;entropy&quot;} for a classifier</em><em>, </em><em>{&quot;mse&quot;</em><em>, </em><em>&quot;mae&quot;} for a regressor</em>) – The criterion function used by the function that calculates the impurity
+gain of the target values.</p></li>
+<li><p><strong>max_depth</strong> (<em>int</em><em>, </em><em>default=float</em><em>(</em><em>&quot;inf&quot;</em><em>)</em>) – The maximum depth of the tree.</p></li>
+<li><p><strong>min_samples_split</strong> (<em>int</em><em>, </em><em>default=2</em>) – The minimum number of samples required to split a node. If a node has a
+sample number above this threshold, it will be split, otherwise it
+becomes a leaf node.</p></li>
+<li><p><strong>min_impurity_split</strong> (<em>float</em><em>, </em><em>default=1e-7</em>) – The minimum impurity required to split a node. If a node’s impurity is
+above this threshold, it will be split, otherwise it becomes a leaf node.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fuzzytrees.fdt_base.FuzzyDecisionTreeWrapper.root">
+<span class="sig-name descname"><span class="pre">root</span></span><a class="headerlink" href="#fuzzytrees.fdt_base.FuzzyDecisionTreeWrapper.root" title="Permalink to this definition">¶</a></dt>
+<dd><p>The root node of a decision tree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#fuzzytrees.fdt_base.Node" title="fuzzytrees.fdt_base.Node">Node</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fuzzytrees.fdt_base.FuzzyDecisionTreeWrapper._impurity_gain_calculation_func">
+<span class="sig-name descname"><span class="pre">_impurity_gain_calculation_func</span></span><a class="headerlink" href="#fuzzytrees.fdt_base.FuzzyDecisionTreeWrapper._impurity_gain_calculation_func" title="Permalink to this definition">¶</a></dt>
+<dd><p>The function to calculate the impurity gain of the target values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>function</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fuzzytrees.fdt_base.FuzzyDecisionTreeWrapper._leaf_value_calculation_func">
+<span class="sig-name descname"><span class="pre">_leaf_value_calculation_func</span></span><a class="headerlink" href="#fuzzytrees.fdt_base.FuzzyDecisionTreeWrapper._leaf_value_calculation_func" title="Permalink to this definition">¶</a></dt>
+<dd><p>The function to calculate the predicted value if the current node is a
+leaf:
+In a classification tree, it gives the target value with the highest
+probability.
+In a regression tree, it gives the average of all the target values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>function</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fuzzytrees.fdt_base.FuzzyDecisionTreeWrapper._is_one_dim">
+<span class="sig-name descname"><span class="pre">_is_one_dim</span></span><a class="headerlink" href="#fuzzytrees.fdt_base.FuzzyDecisionTreeWrapper._is_one_dim" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Boolean value that indicates whether the y is a multi-dimensional set,
+which means whether y is one-hot encoded.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fuzzytrees.fdt_base.FuzzyDecisionTreeWrapper._best_split_rule">
+<span class="sig-name descname"><span class="pre">_best_split_rule</span></span><a class="headerlink" href="#fuzzytrees.fdt_base.FuzzyDecisionTreeWrapper._best_split_rule" title="Permalink to this definition">¶</a></dt>
+<dd><p>The split rule including the index of the best feature to be used, and
+the best value in the best feature.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#fuzzytrees.fdt_base.SplitRule" title="fuzzytrees.fdt_base.SplitRule">SplitRule</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fuzzytrees.fdt_base.FuzzyDecisionTreeWrapper._best_binary_subtrees">
+<span class="sig-name descname"><span class="pre">_best_binary_subtrees</span></span><a class="headerlink" href="#fuzzytrees.fdt_base.FuzzyDecisionTreeWrapper._best_binary_subtrees" title="Permalink to this definition">¶</a></dt>
+<dd><p>The binary subtrees including two subtrees under a node, and each subtree
+is a subset of the sample that has been split. It is one of attributes of
+the node (including root node) in a decision tree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#fuzzytrees.fdt_base.BinarySubtrees" title="fuzzytrees.fdt_base.BinarySubtrees">BinarySubtrees</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fuzzytrees.fdt_base.FuzzyDecisionTreeWrapper._best_impurity_gain">
+<span class="sig-name descname"><span class="pre">_best_impurity_gain</span></span><a class="headerlink" href="#fuzzytrees.fdt_base.FuzzyDecisionTreeWrapper._best_impurity_gain" title="Permalink to this definition">¶</a></dt>
+<dd><p>The best impurity gain calculated based on the current split subtrees
+during a tree building process.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fuzzytrees.fdt_base.FuzzyDecisionTreeWrapper._fuzzy_sets">
+<span class="sig-name descname"><span class="pre">_fuzzy_sets</span></span><a class="headerlink" href="#fuzzytrees.fdt_base.FuzzyDecisionTreeWrapper._fuzzy_sets" title="Permalink to this definition">¶</a></dt>
+<dd><p>All the coefficients of the degree of membership sets based on the
+current estimator. They will be used to calculate the degree of membership
+of the features of new samples before predicting those samples. Therefore,
+their life cycle is consistent with that of the current estimator.
+They are generated in the feature fuzzification before training the
+current estimator.
+NB: To be used in version 1.0.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>array-like of shape (n_features, n_coefficients)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fuzzytrees.fdt_base.FuzzyDecisionTreeWrapper.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_train</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.fdt_base.FuzzyDecisionTreeWrapper.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train a decision tree estimator from the training set (X_train, y_train).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X_train</strong> (<em>array-like of shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>)</em>) – Training instances.</p></li>
+<li><p><strong>y_train</strong> (<em>array-like of shape</em><em> (</em><em>n_samples</em><em>,</em><em>) or </em><em>(</em><em>n_samples</em><em>, </em><em>n_outputs</em><em>)</em>) – Target values (class labels) as integers or strings.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fuzzytrees.fdt_base.FuzzyDecisionTreeWrapper.plot_fuzzy_reg_vs_err">
+<span class="sig-name descname"><span class="pre">plot_fuzzy_reg_vs_err</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.fdt_base.FuzzyDecisionTreeWrapper.plot_fuzzy_reg_vs_err" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot fuzzy regulation coefficient versus training error and
+test error on each numbers of fuzzy clusters respectively.</p>
+<p>Illustrate how the performance on unseen data (test data)
+is different from the performance on training data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em><em>, </em><em>default None</em>) – Fetch the data from the specified file if filename is
+not None. Otherwise try from memory and the latest file
+in the default directory in turn.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fuzzytrees.fdt_base.FuzzyDecisionTreeWrapper.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.fdt_base.FuzzyDecisionTreeWrapper.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict the target values of the input samples X.</p>
+<p>In classification, a predicted target value is the one with the
+largest number of samples of the same class in a leaf.</p>
+<p>In regression, the predicted target value is the mean of the target
+values in a leaf.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>X</strong> (<em>array-like of shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>)</em>) – Input instances to be predicted.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>pred_y</strong> – The target values of the input instances.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of n_outputs such arrays if n_outputs &gt; 1</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fuzzytrees.fdt_base.FuzzyDecisionTreeWrapper.predict_proba">
+<span class="sig-name descname"><span class="pre">predict_proba</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.fdt_base.FuzzyDecisionTreeWrapper.predict_proba" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict the probabilities of the target values of the input samples X.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>X</strong> (<em>array-like of shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>)</em>) – Input instances to be predicted.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>pred_y</strong> – The probabilities of the target values of the input instances.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of n_outputs such arrays if n_outputs &gt; 1</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fuzzytrees.fdt_base.FuzzyDecisionTreeWrapper.print_tree">
+<span class="sig-name descname"><span class="pre">print_tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">indent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'</span>&#160; <span class="pre">'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delimiter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'--&gt;'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.fdt_base.FuzzyDecisionTreeWrapper.print_tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recursively (in a top-to-bottom approach) print the built decision tree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tree</strong> (<a class="reference internal" href="#fuzzytrees.fdt_base.Node" title="fuzzytrees.fdt_base.Node"><em>Node</em></a>) – The root node of a decision tree.</p></li>
+<li><p><strong>indent</strong> (<em>str</em>) – The indentation symbol used when printing subtrees.</p></li>
+<li><p><strong>delimiter</strong> (<em>str</em>) – The delimiter between split rules and results.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fuzzytrees.fdt_base.FuzzyDecisionTreeWrapper.search_fuzzy_params_4_clf">
+<span class="sig-name descname"><span class="pre">search_fuzzy_params_4_clf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_name_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conv_k_lim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fuzzy_reg_lim</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.fdt_base.FuzzyDecisionTreeWrapper.search_fuzzy_params_4_clf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search fuzzy parameters for evaluating and choosing through fitting
+a number of groups of FDT classifiers from specified datasets in
+parallel (multi-process/master-worker mode).</p>
+<p>The fuzzy feature extraction before pretraining is based on specified
+fuzzy regulation coefficients and a number of fuzzy clusters that each
+feature belongs to.</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>Use this function to prepare evaluation and plotting data when
+you need to evaluate the effect of different degrees of fuzzification
+on model training in advance.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ds_name_list</strong> (<em>array-like</em>) – </p></li>
+<li><p><strong>fuzzy_reg_lim</strong> (<em>tuple</em><em>, </em><em>(</em><em>start</em><em>, </em><em>stop</em><em>, </em><em>step</em><em>)</em>) – </p></li>
+<li><p><strong>conv_k_lim</strong> (<em>tuple</em><em>, </em><em>(</em><em>start</em><em>, </em><em>stop</em><em>, </em><em>step</em><em>)</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fuzzytrees.fdt_base.MultiProcessOptions">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">fuzzytrees.fdt_base.</span></span><span class="sig-name descname"><span class="pre">MultiProcessOptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_cpu_cores_req</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_growth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.fdt_base.MultiProcessOptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A protocol message class that encapsulates all the options (excluding
+functions) of the multi-process settings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_cpu_cores_req</strong> (<em>int</em><em>, </em><em>default=None</em>) – The number of CPU cores to request. If left to None this is
+automatically set to the number of all CPU cores available.</p></li>
+<li><p><strong>allow_growth</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Whether to dynamically request more CPU resources.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fuzzytrees.fdt_base.Node">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">fuzzytrees.fdt_base.</span></span><span class="sig-name descname"><span class="pre">Node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">split_rule</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">leaf_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">leaf_proba</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">branch_true</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">branch_false</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.fdt_base.Node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A Class that encapsulates the data of the node (including root node) and
+leaf node in a decision tree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>split_rule</strong> (<a class="reference internal" href="#fuzzytrees.fdt_base.SplitRule" title="fuzzytrees.fdt_base.SplitRule"><em>SplitRule</em></a><em>, </em><em>default=None</em>) – The split rule represented by the feature selected as a node, and
+branching decisions are made based on this rule.</p></li>
+<li><p><strong>leaf_value</strong> (<em>float</em><em>, </em><em>default=None</em>) – The predicted value indicated at a leaf node. In the classification
+tree it is the predicted class, and in the regression tree it is the
+predicted value.
+NB: Only a leaf node has this attribute value.</p></li>
+<li><p><strong>leaf_proba</strong> (<em>float</em><em>, </em><em>default=None</em>) – The predicted probability indicated at a leaf node. Only works in the
+classification tree.
+NB: Only a leaf node has this attribute value.</p></li>
+<li><p><strong>branch_true</strong> (<a class="reference internal" href="#fuzzytrees.fdt_base.Node" title="fuzzytrees.fdt_base.Node"><em>Node</em></a><em>, </em><em>default=None</em>) – The next node in the decision path when the feature value of a sample
+meets the split rule split_rule.</p></li>
+<li><p><strong>branch_false</strong> (<a class="reference internal" href="#fuzzytrees.fdt_base.Node" title="fuzzytrees.fdt_base.Node"><em>Node</em></a><em>, </em><em>default=None</em>) – The next node in the decision path when the feature value of a sample
+does not meet the split rule split_rule.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fuzzytrees.fdt_base.SplitRule">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">fuzzytrees.fdt_base.</span></span><span class="sig-name descname"><span class="pre">SplitRule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature_idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.fdt_base.SplitRule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A Class that encapsulates the data of a split rule, which is one of
+attributes of the node (including root node) in a decision tree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>feature_idx</strong> (<em>int</em><em>, </em><em>default=None</em>) – The index of the feature selected as the node representing a split rule.</p></li>
+<li><p><strong>split_value</strong> (<em>float</em><em>, </em><em>default=None</em>) – The value from the feature indexed as feature_idx representing a split
+rule, on which branching decisions are made based.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-fuzzytrees.fdts">
+<span id="fuzzytrees-fdts-module"></span><h2>fuzzytrees.fdts module<a class="headerlink" href="#module-fuzzytrees.fdts" title="Permalink to this headline">¶</a></h2>
+<p>&#64;author : Zhaoqing Liu
+&#64;email  : <a class="reference external" href="mailto:Zhaoqing&#46;Liu-1&#37;&#52;&#48;student&#46;uts&#46;edu&#46;au">Zhaoqing<span>&#46;</span>Liu-1<span>&#64;</span>student<span>&#46;</span>uts<span>&#46;</span>edu<span>&#46;</span>au</a></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="fuzzytrees.fdts.FuzzyC45Classifier">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">fuzzytrees.fdts.</span></span><span class="sig-name descname"><span class="pre">FuzzyC45Classifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">disable_fuzzy=False</span></em>, <em class="sig-param"><span class="pre">X_fuzzy_dms=None</span></em>, <em class="sig-param"><span class="pre">fuzzification_options=None</span></em>, <em class="sig-param"><span class="pre">criterion_func=&lt;function</span> <span class="pre">calculate_entropy&gt;</span></em>, <em class="sig-param"><span class="pre">max_depth=inf</span></em>, <em class="sig-param"><span class="pre">min_samples_split=2</span></em>, <em class="sig-param"><span class="pre">min_impurity_split=1e-07</span></em>, <em class="sig-param"><span class="pre">**kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.fdts.FuzzyC45Classifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fuzzytrees.fdt_base.BaseFuzzyDecisionTree" title="fuzzytrees.fdt_base.BaseFuzzyDecisionTree"><code class="xref py py-class docutils literal notranslate"><span class="pre">fuzzytrees.fdt_base.BaseFuzzyDecisionTree</span></code></a>, <a class="reference internal" href="#fuzzytrees.fdt_base.DecisionTreeInterface" title="fuzzytrees.fdt_base.DecisionTreeInterface"><code class="xref py py-class docutils literal notranslate"><span class="pre">fuzzytrees.fdt_base.DecisionTreeInterface</span></code></a></p>
+<p>A fuzzy C4.5 decision tree classifier.</p>
+<p>The C4.5 algorithm can handle both continuous/numerical and discrete/categorical
+variables, but can only be used for classification.</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>See FuzzyDecisionTreeWrapper for descriptions of all parameters
+and attributes in this class.</p>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fuzzytrees.fdts.FuzzyCARTClassifier">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">fuzzytrees.fdts.</span></span><span class="sig-name descname"><span class="pre">FuzzyCARTClassifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">disable_fuzzy=False</span></em>, <em class="sig-param"><span class="pre">X_fuzzy_dms=None</span></em>, <em class="sig-param"><span class="pre">fuzzification_options=None</span></em>, <em class="sig-param"><span class="pre">criterion_func=&lt;function</span> <span class="pre">calculate_gini&gt;</span></em>, <em class="sig-param"><span class="pre">max_depth=inf</span></em>, <em class="sig-param"><span class="pre">min_samples_split=2</span></em>, <em class="sig-param"><span class="pre">min_impurity_split=1e-07</span></em>, <em class="sig-param"><span class="pre">**kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.fdts.FuzzyCARTClassifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fuzzytrees.fdt_base.BaseFuzzyDecisionTree" title="fuzzytrees.fdt_base.BaseFuzzyDecisionTree"><code class="xref py py-class docutils literal notranslate"><span class="pre">fuzzytrees.fdt_base.BaseFuzzyDecisionTree</span></code></a>, <a class="reference internal" href="#fuzzytrees.fdt_base.DecisionTreeInterface" title="fuzzytrees.fdt_base.DecisionTreeInterface"><code class="xref py py-class docutils literal notranslate"><span class="pre">fuzzytrees.fdt_base.DecisionTreeInterface</span></code></a></p>
+<p>A fuzzy decision tree classifier.</p>
+<p>The CART algorithm can handle both continuous/numerical and discrete/categorical
+variables, and can be used for both classification and regression.</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>See FuzzyDecisionTreeWrapper for descriptions of all parameters
+and attributes in this class.</p>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fuzzytrees.fdts.FuzzyCARTRegressor">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">fuzzytrees.fdts.</span></span><span class="sig-name descname"><span class="pre">FuzzyCARTRegressor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">disable_fuzzy=False</span></em>, <em class="sig-param"><span class="pre">X_fuzzy_dms=None</span></em>, <em class="sig-param"><span class="pre">fuzzification_options=None</span></em>, <em class="sig-param"><span class="pre">criterion_func=&lt;function</span> <span class="pre">calculate_variance&gt;</span></em>, <em class="sig-param"><span class="pre">max_depth=inf</span></em>, <em class="sig-param"><span class="pre">min_samples_split=2</span></em>, <em class="sig-param"><span class="pre">min_impurity_split=1e-07</span></em>, <em class="sig-param"><span class="pre">**kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.fdts.FuzzyCARTRegressor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fuzzytrees.fdt_base.BaseFuzzyDecisionTree" title="fuzzytrees.fdt_base.BaseFuzzyDecisionTree"><code class="xref py py-class docutils literal notranslate"><span class="pre">fuzzytrees.fdt_base.BaseFuzzyDecisionTree</span></code></a>, <a class="reference internal" href="#fuzzytrees.fdt_base.DecisionTreeInterface" title="fuzzytrees.fdt_base.DecisionTreeInterface"><code class="xref py py-class docutils literal notranslate"><span class="pre">fuzzytrees.fdt_base.DecisionTreeInterface</span></code></a></p>
+<p>A fuzzy CART decision tree regressor.</p>
+<p>The CART algorithm can handle both continuous/numerical and discrete/categorical
+variables, and can be used for both classification and regression.</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>See FuzzyDecisionTreeWrapper for descriptions of all parameters
+and attributes in this class.</p>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fuzzytrees.fdts.FuzzyID3Classifier">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">fuzzytrees.fdts.</span></span><span class="sig-name descname"><span class="pre">FuzzyID3Classifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">disable_fuzzy=False</span></em>, <em class="sig-param"><span class="pre">X_fuzzy_dms=None</span></em>, <em class="sig-param"><span class="pre">fuzzification_options=None</span></em>, <em class="sig-param"><span class="pre">criterion_func=&lt;function</span> <span class="pre">calculate_entropy&gt;</span></em>, <em class="sig-param"><span class="pre">max_depth=inf</span></em>, <em class="sig-param"><span class="pre">min_samples_split=2</span></em>, <em class="sig-param"><span class="pre">min_impurity_split=1e-07</span></em>, <em class="sig-param"><span class="pre">**kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.fdts.FuzzyID3Classifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fuzzytrees.fdt_base.BaseFuzzyDecisionTree" title="fuzzytrees.fdt_base.BaseFuzzyDecisionTree"><code class="xref py py-class docutils literal notranslate"><span class="pre">fuzzytrees.fdt_base.BaseFuzzyDecisionTree</span></code></a>, <a class="reference internal" href="#fuzzytrees.fdt_base.DecisionTreeInterface" title="fuzzytrees.fdt_base.DecisionTreeInterface"><code class="xref py py-class docutils literal notranslate"><span class="pre">fuzzytrees.fdt_base.DecisionTreeInterface</span></code></a></p>
+<p>A fuzzy ID3 decision tree classifier.</p>
+<p>The ID3 algorithm can only handle discrete/categorical variables and can
+only be used for classification.</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>See FuzzyDecisionTreeWrapper for descriptions of all parameters
+and attributes in this class.</p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="module-fuzzytrees.fgbdt">
+<span id="fuzzytrees-fgbdt-module"></span><h2>fuzzytrees.fgbdt module<a class="headerlink" href="#module-fuzzytrees.fgbdt" title="Permalink to this headline">¶</a></h2>
+<p>&#64;author : Zhaoqing Liu
+&#64;email  : <a class="reference external" href="mailto:Zhaoqing&#46;Liu-1&#37;&#52;&#48;student&#46;uts&#46;edu&#46;au">Zhaoqing<span>&#46;</span>Liu-1<span>&#64;</span>student<span>&#46;</span>uts<span>&#46;</span>edu<span>&#46;</span>au</a></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="fuzzytrees.fgbdt.FuzzyGBDT">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">fuzzytrees.fgbdt.</span></span><span class="sig-name descname"><span class="pre">FuzzyGBDT</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">disable_fuzzy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_fuzzy_dms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fuzzification_options</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criterion_func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">learning_rate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_estimators</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_fraction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_iter_no_change</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_depth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_samples_split</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_impurity_split</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_regression</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.fgbdt.FuzzyGBDT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Base fuzzy decision tree class that encapsulates all base functions to be
+inherited by all derived classes (and attributes, if required).</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This class should not be used directly.
+Use derived classes instead.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>disable_fuzzy</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Set whether the specified fuzzy decision tree uses the fuzzification.
+If disable_fuzzy=True, the specified fuzzy decision tree is equivalent
+to a naive decision tree.</p></li>
+<li><p><strong>fuzzification_options</strong> (<a class="reference internal" href="#fuzzytrees.fdt_base.FuzzificationOptions" title="fuzzytrees.fdt_base.FuzzificationOptions"><em>FuzzificationOptions</em></a><em>, </em><em>default=None</em>) – Protocol message class that encapsulates all the options of the
+fuzzification settings used by the specified fuzzy decision tree.</p></li>
+<li><p><strong>criterion_func</strong> (<em>{&quot;mse&quot;</em><em>, </em><em>&quot;mae&quot;}</em><em>, </em><em>default=&quot;mse&quot;</em>) – The criterion function used by the function that calculates the impurity
+gain of the target values.
+NB: Only use a criterion function for decision tree regressor.</p></li>
+<li><p><strong>learning_rate</strong> (<em>float</em><em>, </em><em>default=0.1</em>) – The step length taken in the training using the loss of the negative
+gradient descent strategy. It is used to reduce the contribution of
+each tree.
+NB: There is a trade-off between learning_rate and n_estimators.</p></li>
+<li><p><strong>n_estimators</strong> (<em>int</em><em>, </em><em>default=100</em>) – The number of fuzzy decision trees to be used.</p></li>
+<li><p><strong>validation_fraction</strong> (<em>float</em><em>, </em><em>default=0.1</em>) – The proportion of training data to set aside as validation set for
+early stopping. Must be between 0 and 1.
+Only used if <code class="docutils literal notranslate"><span class="pre">n_iter_no_change</span></code> is set to an integer.</p></li>
+<li><p><strong>n_iter_no_change</strong> (<em>int</em><em>, </em><em>default=None</em>) – <code class="docutils literal notranslate"><span class="pre">n_iter_no_change</span></code> is used to decide if early stopping will be used
+to terminate training when validation score is not improving. By
+default it is set to None to disable early stopping. If set to a
+number, it will set aside <code class="docutils literal notranslate"><span class="pre">validation_fraction</span></code> size of the training
+data as validation and terminate training when validation score is not
+improving in all of the previous <code class="docutils literal notranslate"><span class="pre">n_iter_no_change</span></code> numbers of
+iterations. The split is stratified.</p></li>
+<li><p><strong>max_depth</strong> (<em>int</em><em>, </em><em>default=3</em>) – The maximum depth of the tree to be trained.</p></li>
+<li><p><strong>min_samples_split</strong> (<em>int</em><em>, </em><em>default=2</em>) – The minimum number of samples required to split a node. If a node has a
+sample number above this threshold, it will be split, otherwise it
+becomes a leaf node.</p></li>
+<li><p><strong>min_impurity_split</strong> (<em>float</em><em>, </em><em>default=1e-7</em>) – The minimum impurity required to split a node. If a node’s impurity is
+above this threshold, it will be split, otherwise it becomes a leaf node.</p></li>
+<li><p><strong>is_regression</strong> (<em>bool</em><em>, </em><em>default=True</em>) – True or false depending on if we’re doing regression or classification.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fuzzytrees.fgbdt.FuzzyGBDT._loss_func">
+<span class="sig-name descname"><span class="pre">_loss_func</span></span><a class="headerlink" href="#fuzzytrees.fgbdt.FuzzyGBDT._loss_func" title="Permalink to this definition">¶</a></dt>
+<dd><p>The concrete object of the class LossFunction’s derived classes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#fuzzytrees.util_tree_criterion_funcs.LossFunction" title="fuzzytrees.util_tree_criterion_funcs.LossFunction">LossFunction</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fuzzytrees.fgbdt.FuzzyGBDT._estimators">
+<span class="sig-name descname"><span class="pre">_estimators</span></span><a class="headerlink" href="#fuzzytrees.fgbdt.FuzzyGBDT._estimators" title="Permalink to this definition">¶</a></dt>
+<dd><p>The collection of sub-estimators as base learners.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>ndarray of FuzzyDecisionTreeRegressor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fuzzytrees.fgbdt.FuzzyGBDT.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_train</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.fgbdt.FuzzyGBDT.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit the fuzzy gradient boosting model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X_train</strong> (<em>array-like of shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>)</em>) – Input instances to be predicted.</p></li>
+<li><p><strong>y_train</strong> (<em>array-like of shape</em><em> (</em><em>n_samples</em><em>,</em><em>)</em>) – Target values (strings or integers in classification, real numbers
+in regression)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fuzzytrees.fgbdt.FuzzyGBDT.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.fgbdt.FuzzyGBDT.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict class for X.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>X</strong> (<em>array-like of shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>)</em>) – The input samples.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>y_pred</strong> – The predicted values.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray of shape (n_samples,)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fuzzytrees.fgbdt.FuzzyGBDTClassifier">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">fuzzytrees.fgbdt.</span></span><span class="sig-name descname"><span class="pre">FuzzyGBDTClassifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">disable_fuzzy=False</span></em>, <em class="sig-param"><span class="pre">X_fuzzy_dms=None</span></em>, <em class="sig-param"><span class="pre">fuzzification_options=None</span></em>, <em class="sig-param"><span class="pre">criterion_func=&lt;function</span> <span class="pre">calculate_variance&gt;</span></em>, <em class="sig-param"><span class="pre">learning_rate=0.1</span></em>, <em class="sig-param"><span class="pre">n_estimators=100</span></em>, <em class="sig-param"><span class="pre">validation_fraction=0.1</span></em>, <em class="sig-param"><span class="pre">n_iter_no_change=None</span></em>, <em class="sig-param"><span class="pre">max_depth=3</span></em>, <em class="sig-param"><span class="pre">min_samples_split=2</span></em>, <em class="sig-param"><span class="pre">min_impurity_split=1e-07</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.fgbdt.FuzzyGBDTClassifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fuzzytrees.fgbdt.FuzzyGBDT" title="fuzzytrees.fgbdt.FuzzyGBDT"><code class="xref py py-class docutils literal notranslate"><span class="pre">fuzzytrees.fgbdt.FuzzyGBDT</span></code></a></p>
+<p>Fuzzy gradient boosting decision tree classifier.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>disable_fuzzy</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Set whether the specified fuzzy decision tree uses the fuzzification.
+If disable_fuzzy=True, the specified fuzzy decision tree is equivalent
+to a naive decision tree.</p></li>
+<li><p><strong>fuzzification_options</strong> (<a class="reference internal" href="#fuzzytrees.fdt_base.FuzzificationOptions" title="fuzzytrees.fdt_base.FuzzificationOptions"><em>FuzzificationOptions</em></a><em>, </em><em>default=None</em>) – Protocol message class that encapsulates all the options of the
+fuzzification settings used by the specified fuzzy decision tree.</p></li>
+<li><p><strong>criterion_func</strong> (<em>{&quot;mse&quot;</em><em>, </em><em>&quot;mae&quot;}</em><em>, </em><em>default=&quot;mse&quot;</em>) – The criterion function used by the function that calculates the impurity
+gain of the target values.
+NB: Only use a criterion function for decision tree regressor.</p></li>
+<li><p><strong>learning_rate</strong> (<em>float</em><em>, </em><em>default=0.1</em>) – The step length taken in the training using the loss of the negative
+gradient descent strategy. It is used to reduce the contribution of
+each tree.
+NB: There is a trade-off between learning_rate and n_estimators.</p></li>
+<li><p><strong>n_estimators</strong> (<em>int</em><em>, </em><em>default=100</em>) – The number of fuzzy decision trees to be used.</p></li>
+<li><p><strong>validation_fraction</strong> (<em>float</em><em>, </em><em>default=0.1</em>) – The proportion of training data to set aside as validation set for
+early stopping. Must be between 0 and 1.
+Only used if <code class="docutils literal notranslate"><span class="pre">n_iter_no_change</span></code> is set to an integer.</p></li>
+<li><p><strong>n_iter_no_change</strong> (<em>int</em><em>, </em><em>default=None</em>) – <code class="docutils literal notranslate"><span class="pre">n_iter_no_change</span></code> is used to decide if early stopping will be used
+to terminate training when validation score is not improving. By
+default it is set to None to disable early stopping. If set to a
+number, it will set aside <code class="docutils literal notranslate"><span class="pre">validation_fraction</span></code> size of the training
+data as validation and terminate training when validation score is not
+improving in all of the previous <code class="docutils literal notranslate"><span class="pre">n_iter_no_change</span></code> numbers of
+iterations. The split is stratified.</p></li>
+<li><p><strong>max_depth</strong> (<em>int</em><em>, </em><em>default=3</em>) – The maximum depth of the tree to be trained.</p></li>
+<li><p><strong>min_samples_split</strong> (<em>int</em><em>, </em><em>default=2</em>) – The minimum number of samples required to split a node. If a node has a
+sample number above this threshold, it will be split, otherwise it
+becomes a leaf node.</p></li>
+<li><p><strong>min_impurity_split</strong> (<em>float</em><em>, </em><em>default=1e-7</em>) – The minimum impurity required to split a node. If a node’s impurity is
+above this threshold, it will be split, otherwise it becomes a leaf node.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fuzzytrees.fgbdt.FuzzyGBDTClassifier._loss_func">
+<span class="sig-name descname"><span class="pre">_loss_func</span></span><a class="headerlink" href="#fuzzytrees.fgbdt.FuzzyGBDTClassifier._loss_func" title="Permalink to this definition">¶</a></dt>
+<dd><p>The concrete object of the class LossFunction’s derived classes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#fuzzytrees.util_tree_criterion_funcs.LossFunction" title="fuzzytrees.util_tree_criterion_funcs.LossFunction">LossFunction</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fuzzytrees.fgbdt.FuzzyGBDTClassifier._estimators">
+<span class="sig-name descname"><span class="pre">_estimators</span></span><a class="headerlink" href="#fuzzytrees.fgbdt.FuzzyGBDTClassifier._estimators" title="Permalink to this definition">¶</a></dt>
+<dd><p>The collection of fitted sub-estimators.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>ndarray of FuzzyDecisionTreeRegressor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fuzzytrees.fgbdt.FuzzyGBDTClassifier.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_train</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.fgbdt.FuzzyGBDTClassifier.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit the fuzzy gradient boosting model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X_train</strong> (<em>array-like of shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>)</em>) – Input instances to be predicted.</p></li>
+<li><p><strong>y_train</strong> (<em>array-like of shape</em><em> (</em><em>n_samples</em><em>,</em><em>)</em>) – Target values (strings or integers in classification, real numbers
+in regression)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fuzzytrees.fgbdt.FuzzyGBDTRegressor">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">fuzzytrees.fgbdt.</span></span><span class="sig-name descname"><span class="pre">FuzzyGBDTRegressor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">disable_fuzzy=False</span></em>, <em class="sig-param"><span class="pre">X_fuzzy_dms=None</span></em>, <em class="sig-param"><span class="pre">fuzzification_options=None</span></em>, <em class="sig-param"><span class="pre">criterion_func=&lt;function</span> <span class="pre">calculate_variance&gt;</span></em>, <em class="sig-param"><span class="pre">learning_rate=0.1</span></em>, <em class="sig-param"><span class="pre">n_estimators=100</span></em>, <em class="sig-param"><span class="pre">validation_fraction=0.1</span></em>, <em class="sig-param"><span class="pre">n_iter_no_change=None</span></em>, <em class="sig-param"><span class="pre">max_depth=3</span></em>, <em class="sig-param"><span class="pre">min_samples_split=2</span></em>, <em class="sig-param"><span class="pre">min_impurity_split=1e-07</span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.fgbdt.FuzzyGBDTRegressor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fuzzytrees.fgbdt.FuzzyGBDT" title="fuzzytrees.fgbdt.FuzzyGBDT"><code class="xref py py-class docutils literal notranslate"><span class="pre">fuzzytrees.fgbdt.FuzzyGBDT</span></code></a></p>
+<p>Fuzzy gradient boosting decision tree regressor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>disable_fuzzy</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Set whether the specified fuzzy decision tree uses the fuzzification.
+If disable_fuzzy=True, the specified fuzzy decision tree is equivalent
+to a naive decision tree.</p></li>
+<li><p><strong>fuzzification_options</strong> (<a class="reference internal" href="#fuzzytrees.fdt_base.FuzzificationOptions" title="fuzzytrees.fdt_base.FuzzificationOptions"><em>FuzzificationOptions</em></a><em>, </em><em>default=None</em>) – Protocol message class that encapsulates all the options of the
+fuzzification settings used by the specified fuzzy decision tree.</p></li>
+<li><p><strong>criterion_func</strong> (<em>{&quot;mse&quot;</em><em>, </em><em>&quot;mae&quot;}</em><em>, </em><em>default=&quot;mse&quot;</em>) – The criterion function used by the function that calculates the impurity
+gain of the target values.
+NB: Only use a criterion function for decision tree regressor.</p></li>
+<li><p><strong>learning_rate</strong> (<em>float</em><em>, </em><em>default=0.1</em>) – The step length taken in the training using the loss of the negative
+gradient descent strategy. It is used to reduce the contribution of
+each tree.
+NB: There is a trade-off between learning_rate and n_estimators.</p></li>
+<li><p><strong>n_estimators</strong> (<em>int</em><em>, </em><em>default=100</em>) – The number of fuzzy decision trees to be used.</p></li>
+<li><p><strong>validation_fraction</strong> (<em>float</em><em>, </em><em>default=0.1</em>) – The proportion of training data to set aside as validation set for
+early stopping. Must be between 0 and 1.
+Only used if <code class="docutils literal notranslate"><span class="pre">n_iter_no_change</span></code> is set to an integer.</p></li>
+<li><p><strong>n_iter_no_change</strong> (<em>int</em><em>, </em><em>default=None</em>) – <code class="docutils literal notranslate"><span class="pre">n_iter_no_change</span></code> is used to decide if early stopping will be used
+to terminate training when validation score is not improving. By
+default it is set to None to disable early stopping. If set to a
+number, it will set aside <code class="docutils literal notranslate"><span class="pre">validation_fraction</span></code> size of the training
+data as validation and terminate training when validation score is not
+improving in all of the previous <code class="docutils literal notranslate"><span class="pre">n_iter_no_change</span></code> numbers of
+iterations. The split is stratified.</p></li>
+<li><p><strong>max_depth</strong> (<em>int</em><em>, </em><em>default=3</em>) – The maximum depth of the tree to be trained.</p></li>
+<li><p><strong>min_samples_split</strong> (<em>int</em><em>, </em><em>default=2</em>) – The minimum number of samples required to split a node. If a node has a
+sample number above this threshold, it will be split, otherwise it
+becomes a leaf node.</p></li>
+<li><p><strong>min_impurity_split</strong> (<em>float</em><em>, </em><em>default=1e-7</em>) – The minimum impurity required to split a node. If a node’s impurity is
+above this threshold, it will be split, otherwise it becomes a leaf node.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fuzzytrees.fgbdt.FuzzyGBDTRegressor._loss_func">
+<span class="sig-name descname"><span class="pre">_loss_func</span></span><a class="headerlink" href="#fuzzytrees.fgbdt.FuzzyGBDTRegressor._loss_func" title="Permalink to this definition">¶</a></dt>
+<dd><p>The concrete object of the class LossFunction’s derived classes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#fuzzytrees.util_tree_criterion_funcs.LossFunction" title="fuzzytrees.util_tree_criterion_funcs.LossFunction">LossFunction</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fuzzytrees.fgbdt.FuzzyGBDTRegressor._estimators">
+<span class="sig-name descname"><span class="pre">_estimators</span></span><a class="headerlink" href="#fuzzytrees.fgbdt.FuzzyGBDTRegressor._estimators" title="Permalink to this definition">¶</a></dt>
+<dd><p>The collection of fitted sub-estimators.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>ndarray of FuzzyDecisionTreeRegressor</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-fuzzytrees.frdf">
+<span id="fuzzytrees-frdf-module"></span><h2>fuzzytrees.frdf module<a class="headerlink" href="#module-fuzzytrees.frdf" title="Permalink to this headline">¶</a></h2>
+<p>&#64;author : Zhaoqing Liu
+&#64;email  : <a class="reference external" href="mailto:Zhaoqing&#46;Liu-1&#37;&#52;&#48;student&#46;uts&#46;edu&#46;au">Zhaoqing<span>&#46;</span>Liu-1<span>&#64;</span>student<span>&#46;</span>uts<span>&#46;</span>edu<span>&#46;</span>au</a></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="fuzzytrees.frdf.BaseFuzzyRDF">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">fuzzytrees.frdf.</span></span><span class="sig-name descname"><span class="pre">BaseFuzzyRDF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">disable_fuzzy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fuzzification_options</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criterion_func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_estimators</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_depth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_samples_split</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_impurity_split</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multi_process_options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.frdf.BaseFuzzyRDF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Base fuzzy random decision forests (RF) class that encapsulates all
+base functions to be inherited by all derived classes (and attributes,
+if required). This algorithm is a fuzzy extension of the random decision
+forests proposed by Tin Kam Ho <a class="footnote-reference brackets" href="#id8" id="id1">1</a>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This class should not be used directly.
+Use derived classes instead.</p>
+</div>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>Note that sharing data between processes may not be the best option due to
+various unknowable synchronisation issues, but using <code class="docutils literal notranslate"><span class="pre">Pipe</span></code> or <code class="docutils literal notranslate"><span class="pre">Queue</span></code>
+to communicate between multiple processes instead whenever possible. See also
+Python documentation:</p>
+<p>As mentioned above, when doing concurrent programming it is usually best to
+avoid using shared state as far as possible. This is particularly true when
+using multiple processes. However, if you really do need to use some shared
+data then multiprocessing provides a couple of ways of doing so.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>disable_fuzzy</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Set whether the specified fuzzy decision tree uses the fuzzification.
+If disable_fuzzy=True, the specified fuzzy decision tree is equivalent
+to a naive decision tree.</p></li>
+<li><p><strong>fuzzification_options</strong> (<a class="reference internal" href="#fuzzytrees.fdt_base.FuzzificationOptions" title="fuzzytrees.fdt_base.FuzzificationOptions"><em>FuzzificationOptions</em></a><em>, </em><em>default=None</em>) – Protocol message class that encapsulates all the options of the
+fuzzification settings used by the specified fuzzy decision tree.</p></li>
+<li><p><strong>criterion_func</strong> (<em>{&quot;gini&quot;</em><em>, </em><em>&quot;entropy&quot;}</em><em>, </em><em>default=&quot;gini&quot;</em><em>, </em><em>for classification; {&quot;mse&quot;</em><em>, </em><em>&quot;mae&quot;}</em><em>, </em><em>default=&quot;mse&quot;</em><em>, </em><em>for regression</em>) – In classification, the criterion function used by the function that
+calculates the impurity gain of the target values.
+In regression, the criterion function used by the function that
+calculates the impurity gain of the target values.</p></li>
+<li><p><strong>n_estimators</strong> (<em>int</em><em>, </em><em>default=100</em>) – The number of fuzzy decision trees to be used.</p></li>
+<li><p><strong>max_depth</strong> (<em>int</em><em>, </em><em>default=3</em>) – The maximum depth of the tree to be trained.</p></li>
+<li><p><strong>min_samples_split</strong> (<em>int</em><em>, </em><em>default=2</em>) – The minimum number of samples required to split a node. If a node has a
+sample number above this threshold, it will be split, otherwise it
+becomes a leaf node.</p></li>
+<li><p><strong>min_impurity_split</strong> (<em>float</em><em>, </em><em>default=1e-7</em>) – The minimum impurity required to split a node. If a node’s impurity is
+above this threshold, it will be split, otherwise it becomes a leaf node.</p></li>
+<li><p><strong>max_features</strong> (<em>int</em><em>, </em><em>default=None</em>) – The maximum threshold value of the qualified feature number in the
+training dataset when training each fuzzy decision tree.</p></li>
+<li><p><strong>multi_process_options</strong> (<a class="reference internal" href="#fuzzytrees.fdt_base.MultiProcessOptions" title="fuzzytrees.fdt_base.MultiProcessOptions"><em>MultiProcessOptions</em></a><em>, </em><em>default=None</em>) – Protocol message class that encapsulates all the options of the
+multi-process settings.
+If it is left as None, adopt non-parallel computing mode.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fuzzytrees.frdf.BaseFuzzyRDF._estimators">
+<span class="sig-name descname"><span class="pre">_estimators</span></span><a class="headerlink" href="#fuzzytrees.frdf.BaseFuzzyRDF._estimators" title="Permalink to this definition">¶</a></dt>
+<dd><p>The collection of sub-estimators as base learners.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>ndarray of FuzzyDecisionTreeClassification</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fuzzytrees.frdf.BaseFuzzyRDF._res_func">
+<span class="sig-name descname"><span class="pre">_res_func</span></span><a class="headerlink" href="#fuzzytrees.frdf.BaseFuzzyRDF._res_func" title="Permalink to this definition">¶</a></dt>
+<dd><p>In classification, get the final result from the classes given by the
+forest by majority voting method. In regression, calculate the average
+of the predicted values given by the forest as the final result.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>function, default=None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fuzzytrees.frdf.BaseFuzzyRDF._n_processes">
+<span class="sig-name descname"><span class="pre">_n_processes</span></span><a class="headerlink" href="#fuzzytrees.frdf.BaseFuzzyRDF._n_processes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of CPU cores requested in parallel computing mode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>int, default=None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Notes</p>
+<p>About RF
+The first algorithm for random decision forests was created by Tin Kam Ho <a class="footnote-reference brackets" href="#id8" id="id2">1</a>
+using the random subspace method <a class="footnote-reference brackets" href="#id9" id="id3">2</a>, which, in Ho’s formulation, is a way to
+implement the “stochastic discrimination” approach to classification proposed
+by Eugene Kleinberg.</p>
+<p>An extension of the algorithm was developed by Leo Breiman <a class="footnote-reference brackets" href="#id11" id="id4">4</a> and Adele Cutler
+<a class="footnote-reference brackets" href="#id12" id="id5">5</a>. The extension combines Breiman’s “bagging” idea and random selection of
+features, introduced first by Ho <a class="footnote-reference brackets" href="#id8" id="id6">1</a> and later independently by Amit and
+Geman <a class="footnote-reference brackets" href="#id10" id="id7">3</a> in order to construct a collection of decision trees with controlled
+variance.</p>
+<p>The randomness of RF is reflected in two aspects:</p>
+<p>1. RF uses the bootstrapping sampling method to randomly selects n samples
+from the original dataset to train each tree as the base learner,
+where n is the sample size of the original dataset.</p>
+<p>NB: The sample size of each training dataset is the same as that of
+the original dataset, but the bootstrapping sampling method may make
+the elements in the same training dataset duplicate, or the elements
+in different training datasets duplicate.</p>
+<p>2. During the construction of each tree, RF also randomly selects m
+features of the training dataset, and then searches the optimal
+features from the randomly selected features each time when splitting
+a tree node to find the best splitting point.</p>
+<p>Different RFs have different random feature selection methods. For
+example, Tin Kam Ho’s RF adopts tree-level random feature selection,
+i.e. the RF randomly selects m features of the training dataset for
+subsequently splitting all tree nodes. By contrast, Leo Breiman’s RF
+adopts node-level random feature selection, i.e. the RF randomly
+selects m features of the training dataset when splitting a node
+every time.</p>
+<p>Let M be the total number of features of data and m be the number
+of selected features. Generally, the value can be tried from the
+following usual practices:</p>
+<ul class="simple">
+<li><p>For classification problems, <span class="math notranslate nohighlight">\(m = 1 / 3 * M\)</span>;</p></li>
+<li><p>For regression problems, <span class="math notranslate nohighlight">\(m = \log_{2} (M + 1)\)</span>;</p></li>
+<li><p>By defaults, <span class="math notranslate nohighlight">\(m = \sqrt{M}\)</span>.</p></li>
+</ul>
+<p class="rubric">References</p>
+<dl class="footnote brackets">
+<dt class="label" id="id8"><span class="brackets">1</span><span class="fn-backref">(<a href="#id1">1</a>,<a href="#id2">2</a>,<a href="#id6">3</a>)</span></dt>
+<dd><p>Ho, T.K., 1995, August. Random decision forests. In Proceedings
+of 3rd international conference on document analysis and
+recognition (Vol. 1, pp. 278-282). IEEE.</p>
+</dd>
+<dt class="label" id="id9"><span class="brackets"><a class="fn-backref" href="#id3">2</a></span></dt>
+<dd><p>Ho, T.K., 1998. The random subspace method for constructing
+decision forests. IEEE transactions on pattern analysis and
+machine intelligence, 20(8), pp.832-844.</p>
+</dd>
+<dt class="label" id="id10"><span class="brackets"><a class="fn-backref" href="#id7">3</a></span></dt>
+<dd><p>Amit, Y. and Geman, D., 1997. Shape quantization and recognition
+with randomized trees. Neural computation, 9(7), pp.1545-1588.</p>
+</dd>
+<dt class="label" id="id11"><span class="brackets"><a class="fn-backref" href="#id4">4</a></span></dt>
+<dd><p>Breiman, L., 2001. Random forests. Machine learning, 45(1),
+pp.5-32.</p>
+</dd>
+<dt class="label" id="id12"><span class="brackets"><a class="fn-backref" href="#id5">5</a></span></dt>
+<dd><p>RColorBrewer, S. and Liaw, M.A., 2018. Package ‘randomForest’.
+University of California, Berkeley: Berkeley, CA, USA.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="fuzzytrees.frdf.BaseFuzzyRDF.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_train</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_train</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.frdf.BaseFuzzyRDF.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit the fuzzy random decision forest model (in multi-process mode).</p>
+<p>Process consists of:</p>
+<p>St.1. Randomly resample instances through bootstrapping sampling (WR).</p>
+<p>St.2. Random select features.</p>
+<p>St.3. Construct trees.</p>
+<p>St.4. Majority vote (classification) or simple average (regression) to
+prevent overfitting and reduce variance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X_train</strong> (<em>array-like of shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>)</em>) – Input instances to be predicted.</p></li>
+<li><p><strong>y_train</strong> (<em>array-like of shape</em><em> (</em><em>n_samples</em><em>,</em><em>)</em>) – Target values (non-negative integers in classification,
+real numbers in regression)
+NB: The input array needs to be of integer dtype, otherwise a
+TypeError is raised.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fuzzytrees.frdf.BaseFuzzyRDF.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.frdf.BaseFuzzyRDF.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict results for X.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>X</strong> (<em>array-like of shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>)</em>) – Input instances to be predicted.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>y_pred</strong> – The predicted values.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray of shape (n_samples,)</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>When to use multiple processes?</p>
+<p>Divide a prediction calculation into subunits and run them in
+multi-process mode, making sure that each subunit is sufficiently
+complex. Otherwise, when the complexity of each subunit falls below
+a certain threshold, depending on the hardware and software
+environment, the time consumed by CPU scheduling will be greater
+than the time saved by multiple processes. As an example, here is
+a comparison of the elapsed times for multi-process <cite>predict</cite> and
+non-multi-process <cite>predict</cite> on the dataset provided by
+<cite>sklearn.datasets.load_digits()</cite>.</p>
+<p>100 fuzzy trees with other parameters by default：</p>
+<ul class="simple">
+<li><p>Time elapsed to load data: 0.049551s;</p></li>
+<li><p>Time elapsed to preprocess fuzzification: 1.6184s;</p></li>
+<li><p>Time elapsed to partition data: 0.0041816s;</p></li>
+<li><p>Time elapsed to train a fuzzy classifier: 5.7213s;</p></li>
+<li><p>Time elapsed to predict by the fuzzy classifier:</p></li>
+<li><p>(Multi-process <cite>predict</cite>) 8.3837s;</p></li>
+<li><p>(Non-multi-process <cite>predict</cite>) 0.22926s.</p></li>
+</ul>
+<p>1,000 fuzzy trees with other parameters by default:</p>
+<ul class="simple">
+<li><p>Time elapsed to load data: 0.049702s;</p></li>
+<li><p>Time elapsed to preprocess fuzzification: 1.6178s;</p></li>
+<li><p>Time elapsed to partition data: 0.0043864s;</p></li>
+<li><p>Time elapsed to train a fuzzy classifier: 52.689s;</p></li>
+<li><p>Time elapsed to predict by the fuzzy classifier:</p></li>
+<li><p>(Multi-process <cite>predict</cite>) 817.67s;</p></li>
+<li><p>(Non-multi-process <cite>predict</cite>) 2.2753s.</p></li>
+</ul>
+<p>10,000 fuzzy trees with other parameters by default:</p>
+<ul class="simple">
+<li><p>Time elapsed to load data: 0.050004s;</p></li>
+<li><p>Time elapsed to preprocess fuzzification: 1.6821s;</p></li>
+<li><p>Time elapsed to partition data: 0.0041745s;</p></li>
+<li><p>Time elapsed to train a fuzzy classifier: 515.57s;</p></li>
+<li><p>Time elapsed to predict by the fuzzy classifier:</p></li>
+<li><p>(Multi-process <cite>predict</cite>) unknown (probably greater than 100 * 817.67s);</p></li>
+<li><p>(Non-multi-process <cite>predict</cite>) 23.225s.</p></li>
+</ul>
+<p>As shown in the above experimental results, in multi-process mode,
+<span class="math notranslate nohighlight">\(WallTime_curr / WallTime_prev ≈ (NumberEstimators_curr / NumberEstimators_prev)^2\)</span>,
+while in non-multi-process mode,
+<span class="math notranslate nohighlight">\(WallTime_curr / WallTime_prev ≈ NumberEstimators_curr / NumberEstimators_prev\)</span>.
+Therefore, <cite>predict</cite> is not complex enough to be a subunit of
+multi-process computation, and using multi-process mode on it is
+usually not the best choice.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fuzzytrees.frdf.BaseFuzzyRDFClassifier">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">fuzzytrees.frdf.</span></span><span class="sig-name descname"><span class="pre">BaseFuzzyRDFClassifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">disable_fuzzy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fuzzification_options</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criterion_func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_estimators</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_samples_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_impurity_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-07</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multi_process_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.frdf.BaseFuzzyRDFClassifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fuzzytrees.frdf.BaseFuzzyRDF" title="fuzzytrees.frdf.BaseFuzzyRDF"><code class="xref py py-class docutils literal notranslate"><span class="pre">fuzzytrees.frdf.BaseFuzzyRDF</span></code></a></p>
+<p>Fuzzy random decision forests classifier.</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>For classification tasks, the class that is the mode of
+the classes of the individual trees is returned.</p>
+<p>See derived classes for descriptions of all parameters
+and attributes in this class.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>disable_fuzzy</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Set whether the specified fuzzy decision tree uses the fuzzification.
+If disable_fuzzy=True, the specified fuzzy decision tree is equivalent
+to a naive decision tree.</p></li>
+<li><p><strong>fuzzification_options</strong> (<a class="reference internal" href="#fuzzytrees.fdt_base.FuzzificationOptions" title="fuzzytrees.fdt_base.FuzzificationOptions"><em>FuzzificationOptions</em></a><em>, </em><em>default=None</em>) – Protocol message class that encapsulates all the options of the
+fuzzification settings used by the specified fuzzy decision tree.</p></li>
+<li><p><strong>criterion_func</strong> (<em>{&quot;gini&quot;</em><em>, </em><em>&quot;entropy&quot;}</em><em>, </em><em>default=&quot;gini&quot;</em>) – The criterion function used by the function that calculates the impurity
+gain of the target values.
+NB: Only use a criterion function for decision tree classifier.</p></li>
+<li><p><strong>n_estimators</strong> (<em>int</em><em>, </em><em>default=100</em>) – The number of fuzzy decision trees to be used.</p></li>
+<li><p><strong>max_depth</strong> (<em>int</em><em>, </em><em>default=3</em>) – The maximum depth of the tree to be trained.</p></li>
+<li><p><strong>min_samples_split</strong> (<em>int</em><em>, </em><em>default=2</em>) – The minimum number of samples required to split a node. If a node has a
+sample number above this threshold, it will be split, otherwise it
+becomes a leaf node.</p></li>
+<li><p><strong>min_impurity_split</strong> (<em>float</em><em>, </em><em>default=1e-7</em>) – The minimum impurity required to split a node. If a node’s impurity is
+above this threshold, it will be split, otherwise it becomes a leaf node.</p></li>
+<li><p><strong>max_features</strong> (<em>int</em><em>, </em><em>default=None</em>) – The maximum threshold value of the qualified feature number in the
+training dataset when training each fuzzy decision tree.</p></li>
+<li><p><strong>multi_process_options</strong> (<a class="reference internal" href="#fuzzytrees.fdt_base.MultiProcessOptions" title="fuzzytrees.fdt_base.MultiProcessOptions"><em>MultiProcessOptions</em></a><em>, </em><em>default=None</em>) – Protocol message class that encapsulates all the options of the
+multi-process settings.
+If it is left as None, adopt non-parallel computing mode.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fuzzytrees.frdf.BaseFuzzyRDFClassifier._estimators">
+<span class="sig-name descname"><span class="pre">_estimators</span></span><a class="headerlink" href="#fuzzytrees.frdf.BaseFuzzyRDFClassifier._estimators" title="Permalink to this definition">¶</a></dt>
+<dd><p>The collection of sub-estimators as base learners.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>ndarray of FuzzyDecisionTreeClassification</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fuzzytrees.frdf.BaseFuzzyRDFClassifier._res_func">
+<span class="sig-name descname"><span class="pre">_res_func</span></span><a class="headerlink" href="#fuzzytrees.frdf.BaseFuzzyRDFClassifier._res_func" title="Permalink to this definition">¶</a></dt>
+<dd><p>In classification, get the final result from the classes given by the
+forest by majority voting method. In regression, calculate the average
+of the predicted values given by the forest as the final result.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>function, default=None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fuzzytrees.frdf.BaseFuzzyRDFRegressor">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">fuzzytrees.frdf.</span></span><span class="sig-name descname"><span class="pre">BaseFuzzyRDFRegressor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">disable_fuzzy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fuzzification_options</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criterion_func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_estimators</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_depth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_samples_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_impurity_split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-07</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_features</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">multi_process_options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.frdf.BaseFuzzyRDFRegressor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fuzzytrees.frdf.BaseFuzzyRDF" title="fuzzytrees.frdf.BaseFuzzyRDF"><code class="xref py py-class docutils literal notranslate"><span class="pre">fuzzytrees.frdf.BaseFuzzyRDF</span></code></a></p>
+<p>Fuzzy random decision forests regressor.</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>For regression tasks, the mean or average prediction of
+the individual trees is returned.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>disable_fuzzy</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Set whether the specified fuzzy decision tree uses the fuzzification.
+If disable_fuzzy=True, the specified fuzzy decision tree is equivalent
+to a naive decision tree.</p></li>
+<li><p><strong>fuzzification_options</strong> (<a class="reference internal" href="#fuzzytrees.fdt_base.FuzzificationOptions" title="fuzzytrees.fdt_base.FuzzificationOptions"><em>FuzzificationOptions</em></a><em>, </em><em>default=None</em>) – Protocol message class that encapsulates all the options of the
+fuzzification settings used by the specified fuzzy decision tree.</p></li>
+<li><p><strong>criterion_func</strong> (<em>{&quot;mse&quot;</em><em>, </em><em>&quot;mae&quot;}</em><em>, </em><em>default=&quot;mse&quot;</em>) – The criterion function used by the function that calculates the impurity
+gain of the target values.
+NB: Only use a criterion function for decision tree regressor.</p></li>
+<li><p><strong>n_estimators</strong> (<em>int</em><em>, </em><em>default=100</em>) – The number of fuzzy decision trees to be used.</p></li>
+<li><p><strong>max_depth</strong> (<em>int</em><em>, </em><em>default=3</em>) – The maximum depth of the tree to be trained.</p></li>
+<li><p><strong>min_samples_split</strong> (<em>int</em><em>, </em><em>default=2</em>) – The minimum number of samples required to split a node. If a node has a
+sample number above this threshold, it will be split, otherwise it
+becomes a leaf node.</p></li>
+<li><p><strong>min_impurity_split</strong> (<em>float</em><em>, </em><em>default=1e-7</em>) – The minimum impurity required to split a node. If a node’s impurity is
+above this threshold, it will be split, otherwise it becomes a leaf node.</p></li>
+<li><p><strong>max_features</strong> (<em>int</em><em>, </em><em>default=None</em>) – The maximum threshold value of the qualified feature number in the
+training dataset when training each fuzzy decision tree.</p></li>
+<li><p><strong>multi_process_options</strong> (<a class="reference internal" href="#fuzzytrees.fdt_base.MultiProcessOptions" title="fuzzytrees.fdt_base.MultiProcessOptions"><em>MultiProcessOptions</em></a><em>, </em><em>default=None</em>) – Protocol message class that encapsulates all the options of the
+multi-process settings.
+If it is left as None, adopt non-parallel computing mode.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fuzzytrees.frdf.BaseFuzzyRDFRegressor._estimators">
+<span class="sig-name descname"><span class="pre">_estimators</span></span><a class="headerlink" href="#fuzzytrees.frdf.BaseFuzzyRDFRegressor._estimators" title="Permalink to this definition">¶</a></dt>
+<dd><p>The collection of sub-estimators as base learners.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>ndarray of FuzzyDecisionTreeRegressor</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fuzzytrees.frdf.BaseFuzzyRDFRegressor._res_func">
+<span class="sig-name descname"><span class="pre">_res_func</span></span><a class="headerlink" href="#fuzzytrees.frdf.BaseFuzzyRDFRegressor._res_func" title="Permalink to this definition">¶</a></dt>
+<dd><p>In classification, get the final result from the classes given by the
+forest by majority voting method. In regression, calculate the average
+of the predicted values given by the forest as the final result.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>function, default=None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-fuzzytrees.settings">
+<span id="fuzzytrees-settings-module"></span><h2>fuzzytrees.settings module<a class="headerlink" href="#module-fuzzytrees.settings" title="Permalink to this headline">¶</a></h2>
+<p>&#64;author : Zhaoqing Liu
+&#64;email  : <a class="reference external" href="mailto:Zhaoqing&#46;Liu-1&#37;&#52;&#48;student&#46;uts&#46;edu&#46;au">Zhaoqing<span>&#46;</span>Liu-1<span>&#64;</span>student<span>&#46;</span>uts<span>&#46;</span>edu<span>&#46;</span>au</a></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="fuzzytrees.settings.ComparisionMode">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">fuzzytrees.settings.</span></span><span class="sig-name descname"><span class="pre">ComparisionMode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.settings.ComparisionMode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fuzzytrees.settings.ComparisionMode.BOOSTING">
+<span class="sig-name descname"><span class="pre">BOOSTING</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'fgbdt_vs_nfgbdt'</span></em><a class="headerlink" href="#fuzzytrees.settings.ComparisionMode.BOOSTING" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fuzzytrees.settings.ComparisionMode.FF3">
+<span class="sig-name descname"><span class="pre">FF3</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'ff3_vs_naive'</span></em><a class="headerlink" href="#fuzzytrees.settings.ComparisionMode.FF3" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fuzzytrees.settings.ComparisionMode.FF4">
+<span class="sig-name descname"><span class="pre">FF4</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'ff4_vs_naive'</span></em><a class="headerlink" href="#fuzzytrees.settings.ComparisionMode.FF4" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fuzzytrees.settings.ComparisionMode.FF5">
+<span class="sig-name descname"><span class="pre">FF5</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'ff5_vs_naive'</span></em><a class="headerlink" href="#fuzzytrees.settings.ComparisionMode.FF5" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fuzzytrees.settings.ComparisionMode.FUZZY">
+<span class="sig-name descname"><span class="pre">FUZZY</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'fcart_vs_ccart'</span></em><a class="headerlink" href="#fuzzytrees.settings.ComparisionMode.FUZZY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fuzzytrees.settings.ComparisionMode.MIXED">
+<span class="sig-name descname"><span class="pre">MIXED</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'mfgbdt_vs_nfgbdt'</span></em><a class="headerlink" href="#fuzzytrees.settings.ComparisionMode.MIXED" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fuzzytrees.settings.ComparisionMode.NAIVE">
+<span class="sig-name descname"><span class="pre">NAIVE</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'my_naive_vs_sklearn_naive'</span></em><a class="headerlink" href="#fuzzytrees.settings.ComparisionMode.NAIVE" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fuzzytrees.settings.DirSave">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">fuzzytrees.settings.</span></span><span class="sig-name descname"><span class="pre">DirSave</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.settings.DirSave" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fuzzytrees.settings.DirSave.EVAL_DATA">
+<span class="sig-name descname"><span class="pre">EVAL_DATA</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'/Users/geogeliu/PycharmProjects/FuzzyTrees/doc/fuzzy_trees_v001/data_gen/eval_data/'</span></em><a class="headerlink" href="#fuzzytrees.settings.DirSave.EVAL_DATA" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fuzzytrees.settings.DirSave.EVAL_FIGURES">
+<span class="sig-name descname"><span class="pre">EVAL_FIGURES</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'/Users/geogeliu/PycharmProjects/FuzzyTrees/doc/fuzzy_trees_v001/data_gen/eval_figures/'</span></em><a class="headerlink" href="#fuzzytrees.settings.DirSave.EVAL_FIGURES" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fuzzytrees.settings.DirSave.MODELS">
+<span class="sig-name descname"><span class="pre">MODELS</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'/Users/geogeliu/PycharmProjects/FuzzyTrees/doc/fuzzy_trees_v001/data_gen/pkl_models/'</span></em><a class="headerlink" href="#fuzzytrees.settings.DirSave.MODELS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fuzzytrees.settings.EvaluationType">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">fuzzytrees.settings.</span></span><span class="sig-name descname"><span class="pre">EvaluationType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.settings.EvaluationType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="fuzzytrees.settings.EvaluationType.FUZZY_REG_VS_ERR_ON_CONV_K">
+<span class="sig-name descname"><span class="pre">FUZZY_REG_VS_ERR_ON_CONV_K</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'fuzzy_reg_vs_err_on_conv_k'</span></em><a class="headerlink" href="#fuzzytrees.settings.EvaluationType.FUZZY_REG_VS_ERR_ON_CONV_K" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-fuzzytrees.util_comm">
+<span id="fuzzytrees-util-comm-module"></span><h2>fuzzytrees.util_comm module<a class="headerlink" href="#module-fuzzytrees.util_comm" title="Permalink to this headline">¶</a></h2>
+<p>&#64;author : Zhaoqing Liu
+&#64;email  : <a class="reference external" href="mailto:Zhaoqing&#46;Liu-1&#37;&#52;&#48;student&#46;uts&#46;edu&#46;au">Zhaoqing<span>&#46;</span>Liu-1<span>&#64;</span>student<span>&#46;</span>uts<span>&#46;</span>edu<span>&#46;</span>au</a></p>
+<dl class="py function">
+<dt class="sig sig-object py" id="fuzzytrees.util_comm.get_cwd_as_prefix">
+<span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_comm.</span></span><span class="sig-name descname"><span class="pre">get_cwd_as_prefix</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_comm.get_cwd_as_prefix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fuzzytrees.util_comm.get_now_str">
+<span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_comm.</span></span><span class="sig-name descname"><span class="pre">get_now_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tim_str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_comm.get_now_str" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fuzzytrees.util_comm.get_timestamp_str">
+<span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_comm.</span></span><span class="sig-name descname"><span class="pre">get_timestamp_str</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_comm.get_timestamp_str" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fuzzytrees.util_comm.get_today_str">
+<span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_comm.</span></span><span class="sig-name descname"><span class="pre">get_today_str</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_comm.get_today_str" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-fuzzytrees.util_data_handler">
+<span id="fuzzytrees-util-data-handler-module"></span><h2>fuzzytrees.util_data_handler module<a class="headerlink" href="#module-fuzzytrees.util_data_handler" title="Permalink to this headline">¶</a></h2>
+<p>&#64;author : Anjin Liu, Zhaoqing Liu
+&#64;email  : <a class="reference external" href="mailto:anjin&#46;liu&#37;&#52;&#48;uts&#46;edu&#46;au">anjin<span>&#46;</span>liu<span>&#64;</span>uts<span>&#46;</span>edu<span>&#46;</span>au</a>, <a class="reference external" href="mailto:Zhaoqing&#46;Liu-1&#37;&#52;&#48;student&#46;uts&#46;edu&#46;au">Zhaoqing<span>&#46;</span>Liu-1<span>&#64;</span>student<span>&#46;</span>uts<span>&#46;</span>edu<span>&#46;</span>au</a></p>
+<dl class="py function">
+<dt class="sig sig-object py" id="fuzzytrees.util_data_handler.load_German_credit">
+<span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_data_handler.</span></span><span class="sig-name descname"><span class="pre">load_German_credit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_data_handler.load_German_credit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Professor Dr. Hans Hofmann
+Institut f”ur Statistik und “Okonometrie
+Universit”at Hamburg
+FB Wirtschaftswissenschaften
+Von-Melle-Park 5
+2000 Hamburg 13</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fuzzytrees.util_data_handler.load_chess">
+<span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_data_handler.</span></span><span class="sig-name descname"><span class="pre">load_chess</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_data_handler.load_chess" title="Permalink to this definition">¶</a></dt>
+<dd><ol class="loweralpha simple">
+<li><p>Database originally generated and described by Alen Shapiro.</p></li>
+<li><p>Donor/Coder: Rob Holte (<a class="reference external" href="mailto:holte&#37;&#52;&#48;uottawa&#46;bitnet">holte<span>&#64;</span>uottawa<span>&#46;</span>bitnet</a>).  The database
+was supplied to Holte by Peter Clark of the Turing Institute
+in Glasgow (<a class="reference external" href="mailto:pete&#37;&#52;&#48;turing&#46;ac&#46;uk">pete<span>&#64;</span>turing<span>&#46;</span>ac<span>&#46;</span>uk</a>).</p></li>
+<li><p>Date: 1 August 1989</p></li>
+</ol>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fuzzytrees.util_data_handler.load_data_clf">
+<span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_data_handler.</span></span><span class="sig-name descname"><span class="pre">load_data_clf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_data_handler.load_data_clf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a dataset by the specified name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ds_name</strong> (<em>str</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>data</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fuzzytrees.util_data_handler.load_diabetes">
+<span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_data_handler.</span></span><span class="sig-name descname"><span class="pre">load_diabetes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_data_handler.load_diabetes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fuzzytrees.util_data_handler.load_iris">
+<span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_data_handler.</span></span><span class="sig-name descname"><span class="pre">load_iris</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_data_handler.load_iris" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fuzzytrees.util_data_handler.load_vehicle">
+<span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_data_handler.</span></span><span class="sig-name descname"><span class="pre">load_vehicle</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_data_handler.load_vehicle" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Turing Institute Research Memorandum TIRM-87-018 “Vehicle</dt><dd><p>Recognition Using Rule Based Methods” by Siebert,JP (March 1987)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fuzzytrees.util_data_handler.load_waveform">
+<span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_data_handler.</span></span><span class="sig-name descname"><span class="pre">load_waveform</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_data_handler.load_waveform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Breiman,L., Friedman,J.H., Olshen,R.A., &amp; Stone,C.J. (1984).
+Classification and Regression Trees.  Wadsworth International</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fuzzytrees.util_data_handler.load_wine">
+<span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_data_handler.</span></span><span class="sig-name descname"><span class="pre">load_wine</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_data_handler.load_wine" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-fuzzytrees.util_logging">
+<span id="fuzzytrees-util-logging-module"></span><h2>fuzzytrees.util_logging module<a class="headerlink" href="#module-fuzzytrees.util_logging" title="Permalink to this headline">¶</a></h2>
+<p>&#64;author : Zhaoqing Liu
+&#64;email  : <a class="reference external" href="mailto:Zhaoqing&#46;Liu-1&#37;&#52;&#48;student&#46;uts&#46;edu&#46;au">Zhaoqing<span>&#46;</span>Liu-1<span>&#64;</span>student<span>&#46;</span>uts<span>&#46;</span>edu<span>&#46;</span>au</a></p>
+<dl class="py function">
+<dt class="sig sig-object py" id="fuzzytrees.util_logging.setup_logging">
+<span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_logging.</span></span><span class="sig-name descname"><span class="pre">setup_logging</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'logging_config.yaml'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_level</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_logging.setup_logging" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configure the logging module.</p>
+<p>How to enable global configuration for logging?</p>
+<p>Call this function at the beginning of the program’s main function, and then
+use <cite>logging</cite> to get a logger wherever you need to log.</p>
+<p>How to log?</p>
+<p>In development, set the <cite>level</cite> of all handlers, e.g., <cite>console</cite>, <cite>file</cite>,
+<cite>error</cite>, etc., in the log configuration file to <cite>DEBUG</cite> for debugging
+purposes.</p>
+<p>Production systems, set the <cite>level</cite> of each handler in the log
+configuration file back to the levels appropriate for production systems,
+e.g., <cite>console</cite> to <cite>INFO</cite>, <cite>file</cite> to <cite>DEBUG</cite>, and <cite>error</cite> to <cite>ERROR</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>default_path</strong> (<em>str</em>) – File path to the in YAML document for configuring logging.</p></li>
+<li><p><strong>default_level</strong> (<em>{logging.CRITICAL</em><em>, </em><em>logging.FATAL</em><em>, </em><em>logging.ERROR</em><em>,</em>) – logging.WARNING, logging.WARN, logging.INFO,
+logging.DEBUG, logging.NOTSET}</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>In PyYAML version 5.1+, the use of PyYAML’s <cite>yaml.load</cite> function without
+specifying the <cite>Loader=…</cite> parameter, has been deprecated <a class="footnote-reference brackets" href="#id14" id="id13">6</a>.</p>
+</div>
+<p class="rubric">References</p>
+<dl class="footnote brackets">
+<dt class="label" id="id14"><span class="brackets"><a class="fn-backref" href="#id13">6</a></span></dt>
+<dd><p><a class="reference external" href="https://github.com/yaml/pyyaml/wiki/PyYAML-yaml.load(input)-Deprecation">https://github.com/yaml/pyyaml/wiki/PyYAML-yaml.load(input)-Deprecation</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-fuzzytrees.util_plotter">
+<span id="fuzzytrees-util-plotter-module"></span><h2>fuzzytrees.util_plotter module<a class="headerlink" href="#module-fuzzytrees.util_plotter" title="Permalink to this headline">¶</a></h2>
+<p>&#64;author : Zhaoqing Liu
+&#64;email  : <a class="reference external" href="mailto:Zhaoqing&#46;Liu-1&#37;&#52;&#48;student&#46;uts&#46;edu&#46;au">Zhaoqing<span>&#46;</span>Liu-1<span>&#64;</span>student<span>&#46;</span>uts<span>&#46;</span>edu<span>&#46;</span>au</a></p>
+<dl class="py function">
+<dt class="sig sig-object py" id="fuzzytrees.util_plotter.plot_multi_lines">
+<span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_plotter.</span></span><span class="sig-name descname"><span class="pre">plot_multi_lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_ticks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_ticks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legends</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_max_annot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enable_min_annot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_plotter.plot_multi_lines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot multiple lines in a figure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>coordinates</strong> (<em>array-like</em>) – Where, the values (i.e. coordinates[:, 0]) corresponding to the
+X-axis must be numeric and in ascending order.</p></li>
+<li><p><strong>title</strong> (<em>str</em><em>, </em><em>default=None</em>) – </p></li>
+<li><p><strong>x_label</strong> (<em>str</em><em>, </em><em>default=None</em>) – </p></li>
+<li><p><strong>y_label</strong> (<em>str</em><em>, </em><em>default=None</em>) – </p></li>
+<li><p><strong>x_limit</strong> (<em>tuple</em><em>, </em><em>default=None</em>) – </p></li>
+<li><p><strong>y_limit</strong> (<em>tuple</em><em>, </em><em>default=None</em>) – </p></li>
+<li><p><strong>legends</strong> (<em>array-like</em><em>, </em><em>default=None</em>) – </p></li>
+<li><p><strong>fig_name</strong> (<em>str</em><em>, </em><em>default=None</em>) – fig_name is either a text or byte string giving the name (and the
+path if the file isn’t in the current working directory) of the
+file to be opened or an integer file descriptor of the file to be
+wrapped.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-fuzzytrees.util_preprocessing_funcs">
+<span id="fuzzytrees-util-preprocessing-funcs-module"></span><h2>fuzzytrees.util_preprocessing_funcs module<a class="headerlink" href="#module-fuzzytrees.util_preprocessing_funcs" title="Permalink to this headline">¶</a></h2>
+<p>&#64;author : Zhaoqing Liu
+&#64;email  : <a class="reference external" href="mailto:Zhaoqing&#46;Liu-1&#37;&#52;&#48;student&#46;uts&#46;edu&#46;au">Zhaoqing<span>&#46;</span>Liu-1<span>&#64;</span>student<span>&#46;</span>uts<span>&#46;</span>edu<span>&#46;</span>au</a></p>
+<dl class="py function">
+<dt class="sig sig-object py" id="fuzzytrees.util_preprocessing_funcs.degree_of_membership_build">
+<span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_preprocessing_funcs.</span></span><span class="sig-name descname"><span class="pre">degree_of_membership_build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_seed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conv_k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fuzzy_reg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_preprocessing_funcs.degree_of_membership_build" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the degree of membership set of a feature. That set maps to
+the specified number of fuzzy sets of the feature.
+This is the process of transforming a crisp set into a fuzzy set.</p>
+<p>&#64;author : Anjin Liu
+&#64;email : <a class="reference external" href="mailto:Anjin&#46;Liu&#37;&#52;&#48;uts&#46;edu&#46;au">Anjin<span>&#46;</span>Liu<span>&#64;</span>uts<span>&#46;</span>edu<span>&#46;</span>au</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X_df</strong> (<em>DataFrame</em>) – One feature values of the training input samples.
+NB: All features must be normalized by feature scaling.</p></li>
+<li><p><strong>r_seed</strong> (<em>int</em>) – The random seed.</p></li>
+<li><p><strong>conv_k</strong> (<em>DataFrame</em>) – The number of convolution over the input sample.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>x_new</strong> (<em>array-like of shape (n_samples, n_fuzzy_sets)</em>) – Transformed degree of membership set.</p></li>
+<li><p><em>centriods</em></p></li>
+<li><p><em>degree_of_membership_theta</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fuzzytrees.util_preprocessing_funcs.extract_fuzzy_features">
+<span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_preprocessing_funcs.</span></span><span class="sig-name descname"><span class="pre">extract_fuzzy_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conv_k</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fuzzy_reg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_preprocessing_funcs.extract_fuzzy_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract fuzzy features in feature fuzzification to generate degree of
+membership sets of each feature.</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>Feature fuzzification must be done in the data preprocessing, that is,
+before training the model and predicting new samples.</p>
+<p>&#64;author: Anjin Liu
+&#64;email: <a class="reference external" href="mailto:Anjin&#46;Liu&#37;&#52;&#48;uts&#46;edu&#46;au">Anjin<span>&#46;</span>Liu<span>&#64;</span>uts<span>&#46;</span>edu<span>&#46;</span>au</a></p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fuzzytrees.util_preprocessing_funcs.make_diagonal">
+<span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_preprocessing_funcs.</span></span><span class="sig-name descname"><span class="pre">make_diagonal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_preprocessing_funcs.make_diagonal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform a vector into an diagonal matrix.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fuzzytrees.util_preprocessing_funcs.one_hot_encode">
+<span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_preprocessing_funcs.</span></span><span class="sig-name descname"><span class="pre">one_hot_encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_ohe_col</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_preprocessing_funcs.one_hot_encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>One-hot encode nominal values of target values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y</strong> (<em>array-like</em><em>, </em><em>1-dimensional</em><em>, </em><em>elements must be numerical value and start from 0</em>) – </p></li>
+<li><p><strong>n_ohe_col</strong> (<em>int</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fuzzytrees.util_preprocessing_funcs.resample_bootstrap">
+<span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_preprocessing_funcs.</span></span><span class="sig-name descname"><span class="pre">resample_bootstrap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_subsets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_samples_sub</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_preprocessing_funcs.resample_bootstrap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draw a specified number of collections of independent sample subsets from
+the original sample sets in the bootstrapping sampling method.
+This is a sampling scheme with replacement (‘WR’ - an element may appear
+multiple times in the one sample).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>sequence of array-like of shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>)</em>) – The input samples in the format of indexable data-structure, which can
+be arrays, lists, dataframes or scipy sparse matrices with consistent
+first dimension.</p></li>
+<li><p><strong>y</strong> (<em>array-like of shape</em><em> (</em><em>n_samples</em><em>,</em><em>)</em>) – The target values (class labels), which are non-negative integers in
+classification and real numbers in regression. Its first dimension has
+to be the same as that of X.</p></li>
+<li><p><strong>n_subsets</strong> (<em>int</em>) – The number of collections of subsets to generate.</p></li>
+<li><p><strong>n_samples_sub</strong> (<em>int</em><em>, </em><em>default=None</em>) – The sample size in each subset to generate. If left to None this is
+automatically set to the first dimension of X.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>X_subsets, y_subsets</strong> – The tuple of the generated lists of sample subsets. The first element
+in the tuple is the list of the sample subsets from X and the second
+is the list of sample subsets from y.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple, where each is a sequence of array-like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fuzzytrees.util_preprocessing_funcs.resample_simple_random">
+<span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_preprocessing_funcs.</span></span><span class="sig-name descname"><span class="pre">resample_simple_random</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">X</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_subsets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_samples_sub</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_preprocessing_funcs.resample_simple_random" title="Permalink to this definition">¶</a></dt>
+<dd><p>Randomly draw a specified number of collections of independent sample
+subsets from the original sample sets in the simple random sampling method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>sequence of array-like of shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>)</em>) – The input samples in the format of indexable data-structure, which can
+be arrays, lists, dataframes or scipy sparse matrices with consistent
+first dimension.</p></li>
+<li><p><strong>y</strong> (<em>array-like of shape</em><em> (</em><em>n_samples</em><em>,</em><em>)</em>) – The target values (class labels), which are non-negative integers in
+classification and real numbers in regression. Its first dimension has
+to be the same as that of X.</p></li>
+<li><p><strong>n_subsets</strong> (<em>int</em>) – The number of collections of subsets to generate.</p></li>
+<li><p><strong>n_samples_sub</strong> (<em>int</em><em>, </em><em>default=None</em>) – The sample size in each subset to generate. If left to None this is
+automatically set to the first dimension of X.</p></li>
+<li><p><strong>replace</strong> (<em>bool</em><em>, </em><em>default=False</em>) – Implements resampling with replacement. If False, each sampling for a
+sample subset will implement (sliced) random permutations, which is a
+simple sampling scheme without replacement (‘WOR’ - no element can be
+selected more than once in the same sample). If True, each sampling for
+a sample subset will implement a bootstrapping sampling scheme with
+replacement (‘WR’ - an element may appear multiple times in the one
+sample).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>X_subsets, y_subsets</strong> – The tuple of the generated lists of sample subsets. The first element
+in the tuple is the list of the sample subsets from X and the second
+is the list of sample subsets from y.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple, where each is a sequence of array-like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fuzzytrees.util_preprocessing_funcs.to_nominal">
+<span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_preprocessing_funcs.</span></span><span class="sig-name descname"><span class="pre">to_nominal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_preprocessing_funcs.to_nominal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform values from one-hot encoding to nominal.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-fuzzytrees.util_tree_criterion_funcs">
+<span id="fuzzytrees-util-tree-criterion-funcs-module"></span><h2>fuzzytrees.util_tree_criterion_funcs module<a class="headerlink" href="#module-fuzzytrees.util_tree_criterion_funcs" title="Permalink to this headline">¶</a></h2>
+<p>&#64;author : Zhaoqing Liu
+&#64;email  : <a class="reference external" href="mailto:Zhaoqing&#46;Liu-1&#37;&#52;&#48;student&#46;uts&#46;edu&#46;au">Zhaoqing<span>&#46;</span>Liu-1<span>&#64;</span>student<span>&#46;</span>uts<span>&#46;</span>edu<span>&#46;</span>au</a></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="fuzzytrees.util_tree_criterion_funcs.LeastSquaresFunction">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_tree_criterion_funcs.</span></span><span class="sig-name descname"><span class="pre">LeastSquaresFunction</span></span><a class="headerlink" href="#fuzzytrees.util_tree_criterion_funcs.LeastSquaresFunction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fuzzytrees.util_tree_criterion_funcs.LossFunction" title="fuzzytrees.util_tree_criterion_funcs.LossFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">fuzzytrees.util_tree_criterion_funcs.LossFunction</span></code></a></p>
+<p>Function class used in a gradient boosting regressor
+(Friedman et al., 1998; Friedman 2001).</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="fuzzytrees.util_tree_criterion_funcs.LeastSquaresFunction.gradient">
+<span class="sig-name descname"><span class="pre">gradient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_tree_criterion_funcs.LeastSquaresFunction.gradient" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fuzzytrees.util_tree_criterion_funcs.LeastSquaresFunction.loss">
+<span class="sig-name descname"><span class="pre">loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_tree_criterion_funcs.LeastSquaresFunction.loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lost function is a Least-square equation: L(y, F) = (y - F) ^ 2 / 2</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fuzzytrees.util_tree_criterion_funcs.LossFunction">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_tree_criterion_funcs.</span></span><span class="sig-name descname"><span class="pre">LossFunction</span></span><a class="headerlink" href="#fuzzytrees.util_tree_criterion_funcs.LossFunction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Base loss function class that encapsulates all
+base functions to be inherited by all derived
+function classes.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This class should not be used directly.
+Use derived classes instead.</p>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="fuzzytrees.util_tree_criterion_funcs.LossFunction.gradient">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">gradient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_tree_criterion_funcs.LossFunction.gradient" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fuzzytrees.util_tree_criterion_funcs.LossFunction.loss">
+<em class="property"><span class="pre">abstract</span> </em><span class="sig-name descname"><span class="pre">loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_tree_criterion_funcs.LossFunction.loss" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fuzzytrees.util_tree_criterion_funcs.SoftLeastSquaresFunction">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_tree_criterion_funcs.</span></span><span class="sig-name descname"><span class="pre">SoftLeastSquaresFunction</span></span><a class="headerlink" href="#fuzzytrees.util_tree_criterion_funcs.SoftLeastSquaresFunction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#fuzzytrees.util_tree_criterion_funcs.LossFunction" title="fuzzytrees.util_tree_criterion_funcs.LossFunction"><code class="xref py py-class docutils literal notranslate"><span class="pre">fuzzytrees.util_tree_criterion_funcs.LossFunction</span></code></a></p>
+<p>Function class used in a gradient boosting classifier
+(Friedman et al., 1998; Friedman 2001).</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="fuzzytrees.util_tree_criterion_funcs.SoftLeastSquaresFunction.gradient">
+<span class="sig-name descname"><span class="pre">gradient</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proba</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_tree_criterion_funcs.SoftLeastSquaresFunction.gradient" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="fuzzytrees.util_tree_criterion_funcs.SoftLeastSquaresFunction.loss">
+<span class="sig-name descname"><span class="pre">loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_tree_criterion_funcs.SoftLeastSquaresFunction.loss" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lost function (Least-square equation: L(y, F) = (y - F) ^ 2 / 2)
+is not applicable in classification.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fuzzytrees.util_tree_criterion_funcs.calculate_entropy">
+<span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_tree_criterion_funcs.</span></span><span class="sig-name descname"><span class="pre">calculate_entropy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_tree_criterion_funcs.calculate_entropy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the entropy of y.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fuzzytrees.util_tree_criterion_funcs.calculate_gini">
+<span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_tree_criterion_funcs.</span></span><span class="sig-name descname"><span class="pre">calculate_gini</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_tree_criterion_funcs.calculate_gini" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the Gini impurity of y.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fuzzytrees.util_tree_criterion_funcs.calculate_impurity_gain">
+<span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_tree_criterion_funcs.</span></span><span class="sig-name descname"><span class="pre">calculate_impurity_gain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_y_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_y_2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criterion_func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_subset_true_dm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_subset_false_dm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_tree_criterion_funcs.calculate_impurity_gain" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the impurity gain, which is equal to the
+impurity of y minus the entropy of sub_y_1 and sub_y_2.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fuzzytrees.util_tree_criterion_funcs.calculate_impurity_gain_ratio">
+<span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_tree_criterion_funcs.</span></span><span class="sig-name descname"><span class="pre">calculate_impurity_gain_ratio</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_y_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_y_2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">X_sub</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criterion_func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_subset_true_dm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_subset_false_dm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_tree_criterion_funcs.calculate_impurity_gain_ratio" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the impurity gain ratio.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fuzzytrees.util_tree_criterion_funcs.calculate_mae">
+<span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_tree_criterion_funcs.</span></span><span class="sig-name descname"><span class="pre">calculate_mae</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_tree_criterion_funcs.calculate_mae" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the Mean Absolute Error between y_true and y_pred.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fuzzytrees.util_tree_criterion_funcs.calculate_mean_value">
+<span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_tree_criterion_funcs.</span></span><span class="sig-name descname"><span class="pre">calculate_mean_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_tree_criterion_funcs.calculate_mean_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the mean of y.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>y</strong> (<em>array-like of shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_labels</em><em>)</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>value</strong> –    at least a 0-d float number
+The mean values.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>array-like of the shape reduced by one dimension,</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fuzzytrees.util_tree_criterion_funcs.calculate_mse">
+<span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_tree_criterion_funcs.</span></span><span class="sig-name descname"><span class="pre">calculate_mse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_pred</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_tree_criterion_funcs.calculate_mse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the Mean Squared Error between y_true and y_pred.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fuzzytrees.util_tree_criterion_funcs.calculate_proba">
+<span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_tree_criterion_funcs.</span></span><span class="sig-name descname"><span class="pre">calculate_proba</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_tree_criterion_funcs.calculate_proba" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the probabilities of each element in the set.</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>Before counting, the elements will be reordered from smallest to largest.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>y</strong> (<em>array-like of shape</em><em> (</em><em>n_samples</em><em>,</em><em>)</em>) – </p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fuzzytrees.util_tree_criterion_funcs.calculate_standard_deviation">
+<span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_tree_criterion_funcs.</span></span><span class="sig-name descname"><span class="pre">calculate_standard_deviation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_tree_criterion_funcs.calculate_standard_deviation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the standard deviation of y.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fuzzytrees.util_tree_criterion_funcs.calculate_value_by_majority_vote">
+<span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_tree_criterion_funcs.</span></span><span class="sig-name descname"><span class="pre">calculate_value_by_majority_vote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_tree_criterion_funcs.calculate_value_by_majority_vote" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate value by majority vote.</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>Used in classification decision tree.</p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fuzzytrees.util_tree_criterion_funcs.calculate_variance">
+<span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_tree_criterion_funcs.</span></span><span class="sig-name descname"><span class="pre">calculate_variance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_tree_criterion_funcs.calculate_variance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the variance of y.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fuzzytrees.util_tree_criterion_funcs.calculate_variance_reduction">
+<span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_tree_criterion_funcs.</span></span><span class="sig-name descname"><span class="pre">calculate_variance_reduction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_y_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_y_2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">criterion_func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_subset_true_dm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_subset_false_dm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_tree_criterion_funcs.calculate_variance_reduction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the variance reduction, which is equal to the
+impurity of y minus the entropy of sub_y_1 and sub_y_2.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fuzzytrees.util_tree_criterion_funcs.majority_vote">
+<span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_tree_criterion_funcs.</span></span><span class="sig-name descname"><span class="pre">majority_vote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_preds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_tree_criterion_funcs.majority_vote" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the the final classification result by majority voting method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>y_preds</strong> (<em>array-like of shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_estimators</em><em>)</em>) – NB: The input array needs to be of integer dtype, otherwise a
+TypeError is raised.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>array-like of shape (n_samples, )</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fuzzytrees.util_tree_criterion_funcs.mean_value">
+<span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_tree_criterion_funcs.</span></span><span class="sig-name descname"><span class="pre">mean_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">y_preds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_tree_criterion_funcs.mean_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the final regression result by averaging method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>y_preds</strong> (<em>array-like of shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_estimators</em><em>, </em><em>n_labels</em><em>)</em>) – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>y_pred</strong> – at least array-like of shape (n_samples, )</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>array-like of the shape (n_samples, n_labels) reduced by one dimension,</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-fuzzytrees.util_tree_split_funcs">
+<span id="fuzzytrees-util-tree-split-funcs-module"></span><h2>fuzzytrees.util_tree_split_funcs module<a class="headerlink" href="#module-fuzzytrees.util_tree_split_funcs" title="Permalink to this headline">¶</a></h2>
+<p>&#64;author : Zhaoqing Liu
+&#64;email  : <a class="reference external" href="mailto:Zhaoqing&#46;Liu-1&#37;&#52;&#48;student&#46;uts&#46;edu&#46;au">Zhaoqing<span>&#46;</span>Liu-1<span>&#64;</span>student<span>&#46;</span>uts<span>&#46;</span>edu<span>&#46;</span>au</a></p>
+<dl class="py function">
+<dt class="sig sig-object py" id="fuzzytrees.util_tree_split_funcs.split_disc_ds_2_multi">
+<span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_tree_split_funcs.</span></span><span class="sig-name descname"><span class="pre">split_disc_ds_2_multi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_val</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_tree_split_funcs.split_disc_ds_2_multi" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fuzzytrees.util_tree_split_funcs.split_ds_2_bin">
+<span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_tree_split_funcs.</span></span><span class="sig-name descname"><span class="pre">split_ds_2_bin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_val</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_tree_split_funcs.split_ds_2_bin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Split a data set into two subsets by a specified value of a specified feature:
+If the specified feature is numerical data, split the data set into two
+subsets based on whether each value of the specified feature is greater than
+or equal to the split value.</p>
+<p>If the specified feature is categorical data, split the data set into two
+subsets based on whether each value of the specified feature is the same as
+the split value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ds</strong> (<em>array-like of shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_feature</em><em>)</em>) – The current data set to be split.</p></li>
+<li><p><strong>col_idx</strong> (<em>int</em>) – The index of the specified column on which the split based.</p></li>
+<li><p><strong>split_val</strong> (<em>int</em><em>, </em><em>float</em><em>, or </em><em>string</em>) – The specified value of the column indexed as col_idx.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>subset_true, subset_false</strong> – Return a tuple of the two split subsets.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>array-like</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fuzzytrees.util_tree_split_funcs.split_ds_2_multi">
+<span class="sig-prename descclassname"><span class="pre">fuzzytrees.util_tree_split_funcs.</span></span><span class="sig-name descname"><span class="pre">split_ds_2_multi</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split_val</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#fuzzytrees.util_tree_split_funcs.split_ds_2_multi" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-fuzzytrees">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-fuzzytrees" title="Permalink to this headline">¶</a></h2>
+<p>&#64;author: Zhaoqing Liu
+&#64;email : <a class="reference external" href="mailto:Zhaoqing&#46;Liu-1&#37;&#52;&#48;student&#46;uts&#46;edu&#46;au">Zhaoqing<span>&#46;</span>Liu-1<span>&#64;</span>student<span>&#46;</span>uts<span>&#46;</span>edu<span>&#46;</span>au</a></p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="modules.html" class="btn btn-neutral float-left" title="fuzzytrees" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, UTS Australian Artificial Intelligence Institute.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
