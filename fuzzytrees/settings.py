@@ -1,8 +1,6 @@
 """
-@author: Zhaoqing Liu
-@email : Zhaoqing.Liu-1@student.uts.edu.au
-@date  : 10/5/21 11:08 pm
-@desc  :
+@author : Zhaoqing Liu
+@email  : Zhaoqing.Liu-1@student.uts.edu.au
 """
 import multiprocessing
 import os

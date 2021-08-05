@@ -1,9 +1,7 @@
 # _*_coding:utf-8_*_
 """
-@author: Zhaoqing Liu
-@email: Zhaoqing.Liu-1@student.uts.edu.au
-@date: 03/12/2020 10:00 am
-@desc:
+@author : Zhaoqing Liu
+@email  : Zhaoqing.Liu-1@student.uts.edu.au
 """
 import multiprocessing
 import os
@@ -71,16 +69,12 @@ class MultiProcessOptions:
 
     Parameters
     ----------
-    n_cpu_cores_req: int, default=None
+    n_cpu_cores_req : int, default=None
         The number of CPU cores to request. If left to None this is
         automatically set to the number of all CPU cores available.
 
-    allow_growth: bool, default=False
+    allow_growth : bool, default=False
         Whether to dynamically request more CPU resources.
-
-    Attributes
-    ----------
-
     """
     def __init__(self, n_cpu_cores_req=None, allow_growth=False):
         self.n_cpu_cores_req = n_cpu_cores_req
@@ -99,26 +93,26 @@ class Node:
 
     Parameters
     ----------
-    split_rule: SplitRule, default=None
+    split_rule : SplitRule, default=None
         The split rule represented by the feature selected as a node, and
         branching decisions are made based on this rule.
 
-    leaf_value: float, default=None
+    leaf_value : float, default=None
         The predicted value indicated at a leaf node. In the classification
         tree it is the predicted class, and in the regression tree it is the
         predicted value.
         NB: Only a leaf node has this attribute value.
 
-    leaf_proba: float, default=None
+    leaf_proba : float, default=None
         The predicted probability indicated at a leaf node. Only works in the
         classification tree.
         NB: Only a leaf node has this attribute value.
 
-    branch_true: Node, default=None
+    branch_true : Node, default=None
         The next node in the decision path when the feature value of a sample
         meets the split rule split_rule.
 
-    branch_false: Node, default=None
+    branch_false : Node, default=None
         The next node in the decision path when the feature value of a sample
         does not meet the split rule split_rule.
     """
@@ -138,10 +132,10 @@ class SplitRule:
 
     Parameters
     ----------
-    feature_idx: int, default=None
+    feature_idx : int, default=None
         The index of the feature selected as the node representing a split rule.
 
-    split_value: float, default=None
+    split_value : float, default=None
         The value from the feature indexed as feature_idx representing a split
         rule, on which branching decisions are made based.
     """
@@ -158,19 +152,19 @@ class BinarySubtrees:
 
     Parameters
     ----------
-    subset_true_X: {array-like, sparse matrix} of shape (n_samples, n_features)
+    subset_true_X : array-like of shape (n_samples, n_features)
         The subset of feature values of the samples that meet the split_rule
         after splitting.
 
-    subset_true_y: array-like of shape (n_samples,) or (n_samples, n_outputs)
+    subset_true_y : array-like of shape (n_samples,) or (n_samples, n_outputs)
         The subset of target values of the samples that meet the split_rule
         after splitting.
 
-    subset_false_X: {array-like, sparse matrix} of shape (n_samples, n_features)
+    subset_false_X : array-like of shape (n_samples, n_features)
         The subset of feature values of the samples that do not meet the
         split_rule after splitting.
 
-    subset_false_y: array-like of shape (n_samples,) or (n_samples, n_outputs)
+    subset_false_y : array-like of shape (n_samples,) or (n_samples, n_outputs)
         The subset of target values of the samples that do not meet the
         split_rule after splitting.
     """
@@ -185,16 +179,18 @@ class BinarySubtrees:
 # =============================================================================
 # Interface for decision tree classes
 # =============================================================================
-
-
 class DecisionTreeInterface(metaclass=ABCMeta):
     """
     Interface for decision tree classes based on different algorithms.
 
-    Warning: This interface should not be used directly.
+    Warnings
+    --------
+    This interface should not be used directly.
     Use derived algorithm classes instead.
 
-    NB: The purpose of this interface is to establish protocols
+    Attention
+    ---------
+    The purpose of this interface is to establish protocols
     for functions (excluding constructor and attributes) in
     classification decision trees and regression decision trees
     that to be developed.
@@ -226,11 +222,15 @@ class BaseFuzzyDecisionTree(metaclass=ABCMeta):
     Base fuzzy decision tree class that encapsulates all base functions to be
     inherited by all derived classes (and attributes, if required).
 
-    Warning: This class should not be used directly.
-    Use derived classes instead.
+    Warnings
+    --------
+    This interface should not be used directly.
+    Use derived algorithm classes instead.
 
-    NB: See FuzzyDecisionTreeClassifierAPI and FuzzyDecisionTreeClassifierAPI
-    for descriptions of all parameters and attributes in this class.
+    Attention
+    ---------
+    See FuzzyDecisionTreeWrapper for descriptions of all parameters
+    and attributes in this class.
     """
 
     # The parameters in this constructor don't need to have default values.
@@ -306,8 +306,10 @@ class BaseFuzzyDecisionTree(metaclass=ABCMeta):
         """
         Recursively builds a decision tree.
 
-        NB: Only decision tree components are generated, either
-            nodes (including root nodes) or leaf nodes.
+        Attention
+        ---------
+        Only decision tree components are generated, either
+        nodes (including root nodes) or leaf nodes.
         """
         best_split_rule = None
         best_binary_subtrees = None
@@ -478,89 +480,89 @@ class BaseFuzzyDecisionTree(metaclass=ABCMeta):
 # =============================================================================
 # Public wrapper class for different decision trees
 # =============================================================================
-
-
 class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
     """
     Wrapper class for different decision trees.
 
-    NB: The role of this class is to unify the external calls of different
+    Attention
+    ---------
+    The role of this class is to unify the external calls of different
     decision tree classes and implement dependency injection for those
     decision tree classes.
 
     The arguments of the constructors for different decision trees should
     belong to a subset of the following parameters.
 
-    Parameters:
-    -----------
-    fdt_class: Class, default=None
+    Parameters
+    ----------
+    fdt_class : Class, default=None
         The fuzzy decision tree estimator specified.
 
-    disable_fuzzy: bool, default=False
+    disable_fuzzy : bool, default=False
         Set whether the specified fuzzy decision tree uses the fuzzification.
         If disable_fuzzy=True, the specified fuzzy decision tree is equivalent
         to a naive decision tree.
 
-    X_fuzzy_dms: {array-like, sparse matrix} of shape (n_samples, n_features)
+    X_fuzzy_dms : array-like of shape (n_samples, n_features)
         Three-dimensional array, and each element of the first dimension of the
         array is a two-dimensional array of corresponding feature's fuzzy sets.
         Each two-dimensional array is of shape of (n_samples, n_fuzzy_sets), but
         has transformed membership degree of the feature values to corresponding
         fuzzy sets.
 
-    fuzzification_options: FuzzificationOptions, default=None
+    fuzzification_options : FuzzificationOptions, default=None
         Protocol message class that encapsulates all the options of the
         fuzzification settings used by the specified fuzzy decision tree.
 
-    criterion_func: {"gini", "entropy"} for a classifier, {"mse", "mae"} for a regressor
+    criterion_func : {"gini", "entropy"} for a classifier, {"mse", "mae"} for a regressor
         The criterion function used by the function that calculates the impurity
         gain of the target values.
 
-    max_depth: int, default=float("inf")
+    max_depth : int, default=float("inf")
         The maximum depth of the tree.
 
-    min_samples_split: int, default=2
+    min_samples_split : int, default=2
         The minimum number of samples required to split a node. If a node has a
         sample number above this threshold, it will be split, otherwise it
         becomes a leaf node.
 
-    min_impurity_split: float, default=1e-7
+    min_impurity_split : float, default=1e-7
         The minimum impurity required to split a node. If a node's impurity is
         above this threshold, it will be split, otherwise it becomes a leaf node.
 
     Attributes
     ----------
-    root: Node
+    root : Node
         The root node of a decision tree.
 
-    _impurity_gain_calculation_func: function
+    _impurity_gain_calculation_func : function
         The function to calculate the impurity gain of the target values.
 
-    _leaf_value_calculation_func: function
+    _leaf_value_calculation_func : function
         The function to calculate the predicted value if the current node is a
         leaf:
-        - In a classification tree, it gives the target value with the highest
-         probability.
-        - In the regression tree, it gives the average of all the target values.
+        In a classification tree, it gives the target value with the highest
+        probability.
+        In a regression tree, it gives the average of all the target values.
 
-    _is_one_dim: bool
+    _is_one_dim : bool
         The Boolean value that indicates whether the y is a multi-dimensional set,
         which means whether y is one-hot encoded.
 
-    _best_split_rule: SplitRule
+    _best_split_rule : SplitRule
         The split rule including the index of the best feature to be used, and
         the best value in the best feature.
 
-    _best_binary_subtrees: BinarySubtrees
+    _best_binary_subtrees : BinarySubtrees
         The binary subtrees including two subtrees under a node, and each subtree
         is a subset of the sample that has been split. It is one of attributes of
         the node (including root node) in a decision tree.
 
-    _best_impurity_gain: float
+    _best_impurity_gain : float
         The best impurity gain calculated based on the current split subtrees
         during a tree building process.
 
-    _fuzzy_sets: {array-like, sparse matrix} of shape (n_features, n_coefficients)
+    _fuzzy_sets : array-like of shape (n_features, n_coefficients)
         All the coefficients of the degree of membership sets based on the
         current estimator. They will be used to calculate the degree of membership
         of the features of new samples before predicting those samples. Therefore,
@@ -568,14 +570,6 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
         They are generated in the feature fuzzification before training the
         current estimator.
         NB: To be used in version 1.0.
-
-    References
-    ----------
-
-
-    Examples
-    --------
-
     """
 
     # All parameters in this constructor should have default values.
@@ -612,13 +606,13 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
         """
         Train a decision tree estimator from the training set (X_train, y_train).
 
-        Parameters:
-        -----------
-        X_train: {array-like, sparse matrix} of shape (n_samples, n_features)
-            The training input samples.
+        Parameters
+        ----------
+        X_train : array-like of shape (n_samples, n_features)
+            Training instances.
 
-        y_train: array-like of shape (n_samples,) or (n_samples, n_outputs)
-            The target values (class labels) as integers or strings.
+        y_train : array-like of shape (n_samples,) or (n_samples, n_outputs)
+            Target values (class labels) as integers or strings.
         """
         # Start training to get a fitted estimator.
         try:
@@ -636,15 +630,15 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
         In regression, the predicted target value is the mean of the target
         values in a leaf.
 
-        Parameters:
+        Parameters
         -----------
-        X: {array-like, sparse matrix} of shape (n_samples, n_features)
-            The input samples to be predicted.
+        X : array-like of shape (n_samples, n_features)
+            Input instances to be predicted.
 
         Returns
         -------
-        pred_y: list of n_outputs such arrays if n_outputs > 1
-            The target values of the input samples.
+        pred_y : list of n_outputs such arrays if n_outputs > 1
+            The target values of the input instances.
         """
         try:
             return self.estimator.predict(X)
@@ -655,15 +649,15 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
         """
         Predict the probabilities of the target values of the input samples X.
 
-        Parameters:
-        -----------
-        X: {array-like, sparse matrix} of shape (n_samples, n_features)
-            The input samples to be predicted.
+        Parameters
+        ----------
+        X : array-like of shape (n_samples, n_features)
+            Input instances to be predicted.
 
         Returns
         -------
-        pred_y: list of n_outputs such arrays if n_outputs > 1
-            The probabilities of the target values of the input samples.
+        pred_y : list of n_outputs such arrays if n_outputs > 1
+            The probabilities of the target values of the input instances.
         """
         try:
             return self.estimator.predict_proba(X)
@@ -674,15 +668,15 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
         """
         Recursively (in a top-to-bottom approach) print the built decision tree.
 
-        Parameters:
-        -----------
-        tree: Node
+        Parameters
+        ----------
+        tree : Node
             The root node of a decision tree.
 
-        indent: str
+        indent : str
             The indentation symbol used when printing subtrees.
 
-        delimiter: str
+        delimiter : str
             The delimiter between split rules and results.
         """
         try:
@@ -703,19 +697,19 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
         fuzzy regulation coefficients and a number of fuzzy clusters that each
         feature belongs to.
 
-        NB: Use this function to prepare evaluation and plotting data when
+        Attention
+        ---------
+        Use this function to prepare evaluation and plotting data when
         you need to evaluate the effect of different degrees of fuzzification
         on model training in advance.
 
         Parameters
         ----------
-        ds_name_list: array-like
-        fuzzy_reg_lim: tuple, (start, stop, step)
-        conv_k_lim: tuple, (start, stop, step)
+        ds_name_list : array-like
 
-        Returns
-        -------
+        fuzzy_reg_lim : tuple, (start, stop, step)
 
+        conv_k_lim : tuple, (start, stop, step)
         """
         # Create a connection used to communicate between master process and its sub-processes.
         q = multiprocessing.Manager().Queue()
@@ -752,10 +746,13 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
 
         Parameters
         ----------
-        q: multiprocessing.queue.Queue
-        ds_name: str
-        conv_k: int
-        fuzzy_reg: float
+        q : multiprocessing.queue.Queue
+
+        ds_name : str
+
+        conv_k : int
+
+        fuzzy_reg : float
 
         Returns
         -------
@@ -836,10 +833,13 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
 
         Parameters
         ----------
-        X_train
-        X_test
-        y_train
-        y_test
+        X_train : array-like of shape (n_samples, n_features)
+
+        X_test : array-like of shape (n_samples, n_features)
+
+        y_train : array-like of shape (n_samples,)
+
+        y_test : array-like of shape (n_samples,)
 
         Returns
         -------
@@ -886,7 +886,7 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
 
         Parameters
         ----------
-        q: multiprocessing.queue.Queue
+        q : multiprocessing.queue.Queue
 
         Returns
         -------
@@ -923,7 +923,7 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
 
         Parameters
         ----------
-        filename: str, default None
+        filename : str, default None
             Fetch the data from the specified file if filename is
             not None. Otherwise try from memory and the latest file
             in the default directory in turn.
@@ -977,10 +977,13 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
 
         Parameters
         ----------
-        X_train
-        X_test
-        y_train
-        y_test
+        X_train : array-like of shape (n_samples, n_features)
+
+        X_test : array-like of shape (n_samples, n_features)
+
+        y_train : array-like of shape (n_samples,)
+
+        y_test : array-like of shape (n_samples,)
 
         Returns
         -------

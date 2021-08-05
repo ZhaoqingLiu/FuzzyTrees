@@ -1,9 +1,7 @@
 # _*_coding:utf-8_*_
 """
-@author: Zhaoqing Liu
-@email: Zhaoqing.Liu-1@student.uts.edu.au
-@date: 08/05/2021 9:35 pm
-@desc: 
+@author : Zhaoqing Liu
+@email  : Zhaoqing.Liu-1@student.uts.edu.au
 """
 import os
 import time
@@ -28,8 +26,3 @@ def get_cwd_as_prefix():
     return os.getcwd() + "/"
 
 
-if __name__ == '__main__':
-    now_str = get_timestamp_str()
-    print(now_str)
-    print(get_now_str(now_str))
-    print(get_today_str())

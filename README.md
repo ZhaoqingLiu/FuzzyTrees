@@ -118,7 +118,7 @@ See the [tutorials](./tutorials.md) for more details on using fuzzy decision tre
 
 
 ## Documentation & Resources
-- [API Reference](./docs/index.html)
+- [API Reference](doc/index.html)
 - [Tutorials](./tutorials.md)
 
 

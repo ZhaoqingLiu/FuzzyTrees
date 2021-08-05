@@ -1,9 +1,7 @@
 # _*_coding:utf-8_*_
 """
-@author: Zhaoqing Liu
-@email: Zhaoqing.Liu-1@student.uts.edu.au
-@date: 02/02/2021 3:30 pm
-@desc: 
+@author : Zhaoqing Liu
+@email  : Zhaoqing.Liu-1@student.uts.edu.au
 """
 from abc import ABCMeta
 import numpy as np
@@ -20,15 +18,71 @@ class FuzzyGBDT(metaclass=ABCMeta):
     Base fuzzy decision tree class that encapsulates all base functions to be
     inherited by all derived classes (and attributes, if required).
 
-    Warning: This class should not be used directly.
+    Warnings
+    --------
+    This class should not be used directly.
     Use derived classes instead.
+
+    Parameters
+    ----------
+    disable_fuzzy : bool, default=False
+        Set whether the specified fuzzy decision tree uses the fuzzification.
+        If disable_fuzzy=True, the specified fuzzy decision tree is equivalent
+        to a naive decision tree.
+
+    fuzzification_options : FuzzificationOptions, default=None
+        Protocol message class that encapsulates all the options of the
+        fuzzification settings used by the specified fuzzy decision tree.
+
+    criterion_func : {"mse", "mae"}, default="mse"
+        The criterion function used by the function that calculates the impurity
+        gain of the target values.
+        NB: Only use a criterion function for decision tree regressor.
+
+    learning_rate : float, default=0.1
+        The step length taken in the training using the loss of the negative
+        gradient descent strategy. It is used to reduce the contribution of
+        each tree.
+        NB: There is a trade-off between learning_rate and n_estimators.
+
+    n_estimators : int, default=100
+        The number of fuzzy decision trees to be used.
+
+    validation_fraction : float, default=0.1
+        The proportion of training data to set aside as validation set for
+        early stopping. Must be between 0 and 1.
+        Only used if ``n_iter_no_change`` is set to an integer.
+
+    n_iter_no_change : int, default=None
+        ``n_iter_no_change`` is used to decide if early stopping will be used
+        to terminate training when validation score is not improving. By
+        default it is set to None to disable early stopping. If set to a
+        number, it will set aside ``validation_fraction`` size of the training
+        data as validation and terminate training when validation score is not
+        improving in all of the previous ``n_iter_no_change`` numbers of
+        iterations. The split is stratified.
+
+    max_depth : int, default=3
+        The maximum depth of the tree to be trained.
+
+    min_samples_split : int, default=2
+        The minimum number of samples required to split a node. If a node has a
+        sample number above this threshold, it will be split, otherwise it
+        becomes a leaf node.
+
+    min_impurity_split : float, default=1e-7
+        The minimum impurity required to split a node. If a node's impurity is
+        above this threshold, it will be split, otherwise it becomes a leaf node.
+
+    is_regression : bool, default=True
+        True or false depending on if we're doing regression or classification.
 
     Attributes
     ----------
-    _loss_func: LossFunction
+    _loss_func : LossFunction
         The concrete object of the class LossFunction's derived classes.
 
-    _estimators: ndarray of FuzzyDecisionTreeRegressor
+    _estimators : ndarray of FuzzyDecisionTreeRegressor
         The collection of sub-estimators as base learners.
     """
 
@@ -75,10 +129,10 @@ class FuzzyGBDT(metaclass=ABCMeta):
 
         Parameters
         ----------
-        X_train: {array-like, sparse matrix} of shape (n_samples, n_features)
-            The input samples.
+        X_train : array-like of shape (n_samples, n_features)
+            Input instances to be predicted.
 
-        y_train: array-like of shape (n_samples,)
+        y_train : array-like of shape (n_samples,)
             Target values (strings or integers in classification, real numbers
             in regression)
         """
@@ -103,12 +157,12 @@ class FuzzyGBDT(metaclass=ABCMeta):
 
         Parameters
         ----------
-        X: {array-like, sparse matrix} of shape (n_samples, n_features)
+        X : array-like of shape (n_samples, n_features)
             The input samples.
 
         Returns
         -------
-        y_pred: ndarray of shape (n_samples,)
+        y_pred : ndarray of shape (n_samples,)
             The predicted values.
         """
         # Use the first fitted estimator to predict values F_0(x).
@@ -137,29 +191,29 @@ class FuzzyGBDTClassifier(FuzzyGBDT):
     """
     Fuzzy gradient boosting decision tree classifier.
 
-    Parameters:
-    -----------
-    disable_fuzzy: bool, default=False
+    Parameters
+    ----------
+    disable_fuzzy : bool, default=False
         Set whether the specified fuzzy decision tree uses the fuzzification.
         If disable_fuzzy=True, the specified fuzzy decision tree is equivalent
         to a naive decision tree.
 
-    fuzzification_options: FuzzificationOptions, default=None
+    fuzzification_options : FuzzificationOptions, default=None
         Protocol message class that encapsulates all the options of the
         fuzzification settings used by the specified fuzzy decision tree.
 
-    criterion_func: {"mse", "mae"}, default="mse"
+    criterion_func : {"mse", "mae"}, default="mse"
         The criterion function used by the function that calculates the impurity
         gain of the target values.
         NB: Only use a criterion function for decision tree regressor.
 
-    learning_rate: float, default=0.1
+    learning_rate : float, default=0.1
         The step length taken in the training using the loss of the negative
         gradient descent strategy. It is used to reduce the contribution of
         each tree.
         NB: There is a trade-off between learning_rate and n_estimators.
 
-    n_estimators: int, default=100
+    n_estimators : int, default=100
         The number of fuzzy decision trees to be used.
 
     validation_fraction : float, default=0.1
@@ -176,27 +230,24 @@ class FuzzyGBDTClassifier(FuzzyGBDT):
         improving in all of the previous ``n_iter_no_change`` numbers of
         iterations. The split is stratified.
 
-    max_depth: int, default=3
+    max_depth : int, default=3
         The maximum depth of the tree to be trained.
 
-    min_samples_split: int, default=2
+    min_samples_split : int, default=2
         The minimum number of samples required to split a node. If a node has a
         sample number above this threshold, it will be split, otherwise it
         becomes a leaf node.
 
-    min_impurity_split: float, default=1e-7
+    min_impurity_split : float, default=1e-7
         The minimum impurity required to split a node. If a node's impurity is
         above this threshold, it will be split, otherwise it becomes a leaf node.
 
-    is_regression: bool, default=True
-        True or false depending on if we're doing regression or classification.
-
     Attributes
     ----------
-    _loss_func: LossFunction
+    _loss_func : LossFunction
         The concrete object of the class LossFunction's derived classes.
 
-    _estimators: ndarray of FuzzyDecisionTreeRegressor
+    _estimators : ndarray of FuzzyDecisionTreeRegressor
         The collection of fitted sub-estimators.
     """
 
@@ -223,29 +274,29 @@ class FuzzyGBDTRegressor(FuzzyGBDT):
     """
     Fuzzy gradient boosting decision tree regressor.
 
-    Parameters:
-    -----------
-    disable_fuzzy: bool, default=False
+    Parameters
+    ----------
+    disable_fuzzy : bool, default=False
         Set whether the specified fuzzy decision tree uses the fuzzification.
         If disable_fuzzy=True, the specified fuzzy decision tree is equivalent
         to a naive decision tree.
 
-    fuzzification_options: FuzzificationOptions, default=None
+    fuzzification_options : FuzzificationOptions, default=None
         Protocol message class that encapsulates all the options of the
         fuzzification settings used by the specified fuzzy decision tree.
 
-    criterion_func: {"mse", "mae"}, default="mse"
+    criterion_func : {"mse", "mae"}, default="mse"
         The criterion function used by the function that calculates the impurity
         gain of the target values.
         NB: Only use a criterion function for decision tree regressor.
 
-    learning_rate: float, default=0.1
+    learning_rate : float, default=0.1
         The step length taken in the training using the loss of the negative
         gradient descent strategy. It is used to reduce the contribution of
         each tree.
         NB: There is a trade-off between learning_rate and n_estimators.
 
-    n_estimators: int, default=100
+    n_estimators : int, default=100
         The number of fuzzy decision trees to be used.
 
     validation_fraction : float, default=0.1
@@ -262,27 +313,24 @@ class FuzzyGBDTRegressor(FuzzyGBDT):
         improving in all of the previous ``n_iter_no_change`` numbers of
         iterations. The split is stratified.
 
-    max_depth: int, default=3
+    max_depth : int, default=3
         The maximum depth of the tree to be trained.
 
-    min_samples_split: int, default=2
+    min_samples_split : int, default=2
         The minimum number of samples required to split a node. If a node has a
         sample number above this threshold, it will be split, otherwise it
         becomes a leaf node.
 
-    min_impurity_split: float, default=1e-7
+    min_impurity_split : float, default=1e-7
         The minimum impurity required to split a node. If a node's impurity is
         above this threshold, it will be split, otherwise it becomes a leaf node.
 
-    is_regression: bool, default=True
-        True or false depending on if we're doing regression or classification.
-
     Attributes
     ----------
-    _loss_func: LossFunction
+    _loss_func : LossFunction
         The concrete object of the class LossFunction's derived classes.
 
-    _estimators: ndarray of FuzzyDecisionTreeRegressor
+    _estimators : ndarray of FuzzyDecisionTreeRegressor
         The collection of fitted sub-estimators.
     """
 

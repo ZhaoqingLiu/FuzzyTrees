@@ -1,8 +1,6 @@
 """
 @author: Zhaoqing Liu
 @email : Zhaoqing.Liu-1@student.uts.edu.au
-@date  : 1/6/21 2:37 pm
-@desc  :
 """
 from os import path as os_path
 from setuptools import setup  # setuptools.setup encapsulates distutils.core.setup
@@ -85,8 +83,8 @@ setup(
 )
 
 
-if __name__ == '__main__':
-    print(get_property('__version__', target_pkg_name))
-    print(read_file('README.md'))
-    print(read_requirements('requirements.txt'))
+# if __name__ == '__main__':
+#     print(get_property('__version__', target_pkg_name))
+#     print(read_file('README.md'))
+#     print(read_requirements('requirements.txt'))
 

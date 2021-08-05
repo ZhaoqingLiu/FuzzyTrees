@@ -1,8 +1,6 @@
 """
-@author: Zhaoqing Liu
-@email : Zhaoqing.Liu-1@student.uts.edu.au
-@date  : 02/02/2021 3:31 pm
-@desc  :
+@author : Zhaoqing Liu
+@email  : Zhaoqing.Liu-1@student.uts.edu.au
 """
 import ctypes
 import multiprocessing
@@ -22,8 +20,9 @@ class BaseFuzzyRDF(metaclass=ABCMeta):
     if required). This algorithm is a fuzzy extension of the random decision
     forests proposed by Tin Kam Ho [1]_.
 
-
-    Warning: This class should not be used directly.
+    Warnings
+    --------
+    This class should not be used directly.
     Use derived classes instead.
 
     Attention
@@ -32,10 +31,65 @@ class BaseFuzzyRDF(metaclass=ABCMeta):
     various unknowable synchronisation issues, but using ``Pipe`` or ``Queue``
     to communicate between multiple processes instead whenever possible. See also
     Python documentation:
-    >As mentioned above, when doing concurrent programming it is usually best to
+
+    As mentioned above, when doing concurrent programming it is usually best to
     avoid using shared state as far as possible. This is particularly true when
     using multiple processes. However, if you really do need to use some shared
     data then multiprocessing provides a couple of ways of doing so.
+
+    Parameters
+    ----------
+    disable_fuzzy : bool, default=False
+        Set whether the specified fuzzy decision tree uses the fuzzification.
+        If disable_fuzzy=True, the specified fuzzy decision tree is equivalent
+        to a naive decision tree.
+
+    fuzzification_options : FuzzificationOptions, default=None
+        Protocol message class that encapsulates all the options of the
+        fuzzification settings used by the specified fuzzy decision tree.
+
+    criterion_func : {"gini", "entropy"}, default="gini", for classification; {"mse", "mae"}, default="mse", for regression
+        In classification, the criterion function used by the function that
+        calculates the impurity gain of the target values.
+        In regression, the criterion function used by the function that
+        calculates the impurity gain of the target values.
+
+    n_estimators : int, default=100
+        The number of fuzzy decision trees to be used.
+
+    max_depth : int, default=3
+        The maximum depth of the tree to be trained.
+
+    min_samples_split : int, default=2
+        The minimum number of samples required to split a node. If a node has a
+        sample number above this threshold, it will be split, otherwise it
+        becomes a leaf node.
+
+    min_impurity_split : float, default=1e-7
+        The minimum impurity required to split a node. If a node's impurity is
+        above this threshold, it will be split, otherwise it becomes a leaf node.
+
+    max_features : int, default=None
+        The maximum threshold value of the qualified feature number in the
+        training dataset when training each fuzzy decision tree.
+
+    multi_process_options : MultiProcessOptions, default=None
+        Protocol message class that encapsulates all the options of the
+        multi-process settings.
+        If it is left as None, adopt non-parallel computing mode.
+
+    Attributes
+    ----------
+    _estimators : ndarray of FuzzyDecisionTreeClassification
+        The collection of sub-estimators as base learners.
+
+    _res_func : function, default=None
+        In classification, get the final result from the classes given by the
+        forest by majority voting method. In regression, calculate the average
+        of the predicted values given by the forest as the final result.
+
+    _n_processes : int, default=None
+        Number of CPU cores requested in parallel computing mode.
 
     Notes
     -----
@@ -44,6 +98,7 @@ class BaseFuzzyRDF(metaclass=ABCMeta):
     using the random subspace method [2]_, which, in Ho's formulation, is a way to
     implement the "stochastic discrimination" approach to classification proposed
     by Eugene Kleinberg.
+
     An extension of the algorithm was developed by Leo Breiman [4]_ and Adele Cutler
     [5]_. The extension combines Breiman's "bagging" idea and random selection of
     features, introduced first by Ho [1]_ and later independently by Amit and
@@ -51,33 +106,40 @@ class BaseFuzzyRDF(metaclass=ABCMeta):
     variance.
 
     The randomness of RF is reflected in two aspects:
+
     1. RF uses the bootstrapping sampling method to randomly selects n samples
-        from the original dataset to train each tree as the base learner,
-        where n is the sample size of the original dataset.
-        NB: The sample size of each training dataset is the same as that of
-        the original dataset, but the bootstrapping sampling method may make
-        the elements in the same training dataset duplicate, or the elements
-        in different training datasets duplicate.
+    from the original dataset to train each tree as the base learner,
+    where n is the sample size of the original dataset.
+
+    NB: The sample size of each training dataset is the same as that of
+    the original dataset, but the bootstrapping sampling method may make
+    the elements in the same training dataset duplicate, or the elements
+    in different training datasets duplicate.
+
     2. During the construction of each tree, RF also randomly selects m
-        features of the training dataset, and then searches the optimal
-        features from the randomly selected features each time when splitting
-        a tree node to find the best splitting point.
-        Different RFs have different random feature selection methods. For
-        example, Tin Kam Ho's RF adopts tree-level random feature selection,
-        i.e. the RF randomly selects m features of the training dataset for
-        subsequently splitting all tree nodes. By contrast, Leo Breiman's RF
-        adopts node-level random feature selection, i.e. the RF randomly
-        selects m features of the training dataset when splitting a node
-        every time.
-        Let M be the total number of features of data and m be the number
-        of selected features. Generally, the value can be tried from the
-        following usual practices:
-        - For classification problems, :math:`m = \frac{1}{3} * M`;
-        - For regression problems, :math:`m = \log_{2} (M + 1)`;
-        - By defaults, :math:`m = \sqrt{M}`.
+    features of the training dataset, and then searches the optimal
+    features from the randomly selected features each time when splitting
+    a tree node to find the best splitting point.
+
+    Different RFs have different random feature selection methods. For
+    example, Tin Kam Ho's RF adopts tree-level random feature selection,
+    i.e. the RF randomly selects m features of the training dataset for
+    subsequently splitting all tree nodes. By contrast, Leo Breiman's RF
+    adopts node-level random feature selection, i.e. the RF randomly
+    selects m features of the training dataset when splitting a node
+    every time.
+
+    Let M be the total number of features of data and m be the number
+    of selected features. Generally, the value can be tried from the
+    following usual practices:
+
+    - For classification problems, :math:`m = 1 / 3 * M`;
+    - For regression problems, :math:`m = \log_{2} (M + 1)`;
+    - By defaults, :math:`m = \sqrt{M}`.
 
     References
     ----------
+
     .. [1] Ho, T.K., 1995, August. Random decision forests. In Proceedings
            of 3rd international conference on document analysis and
            recognition (Vol. 1, pp. 278-282). IEEE.
@@ -116,18 +178,22 @@ class BaseFuzzyRDF(metaclass=ABCMeta):
         Fit the fuzzy random decision forest model (in multi-process mode).
 
         Process consists of:
+
         St.1. Randomly resample instances through bootstrapping sampling (WR).
+
         St.2. Random select features.
+
         St.3. Construct trees.
+
         St.4. Majority vote (classification) or simple average (regression) to
-              prevent overfitting and reduce variance.
+        prevent overfitting and reduce variance.
 
         Parameters
         ----------
-        X_train: {array-like, sparse matrix} of shape (n_samples, n_features)
-            The input samples.
+        X_train : array-like of shape (n_samples, n_features)
+            Input instances to be predicted.
 
-        y_train: array-like of shape (n_samples,)
+        y_train : array-like of shape (n_samples,)
             Target values (non-negative integers in classification,
             real numbers in regression)
             NB: The input array needs to be of integer dtype, otherwise a
@@ -205,59 +271,63 @@ class BaseFuzzyRDF(metaclass=ABCMeta):
 
         Parameters
         ----------
-        X: {array-like, sparse matrix} of shape (n_samples, n_features)
-            The input samples.
+        X : array-like of shape (n_samples, n_features)
+            Input instances to be predicted.
 
         Returns
         -------
-        y_pred: ndarray of shape (n_samples,)
+        y_pred : ndarray of shape (n_samples,)
             The predicted values.
 
         Notes
         -----
         When to use multiple processes?
+
         Divide a prediction calculation into subunits and run them in
         multi-process mode, making sure that each subunit is sufficiently
         complex. Otherwise, when the complexity of each subunit falls below
         a certain threshold, depending on the hardware and software
         environment, the time consumed by CPU scheduling will be greater
         than the time saved by multiple processes. As an example, here is
-        a comparison of the elapsed times for multi-process predict() and
-        non-multi-process predict() on the dataset provided by
-        sklearn.datasets.load_digits().
+        a comparison of the elapsed times for multi-process `predict` and
+        non-multi-process `predict` on the dataset provided by
+        `sklearn.datasets.load_digits()`.
 
         100 fuzzy trees with other parameters by default：
-            Time elapsed to load data: 0.049551s
-            Time elapsed to preprocess fuzzification: 1.6184s
-            Time elapsed to partition data: 0.0041816s
-            Time elapsed to train a fuzzy classifier: 5.7213s
-            Time elapsed to predict by the fuzzy classifier:
-                (Multi-process predict()) 8.3837s;
-                (Non-multi-process predict()) 0.22926s
+
+        - Time elapsed to load data: 0.049551s;
+        - Time elapsed to preprocess fuzzification: 1.6184s;
+        - Time elapsed to partition data: 0.0041816s;
+        - Time elapsed to train a fuzzy classifier: 5.7213s;
+        - Time elapsed to predict by the fuzzy classifier:
+        - (Multi-process `predict`) 8.3837s;
+        - (Non-multi-process `predict`) 0.22926s.
 
         1,000 fuzzy trees with other parameters by default:
-            Time elapsed to load data: 0.049702s
-            Time elapsed to preprocess fuzzification: 1.6178s
-            Time elapsed to partition data: 0.0043864s
-            Time elapsed to train a fuzzy classifier: 52.689s
-            Time elapsed to predict by the fuzzy classifier:
-                (Multi-process predict()) 817.67s;
-                (Non-multi-process predict()) 2.2753s
+
+        - Time elapsed to load data: 0.049702s;
+        - Time elapsed to preprocess fuzzification: 1.6178s;
+        - Time elapsed to partition data: 0.0043864s;
+        - Time elapsed to train a fuzzy classifier: 52.689s;
+        - Time elapsed to predict by the fuzzy classifier:
+        - (Multi-process `predict`) 817.67s;
+        - (Non-multi-process `predict`) 2.2753s.
 
         10,000 fuzzy trees with other parameters by default:
-            Time elapsed to load data: 0.050004s
-            Time elapsed to preprocess fuzzification: 1.6821s
-            Time elapsed to partition data: 0.0041745s
-            Time elapsed to train a fuzzy classifier: 515.57s
-            Time elapsed to predict by the fuzzy classifier:
-                (Multi-process predict()) unknown (probably greater than 100 * 817.67s);
-                (Non-multi-process predict()) 23.225s
+
+        - Time elapsed to load data: 0.050004s;
+        - Time elapsed to preprocess fuzzification: 1.6821s;
+        - Time elapsed to partition data: 0.0041745s;
+        - Time elapsed to train a fuzzy classifier: 515.57s;
+        - Time elapsed to predict by the fuzzy classifier:
+        - (Multi-process `predict`) unknown (probably greater than 100 * 817.67s);
+        - (Non-multi-process `predict`) 23.225s.
 
         As shown in the above experimental results, in multi-process mode,
-        :math:`\frac{WallTime_curr}{WallTime_prev} \approx (\frac{NumberEstimators_curr}{NumberEstimators_prev})^2`
-        , while in non-multi-process mode,
-        :math:`\frac{WallTime_curr}{WallTime_prev} \approx \frac{NumberEstimators_curr}{NumberEstimators_prev}`
-        . Therefore, predict() is not complex enough to be a subunit of
+        :math:`WallTime_curr / WallTime_prev ≈ (NumberEstimators_curr / NumberEstimators_prev)^2`,
+        while in non-multi-process mode,
+        :math:`WallTime_curr / WallTime_prev ≈ NumberEstimators_curr / NumberEstimators_prev`.
+        Therefore, `predict` is not complex enough to be a subunit of
         multi-process computation, and using multi-process mode on it is
         usually not the best choice.
         """
@@ -277,54 +347,60 @@ class BaseFuzzyRDFClassifier(BaseFuzzyRDF):
     """
     Fuzzy random decision forests classifier.
 
-    NB: For classification tasks, the class that is the mode of
+    Attention
+    ---------
+    For classification tasks, the class that is the mode of
     the classes of the individual trees is returned.
 
-    Parameters:
-    -----------
-    disable_fuzzy: bool, default=False
+    See derived classes for descriptions of all parameters
+    and attributes in this class.
+
+    Parameters
+    ----------
+    disable_fuzzy : bool, default=False
         Set whether the specified fuzzy decision tree uses the fuzzification.
         If disable_fuzzy=True, the specified fuzzy decision tree is equivalent
         to a naive decision tree.
 
-    fuzzification_options: FuzzificationOptions, default=None
+    fuzzification_options : FuzzificationOptions, default=None
         Protocol message class that encapsulates all the options of the
         fuzzification settings used by the specified fuzzy decision tree.
 
-    criterion_func: {"gini", "entropy"}, default="gini"
+    criterion_func : {"gini", "entropy"}, default="gini"
         The criterion function used by the function that calculates the impurity
         gain of the target values.
-        NB: Only use a criterion function for decision tree regressor.
+        NB: Only use a criterion function for decision tree classifier.
 
-    n_estimators: int, default=100
+    n_estimators : int, default=100
         The number of fuzzy decision trees to be used.
 
-    max_depth: int, default=3
+    max_depth : int, default=3
         The maximum depth of the tree to be trained.
 
-    min_samples_split: int, default=2
+    min_samples_split : int, default=2
         The minimum number of samples required to split a node. If a node has a
         sample number above this threshold, it will be split, otherwise it
         becomes a leaf node.
 
-    min_impurity_split: float, default=1e-7
+    min_impurity_split : float, default=1e-7
         The minimum impurity required to split a node. If a node's impurity is
         above this threshold, it will be split, otherwise it becomes a leaf node.
 
-    max_features: int, default=None
+    max_features : int, default=None
         The maximum threshold value of the qualified feature number in the
         training dataset when training each fuzzy decision tree.
 
-    multi_process_options: MultiProcessOptions, default=None
+    multi_process_options : MultiProcessOptions, default=None
         Protocol message class that encapsulates all the options of the
         multi-process settings.
+        If it is left as None, adopt non-parallel computing mode.
 
     Attributes
     ----------
-    _estimators: ndarray of FuzzyDecisionTreeClassification
+    _estimators : ndarray of FuzzyDecisionTreeClassification
         The collection of sub-estimators as base learners.
 
-    _res_func: function, default=None
+    _res_func : function, default=None
         In classification, get the final result from the classes given by the
         forest by majority voting method. In regression, calculate the average
         of the predicted values given by the forest as the final result.
@@ -357,64 +433,62 @@ class BaseFuzzyRDFClassifier(BaseFuzzyRDF):
         # Specify to get the final classification result by majority voting method.
         self._res_func = majority_vote
 
-    def fit(self, X_train, y_train):
-        # Do some custom things.
-
-        super().fit(X_train=X_train, y_train=y_train)
-
 
 class BaseFuzzyRDFRegressor(BaseFuzzyRDF):
     """
     Fuzzy random decision forests regressor.
 
-    NB: For regression tasks, the mean or average prediction of
+    Attention
+    ---------
+    For regression tasks, the mean or average prediction of
     the individual trees is returned.
 
-    Parameters:
-    -----------
-    disable_fuzzy: bool, default=False
+    Parameters
+    ----------
+    disable_fuzzy : bool, default=False
         Set whether the specified fuzzy decision tree uses the fuzzification.
         If disable_fuzzy=True, the specified fuzzy decision tree is equivalent
         to a naive decision tree.
 
-    fuzzification_options: FuzzificationOptions, default=None
+    fuzzification_options : FuzzificationOptions, default=None
         Protocol message class that encapsulates all the options of the
         fuzzification settings used by the specified fuzzy decision tree.
 
-    criterion_func: {"mse", "mae"}, default="mse"
+    criterion_func : {"mse", "mae"}, default="mse"
         The criterion function used by the function that calculates the impurity
         gain of the target values.
         NB: Only use a criterion function for decision tree regressor.
 
-    n_estimators: int, default=100
+    n_estimators : int, default=100
         The number of fuzzy decision trees to be used.
 
-    max_depth: int, default=3
+    max_depth : int, default=3
         The maximum depth of the tree to be trained.
 
-    min_samples_split: int, default=2
+    min_samples_split : int, default=2
         The minimum number of samples required to split a node. If a node has a
         sample number above this threshold, it will be split, otherwise it
         becomes a leaf node.
 
-    min_impurity_split: float, default=1e-7
+    min_impurity_split : float, default=1e-7
         The minimum impurity required to split a node. If a node's impurity is
         above this threshold, it will be split, otherwise it becomes a leaf node.
 
-    max_features: int, default=None
+    max_features : int, default=None
         The maximum threshold value of the qualified feature number in the
         training dataset when training each fuzzy decision tree.
 
-    multi_process_options: MultiProcessOptions, default=None
+    multi_process_options : MultiProcessOptions, default=None
         Protocol message class that encapsulates all the options of the
         multi-process settings.
+        If it is left as None, adopt non-parallel computing mode.
 
     Attributes
     ----------
-    _estimators: ndarray of FuzzyDecisionTreeRegressor
+    _estimators : ndarray of FuzzyDecisionTreeRegressor
         The collection of sub-estimators as base learners.
 
-    _res_func: function, default=None
+    _res_func : function, default=None
         In classification, get the final result from the classes given by the
         forest by majority voting method. In regression, calculate the average
         of the predicted values given by the forest as the final result.
@@ -446,8 +520,3 @@ class BaseFuzzyRDFRegressor(BaseFuzzyRDF):
 
         # Specify to get the final regression result by averaging method.
         self._res_func = mean_value
-
-    def fit(self, X_train, y_train):
-        # Do some custom things.
-
-        super().fit(X_train=X_train, y_train=y_train)

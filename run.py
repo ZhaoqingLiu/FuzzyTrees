@@ -1,7 +1,7 @@
 """
 @author: Zhaoqing Liu
 @email : Zhaoqing.Liu-1@student.uts.edu.au
-@desc  : Examples of the algorithms provided by the framework.
+@desc  : Examples using the algorithms provided by the framework.
 """
 import numpy as np
 from sklearn import datasets

@@ -1,9 +1,7 @@
 # _*_coding:utf-8_*_
 """
-@author: Zhaoqing Liu
-@email: Zhaoqing.Liu-1@student.uts.edu.au
-@date: 29/01/2021 4:41 am
-@desc: 
+@author : Zhaoqing Liu
+@email  : Zhaoqing.Liu-1@student.uts.edu.au
 """
 import numpy as np
 import pandas as pd
@@ -11,7 +9,7 @@ from sklearn.cluster import KMeans
 from sklearn.metrics import pairwise_distances
 
 """
-Functions in this module are for preprocessing data:
+Functions to include in this module are for preprocessing data:
     1. Transform numerical variables to fuzzy degree of membership.
     2. Process missing values.
     3. Process outliers.
@@ -48,11 +46,12 @@ def degree_of_membership_build(X_df, r_seed, conv_k, fuzzy_reg):
 
     Returns
     -------
-    x_new : {array-like, sparse matrix} of shape (n_samples, n_fuzzy_sets)
+    x_new : array-like of shape (n_samples, n_fuzzy_sets)
         Transformed degree of membership set.
+
     centriods :
 
-    degree_of_membership_theta:
+    degree_of_membership_theta :
 
     """
     x_np = X_df.values
@@ -85,8 +84,10 @@ def extract_fuzzy_features(X, conv_k=5, fuzzy_reg=0.0):
     Extract fuzzy features in feature fuzzification to generate degree of
     membership sets of each feature.
 
-    NB : Feature fuzzification must be done in the data preprocessing, that is,
-        before training the model and predicting new samples.
+    Attention
+    ---------
+    Feature fuzzification must be done in the data preprocessing, that is,
+    before training the model and predicting new samples.
 
     @author: Anjin Liu
     @email: Anjin.Liu@uts.edu.au
@@ -141,7 +142,8 @@ def one_hot_encode(y, n_ohe_col=None):
     Parameters
     ----------
     y : array-like, 1-dimensional, elements must be numerical value and start from 0
-    n_ohe_col: int
+
+    n_ohe_col : int
 
     Returns
     -------
@@ -151,10 +153,6 @@ def one_hot_encode(y, n_ohe_col=None):
 
     if n_ohe_col is None:
         n_ohe_col = np.amax(y) + 1  # np.max is just an alias for np.amax.
-        # print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-        # print(y)
-        # print(ohe_col_num)
-        # print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
 
     one_hot = np.zeros((y.shape[0], n_ohe_col))  # Can also use y.size instead of y.shape[0]
     one_hot[np.arange(y.shape[0]), y] = 1
@@ -200,7 +198,7 @@ def resample_simple_random(X, y, n_subsets, n_samples_sub=None, replace=False):
 
     Parameters
     ----------
-    X : sequence of {array-like, sparse matrix} of shape (n_samples, n_features)
+    X : sequence of array-like of shape (n_samples, n_features)
         The input samples in the format of indexable data-structure, which can
         be arrays, lists, dataframes or scipy sparse matrices with consistent
         first dimension.
@@ -269,7 +267,7 @@ def resample_bootstrap(X, y, n_subsets, n_samples_sub=None):
 
     Parameters
     ----------
-    X : sequence of {array-like, sparse matrix} of shape (n_samples, n_features)
+    X : sequence of array-like of shape (n_samples, n_features)
         The input samples in the format of indexable data-structure, which can
         be arrays, lists, dataframes or scipy sparse matrices with consistent
         first dimension.

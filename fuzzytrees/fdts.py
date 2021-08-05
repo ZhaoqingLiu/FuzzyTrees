@@ -1,8 +1,6 @@
 """
-@author: Zhaoqing Liu
-@email : Zhaoqing.Liu-1@student.uts.edu.au
-@date  : 11/12/2020 10:00 am
-@desc  :
+@author : Zhaoqing Liu
+@email  : Zhaoqing.Liu-1@student.uts.edu.au
 """
 from fuzzytrees.fdt_base import BaseFuzzyDecisionTree, DecisionTreeInterface, CRITERIA_FUNC_CLF, CRITERIA_FUNC_REG
 from fuzzytrees.util_tree_criterion_funcs import calculate_impurity_gain, calculate_value_by_majority_vote, \
@@ -21,7 +19,9 @@ class FuzzyCARTClassifier(BaseFuzzyDecisionTree, DecisionTreeInterface):
     The CART algorithm can handle both continuous/numerical and discrete/categorical
     variables, and can be used for both classification and regression.
 
-    NB: See FuzzyDecisionTreeWrapper for descriptions of all parameters
+    Attention
+    ---------
+    See FuzzyDecisionTreeWrapper for descriptions of all parameters
     and attributes in this class.
     """
 
@@ -48,7 +48,9 @@ class FuzzyCARTRegressor(BaseFuzzyDecisionTree, DecisionTreeInterface):
     The CART algorithm can handle both continuous/numerical and discrete/categorical
     variables, and can be used for both classification and regression.
 
-    NB: See FuzzyDecisionTreeWrapper for descriptions of all parameters
+    Attention
+    ---------
+    See FuzzyDecisionTreeWrapper for descriptions of all parameters
     and attributes in this class.
     """
 
@@ -77,7 +79,9 @@ class FuzzyID3Classifier(BaseFuzzyDecisionTree, DecisionTreeInterface):
     The ID3 algorithm can only handle discrete/categorical variables and can
     only be used for classification.
 
-    NB: See FuzzyDecisionTreeWrapper for descriptions of all parameters
+    Attention
+    ---------
+    See FuzzyDecisionTreeWrapper for descriptions of all parameters
     and attributes in this class.
     """
 
@@ -104,7 +108,9 @@ class FuzzyC45Classifier(BaseFuzzyDecisionTree, DecisionTreeInterface):
     The C4.5 algorithm can handle both continuous/numerical and discrete/categorical
     variables, but can only be used for classification.
 
-    NB: See FuzzyDecisionTreeWrapper for descriptions of all parameters
+    Attention
+    ---------
+    See FuzzyDecisionTreeWrapper for descriptions of all parameters
     and attributes in this class.
     """
 

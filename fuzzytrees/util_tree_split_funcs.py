@@ -1,11 +1,7 @@
 # _*_coding:utf-8_*_
 """
-@author:
-@license: (C) Copyright 2020-,
-@file: split_functions.py
-@date: 11/12/2020 11:12 am
-@IDE:
-@desc:
+@author : Zhaoqing Liu
+@email  : Zhaoqing.Liu-1@student.uts.edu.au
 """
 import numpy as np
 
@@ -17,27 +13,28 @@ import numpy as np
 def split_ds_2_bin(ds, col_idx, split_val):
     """
     Split a data set into two subsets by a specified value of a specified feature:
-    - If the specified feature is numerical data, split the data set into two
-      subsets based on whether each value of the specified feature is greater than
-      or equal to the split value.
-    - If the specified feature is categorical data, split the data set into two
-      subsets based on whether each value of the specified feature is the same as
-      the split value.
+    If the specified feature is numerical data, split the data set into two
+    subsets based on whether each value of the specified feature is greater than
+    or equal to the split value.
+
+    If the specified feature is categorical data, split the data set into two
+    subsets based on whether each value of the specified feature is the same as
+    the split value.
 
     Parameters
     ----------
-    ds: {array-like, sparse matrix} of shape (n_samples, n_feature)
+    ds : array-like of shape (n_samples, n_feature)
         The current data set to be split.
 
-    col_idx: int
+    col_idx : int
         The index of the specified column on which the split based.
 
-    split_val: int, float, or string
+    split_val : int, float, or string
         The specified value of the column indexed as col_idx.
 
     Returns
     -------
-    subset_true, subset_false: array-like
+    subset_true, subset_false : array-like
         Return a tuple of the two split subsets.
     """
     # Declare a lambda (args: expression), which is an anonymous function,

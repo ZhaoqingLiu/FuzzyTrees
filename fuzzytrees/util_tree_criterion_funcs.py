@@ -1,11 +1,7 @@
 # _*_coding:utf-8_*_
 """
-@author:
-@license: (C) Copyright 2020-,
-@file: criterion_functions.py
-@date: 10/12/2020 8:27 pm
-@IDE:
-@desc:
+@author : Zhaoqing Liu
+@email  : Zhaoqing.Liu-1@student.uts.edu.au
 """
 import math
 from abc import ABCMeta, abstractmethod
@@ -84,8 +80,6 @@ def calculate_entropy(y, dm=None):
     unique_labels = np.unique(y)
     for label in unique_labels:
         if dm is not None:
-            # print("****####  ", dm.shape)
-            # print("****####  ", dm[np.where(y == label)[0], :].shape)
             sum_sub_dm = np.sum(dm[np.where(y == label)[0], :])
             p = sum_sub_dm / np.sum(dm)
             entropy += -p * log2(p)
@@ -117,8 +111,6 @@ def calculate_gini(y, dm=None):
     unique_labels = np.unique(y)
     for label in unique_labels:
         if dm is not None:
-            # print("****####  ", dm.shape)
-            # print("****####  ", dm[np.where(y == label)[0], :].shape)
             sum_sub_dm = np.sum(dm[np.where(y == label)[0], :])
             p = sum_sub_dm / np.sum(dm)
             gini += p * (1 - p)
@@ -162,7 +154,9 @@ def calculate_value_by_majority_vote(y):
     """
     Calculate value by majority vote.
 
-    NB: Used in classification decision tree.
+    Attention
+    ---------
+    Used in classification decision tree.
     """
     majority_value = None
 
@@ -245,11 +239,11 @@ def calculate_mean_value(y):
 
     Parameters
     ----------
-    y: array-like of shape (n_samples, n_labels)
+    y : array-like of shape (n_samples, n_labels)
 
     Returns
     -------
-    value: array-like of the shape reduced by one dimension,
+    value : array-like of the shape reduced by one dimension,
            at least a 0-d float number
         The mean values.
     """
@@ -266,11 +260,13 @@ def calculate_proba(y):
     """
     Calculate the probabilities of each element in the set.
 
-    NB: Before counting, the elements will be reordered from smallest to largest.
+    Attention
+    ---------
+    Before counting, the elements will be reordered from smallest to largest.
 
     Parameters
     ----------
-    y: array-like of shape (n_samples,)
+    y : array-like of shape (n_samples,)
     """
     prob_list = []
 
@@ -299,7 +295,9 @@ class LossFunction(metaclass=ABCMeta):
     base functions to be inherited by all derived
     function classes.
 
-    Warning: This class should not be used directly.
+    Warnings
+    --------
+    This class should not be used directly.
     Use derived classes instead.
     """
 
@@ -376,11 +374,11 @@ def mean_value(y_preds):
 
     Parameters
     ----------
-    y_preds: array-like of shape (n_samples, n_estimators, n_labels)
+    y_preds : array-like of shape (n_samples, n_estimators, n_labels)
 
     Returns
     -------
-    y_pred: array-like of the shape (n_samples, n_labels) reduced by one dimension,
+    y_pred : array-like of the shape (n_samples, n_labels) reduced by one dimension,
            at least array-like of shape (n_samples, )
     """
     y_pred = []
@@ -389,72 +387,6 @@ def mean_value(y_preds):
 
     return np.array(y_pred)
 
-
-if __name__ == '__main__':
-    y = [[1, 1, 2],
-         [2, 2, 1],
-         [2, 1, 2]]
-    # y = [[[0, 1], [0, 1], [1, 0]],
-    #      [[0, 1], [1, 0], [0, 1]],
-    #      [[1, 0], [0, 1], [1, 0]]]
-    # y = [["yes", "yes", "no"],
-    #      ["yes", "no", "yes"],
-    #      ["no", "yes", "no"]]
-    # y = [[1], [1], [0]]
-    y = np.array(y)
-
-    # print("y's shape:", y.shape)
-    # print(y)
-    # print("y's mean value is:", np.mean(y, axis=0))
-
-    if len(np.shape(y)) == 1:
-        y = np.expand_dims(y, axis=1)
-        print("After increasing dimensionality, y's shape:", y.shape)
-    print(y)
-
-    y = majority_vote(y)
-    print("Final classification results are:\n", y)
-
-    # # y = y.T
-    # # print("After transposition, y's shape:", y.shape)
-    # # print(y)
-    #
-    # print("Mean value of y is:", calculate_mean_value(y))
-    # # print("y's mean value is:", np.mean(y, axis=0))
-    # # print(len(np.mean(y, axis=0)))
-
-    # y = [[[2], [3], [2]],
-    #      [[2], [5], [4]],
-    #      [[5], [5], [2]]]
-    y = [[[2, 5], [3, 5], [2, 6]],
-         [[2, 5], [2, 5], [2, 4]],
-         [[2, 5], [4, 5], [2, 5]]]
-    y = np.array(y)
-    y = mean_value(y)
-    print("Final regression results are:\n", y)
-
-    # # ======================================================================================================
-    # # Test the speed of my one_hot_encode() and that of sklearn in comparison.
-    # import time
-    #
-    # y = [1, 1, 0]
-    # y = np.array(y)
-    # time_start = time.time()
-    # from fuzzytrees.util_data_processing_funcs import one_hot_encode
-    # y = one_hot_encode(y)
-    # print(y)
-    # print("Elapsed time: {:.5}s".format(time.time() - time_start))
-    #
-    # y = [1, 1, 0]
-    # y = np.array(y)
-    # y = np.expand_dims(y, axis=1)
-    # time_start = time.time()
-    # from sklearn.preprocessing import OneHotEncoder
-    # transformer = OneHotEncoder(handle_unknown='ignore')
-    # y = transformer.fit_transform(y).toarray()
-    # print(y)
-    # print("Elapsed time: {:.5}s".format(time.time() - time_start))
-    # # ======================================================================================================
 
 
 

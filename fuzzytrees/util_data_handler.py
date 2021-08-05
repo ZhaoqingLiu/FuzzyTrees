@@ -1,23 +1,6 @@
-# -*- coding: utf-8 -*-
 """
-Created on Thu Nov 19 11:15:33 2020
-@author: Anjin Liu
-@email: anjin.liu@uts.edu.au
-
-=============================================================================
-@author: Zhaoqing Liu
-@email: Zhaoqing.Liu-1@student.uts.edu.au
-@date: 29/01/2021 10:32 pm
-@desc:
-    1. Add more data set loading functions (in addition to the five data sets
-        Vehicle, Waveform, German Credit, Chess, and Diabetes).
-    2. Use encoder to encode the features if there are categorical variables,
-        including:
-        - binary features
-        - low- and high-cardinality nominal features
-        - low- and high-cardinality ordinal features
-        - (potentially) cyclical features
-
+@author : Anjin Liu, Zhaoqing Liu
+@email  : anjin.liu@uts.edu.au, Zhaoqing.Liu-1@student.uts.edu.au
 """
 import os
 import numpy as np
@@ -25,13 +8,14 @@ import pandas as pd
 from scipy.io import arff
 from sklearn import datasets
 
-
 # ==================================================================================
 # Functions for loading specific datasets.
 # ==================================================================================
 
 # Change it to your folder path.
 DATA_FOLDER_PATH = os.path.abspath(os.path.dirname(os.getcwd())) + '/Datasets/'
+
+
 # print("+++++++++++++++++++++++++++++++++++++++++++++", DATA_FOLDER_PATH)
 
 
@@ -154,7 +138,8 @@ def load_wine():
 # Datasets available provided by this module.
 # ==================================================================================
 # Datasets (k: dataset name, v: function for getting data) on which the model is being trained.
-DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle, "German_Credit": load_German_credit, "Diabetes": load_diabetes, "Iris": load_iris, "Wine": load_wine}
+DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle, "German_Credit": load_German_credit, "Diabetes": load_diabetes,
+                    "Iris": load_iris, "Wine": load_wine}
 DS_LOAD_FUNC_REG = {}  # To be set when running regression experiments.
 
 
@@ -164,11 +149,11 @@ def load_data_clf(ds_name):
 
     Parameters
     ----------
-    ds_name: str
+    ds_name : str
 
     Returns
     -------
-    data: DataFrame
+    data : DataFrame
     """
     ds_load_func = None
 
@@ -177,39 +162,37 @@ def load_data_clf(ds_name):
 
     return None if ds_load_func is None else ds_load_func()
 
-
-if __name__ == "__main__":
-    print(DATA_FOLDER_PATH)
-
-    print('Loading Vehicle')
-    data_vehicle = load_vehicle()
-    print('Loading Vehicle, shape', data_vehicle.shape)
-
-    print('Loading Waveform')
-    data_waveform = load_waveform()
-    print('Loading Waveform, shape', data_waveform.shape)
-
-    print('Loading German_credit')
-    data_gc = load_German_credit()
-    print('Loading German_credit, shape', data_gc.shape)
-
-    print('Loading Chess')
-    data_chess = load_chess()
-    print('Loading Chess, shape', data_chess.shape)
-
-    print('Loading Diabetes')
-    data_diabetes = load_diabetes()
-    print('Loading Diabetes, shape', data_diabetes.shape)
-
-    print('Loading Iris')
-    data_iris = load_iris()
-    print('Loading Iris, shape', data_iris.shape)
-
-    print('Loading Wine')
-    data_wine = load_wine()
-    print('Loading Wine, shape', data_wine.shape)
-
-    data, target = datasets.load_boston(return_X_y=True)
-    print(type(data))
-    print(type(target))
-
+# if __name__ == "__main__":
+#     print(DATA_FOLDER_PATH)
+#
+#     print('Loading Vehicle')
+#     data_vehicle = load_vehicle()
+#     print('Loading Vehicle, shape', data_vehicle.shape)
+#
+#     print('Loading Waveform')
+#     data_waveform = load_waveform()
+#     print('Loading Waveform, shape', data_waveform.shape)
+#
+#     print('Loading German_credit')
+#     data_gc = load_German_credit()
+#     print('Loading German_credit, shape', data_gc.shape)
+#
+#     print('Loading Chess')
+#     data_chess = load_chess()
+#     print('Loading Chess, shape', data_chess.shape)
+#
+#     print('Loading Diabetes')
+#     data_diabetes = load_diabetes()
+#     print('Loading Diabetes, shape', data_diabetes.shape)
+#
+#     print('Loading Iris')
+#     data_iris = load_iris()
+#     print('Loading Iris, shape', data_iris.shape)
+#
+#     print('Loading Wine')
+#     data_wine = load_wine()
+#     print('Loading Wine, shape', data_wine.shape)
+#
+#     data, target = datasets.load_boston(return_X_y=True)
+#     print(type(data))
+#     print(type(target))
