@@ -118,7 +118,7 @@ See the [tutorials](./tutorials.md) for more details on using fuzzy decision tre
 
 
 ## Documentation & Resources
-- [API Reference](https://fuzzytrees.readthedocs.io/en/latest/)
+- [API Reference](https://zhaoqingliu.github.io/FuzzyTrees/docs/build/html/index.html)
 - [Tutorials](./tutorials.md)
 
 

@@ -20,7 +20,7 @@ See the utilities [util_data_processing_funcs](fuzzytrees/util_preprocessing_fun
 
 In addition to the utilities provided by FuzzyTrees, if you need to customise your own fuzzy-based functions, 
 i.e. fuzzification preprocessing, splitting, splitting criterion calculation, and leaf node value calculation functions, 
-you can follow the [API Reference](doc/index.html) to implement them.
+you can follow the [API Reference](https://zhaoqingliu.github.io/FuzzyTrees/docs/build/html/index.html) to implement them.
 
 That's all.
 
