@@ -1,0 +1,333 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>fuzzytrees.fdts &mdash; FuzzyTrees 0.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> FuzzyTrees
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">fuzzytrees</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">FuzzyTrees</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>fuzzytrees.fdts</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for fuzzytrees.fdts</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">@author : Zhaoqing Liu</span>
+<span class="sd">@email  : Zhaoqing.Liu-1@student.uts.edu.au</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">fuzzytrees.fdt_base</span> <span class="kn">import</span> <span class="n">BaseFuzzyDecisionTree</span><span class="p">,</span> <span class="n">DecisionTreeInterface</span><span class="p">,</span> <span class="n">CRITERIA_FUNC_CLF</span><span class="p">,</span> <span class="n">CRITERIA_FUNC_REG</span>
+<span class="kn">from</span> <span class="nn">fuzzytrees.util_tree_criterion_funcs</span> <span class="kn">import</span> <span class="n">calculate_impurity_gain</span><span class="p">,</span> <span class="n">calculate_value_by_majority_vote</span><span class="p">,</span> \
+    <span class="n">calculate_variance_reduction</span><span class="p">,</span> <span class="n">calculate_mean_value</span><span class="p">,</span> <span class="n">calculate_impurity_gain_ratio</span>
+<span class="kn">from</span> <span class="nn">fuzzytrees.util_tree_split_funcs</span> <span class="kn">import</span> <span class="n">split_ds_2_bin</span><span class="p">,</span> <span class="n">split_disc_ds_2_multi</span><span class="p">,</span> <span class="n">split_ds_2_multi</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Public estimators, including CART, ID3, C4.5</span>
+<span class="c1"># =============================================================================</span>
+
+<div class="viewcode-block" id="FuzzyCARTClassifier"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.fdts.FuzzyCARTClassifier">[docs]</a><span class="k">class</span> <span class="nc">FuzzyCARTClassifier</span><span class="p">(</span><span class="n">BaseFuzzyDecisionTree</span><span class="p">,</span> <span class="n">DecisionTreeInterface</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A fuzzy decision tree classifier.</span>
+
+<span class="sd">    The CART algorithm can handle both continuous/numerical and discrete/categorical</span>
+<span class="sd">    variables, and can be used for both classification and regression.</span>
+
+<span class="sd">    Attention</span>
+<span class="sd">    ---------</span>
+<span class="sd">    See FuzzyDecisionTreeWrapper for descriptions of all parameters</span>
+<span class="sd">    and attributes in this class.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># All parameters in this constructor should have default values.</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">disable_fuzzy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">X_fuzzy_dms</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fuzzification_options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">criterion_func</span><span class="o">=</span><span class="n">CRITERIA_FUNC_CLF</span><span class="p">[</span><span class="s2">&quot;gini&quot;</span><span class="p">],</span> <span class="n">max_depth</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">),</span> <span class="n">min_samples_split</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                 <span class="n">min_impurity_split</span><span class="o">=</span><span class="mf">1e-7</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">disable_fuzzy</span><span class="o">=</span><span class="n">disable_fuzzy</span><span class="p">,</span> <span class="n">X_fuzzy_dms</span><span class="o">=</span><span class="n">X_fuzzy_dms</span><span class="p">,</span>
+                         <span class="n">fuzzification_options</span><span class="o">=</span><span class="n">fuzzification_options</span><span class="p">,</span> <span class="n">criterion_func</span><span class="o">=</span><span class="n">criterion_func</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="n">max_depth</span><span class="p">,</span>
+                         <span class="n">min_samples_split</span><span class="o">=</span><span class="n">min_samples_split</span><span class="p">,</span> <span class="n">min_impurity_split</span><span class="o">=</span><span class="n">min_impurity_split</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="c1"># Specify the function used to split the dataset at each node.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_split_ds_func</span> <span class="o">=</span> <span class="n">split_ds_2_bin</span>
+        <span class="c1"># Specify the function used to calculate the criteria against</span>
+        <span class="c1"># which each split point is selected during induction.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_impurity_gain_calc_func</span> <span class="o">=</span> <span class="n">calculate_impurity_gain</span>
+        <span class="c1"># Specify the function used to calculate the value of each leaf node.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_leaf_value_calc_func</span> <span class="o">=</span> <span class="n">calculate_value_by_majority_vote</span></div>
+
+
+<div class="viewcode-block" id="FuzzyCARTRegressor"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.fdts.FuzzyCARTRegressor">[docs]</a><span class="k">class</span> <span class="nc">FuzzyCARTRegressor</span><span class="p">(</span><span class="n">BaseFuzzyDecisionTree</span><span class="p">,</span> <span class="n">DecisionTreeInterface</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A fuzzy CART decision tree regressor.</span>
+
+<span class="sd">    The CART algorithm can handle both continuous/numerical and discrete/categorical</span>
+<span class="sd">    variables, and can be used for both classification and regression.</span>
+
+<span class="sd">    Attention</span>
+<span class="sd">    ---------</span>
+<span class="sd">    See FuzzyDecisionTreeWrapper for descriptions of all parameters</span>
+<span class="sd">    and attributes in this class.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># All parameters in this constructor should have default values.</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">disable_fuzzy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">X_fuzzy_dms</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fuzzification_options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">criterion_func</span><span class="o">=</span><span class="n">CRITERIA_FUNC_REG</span><span class="p">[</span><span class="s2">&quot;mse&quot;</span><span class="p">],</span> <span class="n">max_depth</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">),</span> <span class="n">min_samples_split</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                 <span class="n">min_impurity_split</span><span class="o">=</span><span class="mf">1e-7</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">disable_fuzzy</span><span class="o">=</span><span class="n">disable_fuzzy</span><span class="p">,</span> <span class="n">X_fuzzy_dms</span><span class="o">=</span><span class="n">X_fuzzy_dms</span><span class="p">,</span>
+                         <span class="n">fuzzification_options</span><span class="o">=</span><span class="n">fuzzification_options</span><span class="p">,</span> <span class="n">criterion_func</span><span class="o">=</span><span class="n">criterion_func</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="n">max_depth</span><span class="p">,</span>
+                         <span class="n">min_samples_split</span><span class="o">=</span><span class="n">min_samples_split</span><span class="p">,</span> <span class="n">min_impurity_split</span><span class="o">=</span><span class="n">min_impurity_split</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="c1"># Specify the function used to split the dataset at each node.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_split_ds_func</span> <span class="o">=</span> <span class="n">split_ds_2_bin</span>
+        <span class="c1"># Specify the function used to calculate the criteria against</span>
+        <span class="c1"># which each split point is selected during induction.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_impurity_gain_calc_func</span> <span class="o">=</span> <span class="n">calculate_variance_reduction</span>
+        <span class="c1"># Specify the function used to calculate the value of each leaf node.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_leaf_value_calc_func</span> <span class="o">=</span> <span class="n">calculate_mean_value</span></div>
+
+
+<div class="viewcode-block" id="FuzzyID3Classifier"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.fdts.FuzzyID3Classifier">[docs]</a><span class="k">class</span> <span class="nc">FuzzyID3Classifier</span><span class="p">(</span><span class="n">BaseFuzzyDecisionTree</span><span class="p">,</span> <span class="n">DecisionTreeInterface</span><span class="p">):</span>
+    <span class="c1"># Need to modify the code &quot;subset_true, subset_false = split_dataset(ds_train, feature_idx, unique_value)&quot;</span>
+    <span class="c1"># in baseclass &quot;FuzzyDecisionTree&quot; to using a function object passed externally.</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A fuzzy ID3 decision tree classifier.</span>
+
+<span class="sd">    The ID3 algorithm can only handle discrete/categorical variables and can</span>
+<span class="sd">    only be used for classification.</span>
+
+<span class="sd">    Attention</span>
+<span class="sd">    ---------</span>
+<span class="sd">    See FuzzyDecisionTreeWrapper for descriptions of all parameters</span>
+<span class="sd">    and attributes in this class.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># All parameters in this constructor should have default values.</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">disable_fuzzy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">X_fuzzy_dms</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fuzzification_options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">criterion_func</span><span class="o">=</span><span class="n">CRITERIA_FUNC_CLF</span><span class="p">[</span><span class="s2">&quot;entropy&quot;</span><span class="p">],</span> <span class="n">max_depth</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">),</span> <span class="n">min_samples_split</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                 <span class="n">min_impurity_split</span><span class="o">=</span><span class="mf">1e-7</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">disable_fuzzy</span><span class="o">=</span><span class="n">disable_fuzzy</span><span class="p">,</span> <span class="n">X_fuzzy_dms</span><span class="o">=</span><span class="n">X_fuzzy_dms</span><span class="p">,</span>
+                         <span class="n">fuzzification_options</span><span class="o">=</span><span class="n">fuzzification_options</span><span class="p">,</span> <span class="n">criterion_func</span><span class="o">=</span><span class="n">criterion_func</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="n">max_depth</span><span class="p">,</span>
+                         <span class="n">min_samples_split</span><span class="o">=</span><span class="n">min_samples_split</span><span class="p">,</span> <span class="n">min_impurity_split</span><span class="o">=</span><span class="n">min_impurity_split</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="c1"># Specify the function used to split the dataset at each node.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_split_ds_func</span> <span class="o">=</span> <span class="n">split_disc_ds_2_multi</span>
+        <span class="c1"># Specify the function used to calculate the criteria against</span>
+        <span class="c1"># which each split point is selected during induction.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_impurity_gain_calc_func</span> <span class="o">=</span> <span class="n">calculate_impurity_gain</span>
+        <span class="c1"># Specify the function used to calculate the value of each leaf node.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_leaf_value_calc_func</span> <span class="o">=</span> <span class="n">calculate_value_by_majority_vote</span></div>
+
+
+<div class="viewcode-block" id="FuzzyC45Classifier"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.fdts.FuzzyC45Classifier">[docs]</a><span class="k">class</span> <span class="nc">FuzzyC45Classifier</span><span class="p">(</span><span class="n">BaseFuzzyDecisionTree</span><span class="p">,</span> <span class="n">DecisionTreeInterface</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A fuzzy C4.5 decision tree classifier.</span>
+
+<span class="sd">    The C4.5 algorithm can handle both continuous/numerical and discrete/categorical</span>
+<span class="sd">    variables, but can only be used for classification.</span>
+
+<span class="sd">    Attention</span>
+<span class="sd">    ---------</span>
+<span class="sd">    See FuzzyDecisionTreeWrapper for descriptions of all parameters</span>
+<span class="sd">    and attributes in this class.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># All parameters in this constructor should have default values.</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">disable_fuzzy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">X_fuzzy_dms</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fuzzification_options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">criterion_func</span><span class="o">=</span><span class="n">CRITERIA_FUNC_CLF</span><span class="p">[</span><span class="s2">&quot;entropy&quot;</span><span class="p">],</span> <span class="n">max_depth</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">),</span> <span class="n">min_samples_split</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                 <span class="n">min_impurity_split</span><span class="o">=</span><span class="mf">1e-7</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">disable_fuzzy</span><span class="o">=</span><span class="n">disable_fuzzy</span><span class="p">,</span> <span class="n">X_fuzzy_dms</span><span class="o">=</span><span class="n">X_fuzzy_dms</span><span class="p">,</span>
+                         <span class="n">fuzzification_options</span><span class="o">=</span><span class="n">fuzzification_options</span><span class="p">,</span> <span class="n">criterion_func</span><span class="o">=</span><span class="n">criterion_func</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="n">max_depth</span><span class="p">,</span>
+                         <span class="n">min_samples_split</span><span class="o">=</span><span class="n">min_samples_split</span><span class="p">,</span> <span class="n">min_impurity_split</span><span class="o">=</span><span class="n">min_impurity_split</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="c1"># Specify the function used to split the dataset at each node.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_split_ds_func</span> <span class="o">=</span> <span class="n">split_ds_2_multi</span>
+        <span class="c1"># Specify the function used to calculate the criteria against</span>
+        <span class="c1"># which each split point is selected during induction.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_impurity_gain_calc_func</span> <span class="o">=</span> <span class="n">calculate_impurity_gain_ratio</span>
+        <span class="c1"># Specify the function used to calculate the value of each leaf node.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_leaf_value_calc_func</span> <span class="o">=</span> <span class="n">calculate_value_by_majority_vote</span></div>
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, UTS Australian Artificial Intelligence Institute.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

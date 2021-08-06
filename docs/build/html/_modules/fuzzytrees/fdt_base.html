@@ -1,0 +1,1194 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>fuzzytrees.fdt_base &mdash; FuzzyTrees 0.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> FuzzyTrees
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">fuzzytrees</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">FuzzyTrees</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>fuzzytrees.fdt_base</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for fuzzytrees.fdt_base</h1><div class="highlight"><pre>
+<span></span><span class="c1"># _*_coding:utf-8_*_</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">@author : Zhaoqing Liu</span>
+<span class="sd">@email  : Zhaoqing.Liu-1@student.uts.edu.au</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span> <span class="nn">decimal</span> <span class="kn">import</span> <span class="n">Decimal</span>
+<span class="kn">import</span> <span class="nn">joblib</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">accuracy_score</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">KFold</span>
+<span class="kn">from</span> <span class="nn">fuzzytrees.settings</span> <span class="kn">import</span> <span class="n">DirSave</span><span class="p">,</span> <span class="n">NUM_CPU_CORES_REQ</span><span class="p">,</span> <span class="n">NUM_GRP_MDLS</span><span class="p">,</span> <span class="n">EvaluationType</span>
+<span class="kn">from</span> <span class="nn">fuzzytrees.util_comm</span> <span class="kn">import</span> <span class="n">get_today_str</span>
+<span class="kn">from</span> <span class="nn">fuzzytrees.util_tree_criterion_funcs</span> <span class="kn">import</span> <span class="n">calculate_proba</span><span class="p">,</span> <span class="n">calculate_entropy</span><span class="p">,</span> <span class="n">calculate_gini</span><span class="p">,</span> <span class="n">calculate_variance</span><span class="p">,</span> \
+    <span class="n">calculate_standard_deviation</span>
+<span class="kn">from</span> <span class="nn">fuzzytrees.util_data_handler</span> <span class="kn">import</span> <span class="n">load_data_clf</span>
+<span class="kn">from</span> <span class="nn">fuzzytrees.util_preprocessing_funcs</span> <span class="kn">import</span> <span class="n">extract_fuzzy_features</span>
+<span class="kn">from</span> <span class="nn">fuzzytrees.util_plotter</span> <span class="kn">import</span> <span class="n">plot_multi_lines</span>
+
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;always&quot;</span><span class="p">)</span>
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Types and constants</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="n">CRITERIA_FUNC_CLF</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;entropy&quot;</span><span class="p">:</span> <span class="n">calculate_entropy</span><span class="p">,</span> <span class="s2">&quot;gini&quot;</span><span class="p">:</span> <span class="n">calculate_gini</span><span class="p">}</span>
+<span class="n">CRITERIA_FUNC_REG</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;mse&quot;</span><span class="p">:</span> <span class="n">calculate_variance</span><span class="p">,</span> <span class="s2">&quot;mae&quot;</span><span class="p">:</span> <span class="n">calculate_standard_deviation</span><span class="p">}</span>
+
+
+<span class="c1"># CLF_TYPE = {&quot;ID3&quot;: [calculate_entropy, calculate_information_gain],</span>
+<span class="c1">#              &quot;C45&quot;: [calculate_gini, calculate_information_gain_ratio],</span>
+<span class="c1">#              &quot;CART&quot;: [calculate_gini, calculate_impurity_gain,]}</span>
+
+
+<div class="viewcode-block" id="FuzzificationOptions"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.fdt_base.FuzzificationOptions">[docs]</a><span class="k">class</span> <span class="nc">FuzzificationOptions</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A protocol message class that encapsulates all the options (excluding</span>
+<span class="sd">    functions) of the fuzzification settings used by a fuzzy model.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r_seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">conv_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">conv_k</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">num_iter</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">feature_filter_func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">feature_filter_func_param</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset_df</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dataset_mms_df</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">X_fuzzy_dms</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">r_seed</span> <span class="o">=</span> <span class="n">r_seed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conv_size</span> <span class="o">=</span> <span class="n">conv_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conv_k</span> <span class="o">=</span> <span class="n">conv_k</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_iter</span> <span class="o">=</span> <span class="n">num_iter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_filter_func</span> <span class="o">=</span> <span class="n">feature_filter_func</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_filter_func_param</span> <span class="o">=</span> <span class="n">feature_filter_func_param</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset_df</span> <span class="o">=</span> <span class="n">dataset_df</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dataset_mms_df</span> <span class="o">=</span> <span class="n">dataset_mms_df</span></div>
+
+
+<div class="viewcode-block" id="MultiProcessOptions"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.fdt_base.MultiProcessOptions">[docs]</a><span class="k">class</span> <span class="nc">MultiProcessOptions</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A protocol message class that encapsulates all the options (excluding</span>
+<span class="sd">    functions) of the multi-process settings.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    n_cpu_cores_req : int, default=None</span>
+<span class="sd">        The number of CPU cores to request. If left to None this is</span>
+<span class="sd">        automatically set to the number of all CPU cores available.</span>
+
+<span class="sd">    allow_growth : bool, default=False</span>
+<span class="sd">        Whether to dynamically request more CPU resources.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_cpu_cores_req</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">allow_growth</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_cpu_cores_req</span> <span class="o">=</span> <span class="n">n_cpu_cores_req</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">allow_growth</span> <span class="o">=</span> <span class="n">allow_growth</span></div>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Decision tree component</span>
+<span class="c1"># =============================================================================</span>
+
+
+<div class="viewcode-block" id="Node"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.fdt_base.Node">[docs]</a><span class="k">class</span> <span class="nc">Node</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A Class that encapsulates the data of the node (including root node) and</span>
+<span class="sd">    leaf node in a decision tree.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    split_rule : SplitRule, default=None</span>
+<span class="sd">        The split rule represented by the feature selected as a node, and</span>
+<span class="sd">        branching decisions are made based on this rule.</span>
+
+<span class="sd">    leaf_value : float, default=None</span>
+<span class="sd">        The predicted value indicated at a leaf node. In the classification</span>
+<span class="sd">        tree it is the predicted class, and in the regression tree it is the</span>
+<span class="sd">        predicted value.</span>
+<span class="sd">        NB: Only a leaf node has this attribute value.</span>
+
+<span class="sd">    leaf_proba : float, default=None</span>
+<span class="sd">        The predicted probability indicated at a leaf node. Only works in the</span>
+<span class="sd">        classification tree.</span>
+<span class="sd">        NB: Only a leaf node has this attribute value.</span>
+
+<span class="sd">    branch_true : Node, default=None</span>
+<span class="sd">        The next node in the decision path when the feature value of a sample</span>
+<span class="sd">        meets the split rule split_rule.</span>
+
+<span class="sd">    branch_false : Node, default=None</span>
+<span class="sd">        The next node in the decision path when the feature value of a sample</span>
+<span class="sd">        does not meet the split rule split_rule.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">split_rule</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">leaf_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">leaf_proba</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">branch_true</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">branch_false</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">split_rule</span> <span class="o">=</span> <span class="n">split_rule</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">leaf_value</span> <span class="o">=</span> <span class="n">leaf_value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">leaf_proba</span> <span class="o">=</span> <span class="n">leaf_proba</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">branch_true</span> <span class="o">=</span> <span class="n">branch_true</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">branch_false</span> <span class="o">=</span> <span class="n">branch_false</span></div>
+
+
+<div class="viewcode-block" id="SplitRule"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.fdt_base.SplitRule">[docs]</a><span class="k">class</span> <span class="nc">SplitRule</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A Class that encapsulates the data of a split rule, which is one of</span>
+<span class="sd">    attributes of the node (including root node) in a decision tree.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    feature_idx : int, default=None</span>
+<span class="sd">        The index of the feature selected as the node representing a split rule.</span>
+
+<span class="sd">    split_value : float, default=None</span>
+<span class="sd">        The value from the feature indexed as feature_idx representing a split</span>
+<span class="sd">        rule, on which branching decisions are made based.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feature_idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">split_value</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_idx</span> <span class="o">=</span> <span class="n">feature_idx</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">split_value</span> <span class="o">=</span> <span class="n">split_value</span></div>
+
+
+<div class="viewcode-block" id="BinarySubtrees"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.fdt_base.BinarySubtrees">[docs]</a><span class="k">class</span> <span class="nc">BinarySubtrees</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class that encapsulates two subtrees under a node, and each subtree has</span>
+<span class="sd">    two subsets of the samples&#39; features and target values that has been split.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    subset_true_X : array-like of shape (n_samples, n_features)</span>
+<span class="sd">        The subset of feature values of the samples that meet the split_rule</span>
+<span class="sd">        after splitting.</span>
+
+<span class="sd">    subset_true_y : array-like of shape (n_samples,) or (n_samples, n_outputs)</span>
+<span class="sd">        The subset of target values of the samples that meet the split_rule</span>
+<span class="sd">        after splitting.</span>
+
+<span class="sd">    subset_false_X : array-like of shape (n_samples, n_features)</span>
+<span class="sd">        The subset of feature values of the samples that do not meet the</span>
+<span class="sd">        split_rule after splitting.</span>
+
+<span class="sd">    subset_false_y : array-like of shape (n_samples,) or (n_samples, n_outputs)</span>
+<span class="sd">        The subset of target values of the samples that do not meet the</span>
+<span class="sd">        split_rule after splitting.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subset_true_X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">subset_true_y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">subset_false_X</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">subset_false_y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subset_true_X</span> <span class="o">=</span> <span class="n">subset_true_X</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subset_true_y</span> <span class="o">=</span> <span class="n">subset_true_y</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subset_false_X</span> <span class="o">=</span> <span class="n">subset_false_X</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subset_false_y</span> <span class="o">=</span> <span class="n">subset_false_y</span></div>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Interface for decision tree classes</span>
+<span class="c1"># =============================================================================</span>
+<div class="viewcode-block" id="DecisionTreeInterface"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.fdt_base.DecisionTreeInterface">[docs]</a><span class="k">class</span> <span class="nc">DecisionTreeInterface</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Interface for decision tree classes based on different algorithms.</span>
+
+<span class="sd">    Warnings</span>
+<span class="sd">    --------</span>
+<span class="sd">    This interface should not be used directly.</span>
+<span class="sd">    Use derived algorithm classes instead.</span>
+
+<span class="sd">    Attention</span>
+<span class="sd">    ---------</span>
+<span class="sd">    The purpose of this interface is to establish protocols</span>
+<span class="sd">    for functions (excluding constructor and attributes) in</span>
+<span class="sd">    classification decision trees and regression decision trees</span>
+<span class="sd">    that to be developed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="DecisionTreeInterface.fit"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.fdt_base.DecisionTreeInterface.fit">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="DecisionTreeInterface.predict"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.fdt_base.DecisionTreeInterface.predict">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="DecisionTreeInterface.predict_proba"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.fdt_base.DecisionTreeInterface.predict_proba">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="DecisionTreeInterface.print_tree"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.fdt_base.DecisionTreeInterface.print_tree">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">print_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tree</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="s2">&quot;  &quot;</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;=&gt;&quot;</span><span class="p">):</span>
+        <span class="k">pass</span></div></div>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Base fuzzy decision tree</span>
+<span class="c1"># =============================================================================</span>
+
+<div class="viewcode-block" id="BaseFuzzyDecisionTree"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.fdt_base.BaseFuzzyDecisionTree">[docs]</a><span class="k">class</span> <span class="nc">BaseFuzzyDecisionTree</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base fuzzy decision tree class that encapsulates all base functions to be</span>
+<span class="sd">    inherited by all derived classes (and attributes, if required).</span>
+
+<span class="sd">    Warnings</span>
+<span class="sd">    --------</span>
+<span class="sd">    This interface should not be used directly.</span>
+<span class="sd">    Use derived algorithm classes instead.</span>
+
+<span class="sd">    Attention</span>
+<span class="sd">    ---------</span>
+<span class="sd">    See FuzzyDecisionTreeWrapper for descriptions of all parameters</span>
+<span class="sd">    and attributes in this class.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># The parameters in this constructor don&#39;t need to have default values.</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">disable_fuzzy</span><span class="p">,</span> <span class="n">X_fuzzy_dms</span><span class="p">,</span> <span class="n">fuzzification_options</span><span class="p">,</span> <span class="n">criterion_func</span><span class="p">,</span> <span class="n">max_depth</span><span class="p">,</span> <span class="n">min_samples_split</span><span class="p">,</span>
+                 <span class="n">min_impurity_split</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">disable_fuzzy</span> <span class="o">=</span> <span class="n">disable_fuzzy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">X_fuzzy_dms</span> <span class="o">=</span> <span class="n">X_fuzzy_dms</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fuzzification_options</span> <span class="o">=</span> <span class="n">fuzzification_options</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">criterion_func</span> <span class="o">=</span> <span class="n">criterion_func</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_depth</span> <span class="o">=</span> <span class="n">max_depth</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_samples_split</span> <span class="o">=</span> <span class="n">min_samples_split</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_impurity_split</span> <span class="o">=</span> <span class="n">min_impurity_split</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_split_ds_func</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_impurity_gain_calc_func</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_leaf_value_calc_func</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_one_dim</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_best_split_rule</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># To be deprecated in version 1.0.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_best_binary_subtrees</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># To be deprecated in version 1.0.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_best_impurity_gain</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># To be deprecated in version 1.0.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fuzzy_sets</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loss_func</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="BaseFuzzyDecisionTree.fit"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.fdt_base.BaseFuzzyDecisionTree.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">):</span>
+        <span class="c1"># Store whether y is a multi-dimension set, which means being one-hot encoded.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_one_dim</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">y_train</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span>
+
+        <span class="c1"># # Do feature fuzzification.</span>
+        <span class="c1"># if not self.disable_fuzzy:</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_tree</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BaseFuzzyDecisionTree.predict"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.fdt_base.BaseFuzzyDecisionTree.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="c1"># # Do feature fuzzification.</span>
+        <span class="c1"># if not self.disable_fuzzy:</span>
+
+        <span class="n">y_pred</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">X</span><span class="p">:</span>
+            <span class="n">y_pred</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_predict_one</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">y_pred</span></div>
+
+<div class="viewcode-block" id="BaseFuzzyDecisionTree.predict_proba"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.fdt_base.BaseFuzzyDecisionTree.predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="c1"># # Do feature fuzzification.</span>
+        <span class="c1"># if not self.disable_fuzzy:</span>
+
+        <span class="n">y_pred_prob</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">X</span><span class="p">:</span>
+            <span class="n">y_pred_prob</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_predict_proba_one</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">y_pred_prob</span></div>
+
+<div class="viewcode-block" id="BaseFuzzyDecisionTree.print_tree"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.fdt_base.BaseFuzzyDecisionTree.print_tree">[docs]</a>    <span class="k">def</span> <span class="nf">print_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tree</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="s2">&quot;  &quot;</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;=&gt;&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">tree</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">tree</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span>
+
+        <span class="k">if</span> <span class="n">tree</span><span class="o">.</span><span class="n">leaf_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">leaf_value</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Recursively print sub-nodes.</span>
+            <span class="c1"># Print the split rule first.</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">? &quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">split_rule</span><span class="o">.</span><span class="n">feature_idx</span><span class="p">,</span> <span class="n">tree</span><span class="o">.</span><span class="n">split_rule</span><span class="o">.</span><span class="n">split_value</span><span class="p">))</span>
+
+            <span class="c1"># Print the sub-node that meets the split rule.</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">True</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">indent</span><span class="p">,</span> <span class="n">delimiter</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">print_tree</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">branch_true</span><span class="p">,</span> <span class="n">indent</span> <span class="o">+</span> <span class="n">indent</span><span class="p">)</span>
+
+            <span class="c1"># Print the other sub-node that do not meet the split rule.</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">False</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">indent</span><span class="p">,</span> <span class="n">delimiter</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">print_tree</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">branch_false</span><span class="p">,</span> <span class="n">indent</span> <span class="o">+</span> <span class="n">indent</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_build_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">current_depth</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Recursively builds a decision tree.</span>
+
+<span class="sd">        Attention</span>
+<span class="sd">        ---------</span>
+<span class="sd">        Only decision tree components are generated, either</span>
+<span class="sd">        nodes (including root nodes) or leaf nodes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">best_split_rule</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">best_binary_subtrees</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">best_impurity_gain</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">n_samples</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+        <span class="c1"># If the current data set meets the split criteria min_samples_split and max_depth,</span>
+        <span class="c1"># split the data set to prepare all information for a best node.</span>
+        <span class="k">if</span> <span class="n">n_samples</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_samples_split</span> <span class="ow">and</span> <span class="n">current_depth</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_depth</span><span class="p">:</span>
+            <span class="c1"># Get the best feature and the best split value based on it</span>
+            <span class="n">best_split_rule</span><span class="p">,</span> <span class="n">best_binary_subtrees</span><span class="p">,</span> <span class="n">best_impurity_gain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_best_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+        <span class="c1"># If the best subtrees split above meet the split criterion min_impurity_split,</span>
+        <span class="c1"># continue growing subtrees and then generate a node.</span>
+        <span class="k">if</span> <span class="n">best_impurity_gain</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_impurity_split</span><span class="p">:</span>
+            <span class="n">subset_true_X</span> <span class="o">=</span> <span class="n">best_binary_subtrees</span><span class="o">.</span><span class="n">subset_true_X</span>
+            <span class="n">subset_true_y</span> <span class="o">=</span> <span class="n">best_binary_subtrees</span><span class="o">.</span><span class="n">subset_true_y</span>
+            <span class="n">branch_true</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_tree</span><span class="p">(</span><span class="n">subset_true_X</span><span class="p">,</span> <span class="n">subset_true_y</span><span class="p">,</span> <span class="n">current_depth</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">subset_false_X</span> <span class="o">=</span> <span class="n">best_binary_subtrees</span><span class="o">.</span><span class="n">subset_false_X</span>
+            <span class="n">subset_false_y</span> <span class="o">=</span> <span class="n">best_binary_subtrees</span><span class="o">.</span><span class="n">subset_false_y</span>
+            <span class="n">branch_false</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_build_tree</span><span class="p">(</span><span class="n">subset_false_X</span><span class="p">,</span> <span class="n">subset_false_y</span><span class="p">,</span> <span class="n">current_depth</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">best_node</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="n">split_rule</span><span class="o">=</span><span class="n">best_split_rule</span><span class="p">,</span> <span class="n">branch_true</span><span class="o">=</span><span class="n">branch_true</span><span class="p">,</span> <span class="n">branch_false</span><span class="o">=</span><span class="n">branch_false</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">best_node</span>
+
+        <span class="c1"># If none of the above criteria is met, then the current data set can only be a leaf node.</span>
+        <span class="c1"># Then generate a leaf node.</span>
+        <span class="n">leaf_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_leaf_value_calc_func</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">leaf_proba</span> <span class="o">=</span> <span class="n">calculate_proba</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">leaf_node</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="n">leaf_value</span><span class="o">=</span><span class="n">leaf_value</span><span class="p">,</span> <span class="n">leaf_proba</span><span class="o">=</span><span class="n">leaf_proba</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">leaf_node</span>
+
+    <span class="k">def</span> <span class="nf">_get_best_split</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Iterate over all feature and calculate the impurity_gain based on its unique</span>
+<span class="sd">        values. Finally, choose the feature that gives y the maximum gain at</span>
+<span class="sd">        impurity_gain as the best split.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">best_split_rule</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">best_binary_subtrees</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">best_impurity_gain</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># Join the elements in the X and Y by index.</span>
+        <span class="c1"># Note that both X and y must have same number of dimensions.</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">y</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># Do ascending dimension on y, and keep the column arrangement.</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># Concatenate X and y as last column of X</span>
+        <span class="n">ds_train</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Start iterating over all features to get the best split.</span>
+        <span class="n">n_samples</span><span class="p">,</span> <span class="n">n_features</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+        <span class="c1"># Calculate the number of iterations over features. NB: fuzzy features have more conv_k times of original number of features.</span>
+        <span class="n">n_loop</span> <span class="o">=</span> <span class="n">n_features</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">disable_fuzzy</span><span class="p">:</span>
+            <span class="n">n_loop</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_features</span> <span class="o">/</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">fuzzification_options</span><span class="o">.</span><span class="n">conv_k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>  <span class="c1"># denominator=conv_k + 1. If the FCM algorithm selects n optimal fuzzy sets, the calculation here will be deprecated.</span>
+
+        <span class="k">for</span> <span class="n">feature_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_loop</span><span class="p">):</span>
+            <span class="c1"># Calculate the sum of all the membership degrees of the current feature values.</span>
+            <span class="n">total_dm</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">start</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">stop</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">disable_fuzzy</span><span class="p">:</span>
+                <span class="c1"># Columns of the idx-th features&#39;s degrees of membership start from</span>
+                <span class="c1"># &quot;n_loop + feature_idx * self.fuzzification_options.conv_k&quot;, and end with</span>
+                <span class="c1"># &quot;n_loop + (feature_idx + 1) * self.fuzzification_options.conv_k&quot;.</span>
+                <span class="n">start</span> <span class="o">=</span> <span class="n">n_loop</span> <span class="o">+</span> <span class="n">feature_idx</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">fuzzification_options</span><span class="o">.</span><span class="n">conv_k</span>
+                <span class="n">stop</span> <span class="o">=</span> <span class="n">n_loop</span> <span class="o">+</span> <span class="p">(</span><span class="n">feature_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">fuzzification_options</span><span class="o">.</span><span class="n">conv_k</span>
+                <span class="n">total_dm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="n">start</span><span class="p">:</span><span class="n">stop</span><span class="p">])</span>
+                <span class="c1"># print(feature_idx, &quot;-th feature: total degree of membership:&quot;, total_dm)</span>
+
+            <span class="c1"># Get all unique values of the feature with feature_idx group by value classes.</span>
+            <span class="n">feature_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="n">feature_idx</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="c1"># Calculate impurity_gain in each iteration over all unique feature values.</span>
+            <span class="n">unique_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">feature_values</span><span class="p">)</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">unique_value</span> <span class="ow">in</span> <span class="n">unique_values</span><span class="p">:</span>
+                <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">subset_true</span><span class="p">,</span> <span class="n">subset_false</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_split_ds_func</span><span class="p">(</span><span class="n">ds_train</span><span class="p">,</span> <span class="n">feature_idx</span><span class="p">,</span> <span class="n">unique_value</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">subset_true</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">subset_false</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="c1"># Calculate the membership probability of each subset according to the fuzzy splitting criterion.</span>
+                    <span class="n">p_subset_true_dm</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="n">p_subset_false_dm</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">disable_fuzzy</span> <span class="ow">and</span> <span class="n">total_dm</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">total_dm</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+                        <span class="n">subset_true_dm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">subset_true</span><span class="p">[:,</span> <span class="n">start</span><span class="p">:</span><span class="n">stop</span><span class="p">])</span>
+                        <span class="n">p_subset_true_dm</span> <span class="o">=</span> <span class="n">subset_true_dm</span> <span class="o">/</span> <span class="n">total_dm</span>
+                        <span class="c1"># print(&quot;    &quot;, count, &quot;-th split: subset_true&#39;s degree of membership:&quot;, subset_true_dm)</span>
+                        <span class="n">subset_false_dm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">subset_false</span><span class="p">[:,</span> <span class="n">start</span><span class="p">:</span><span class="n">stop</span><span class="p">])</span>
+                        <span class="n">p_subset_false_dm</span> <span class="o">=</span> <span class="n">subset_false_dm</span> <span class="o">/</span> <span class="n">total_dm</span>
+                        <span class="c1"># print(&quot;    &quot;, count, &quot;-th split: subset_false&#39;s degree of membership:&quot;, subset_false_dm)</span>
+
+                    <span class="n">y_subset_true</span> <span class="o">=</span> <span class="n">subset_true</span><span class="p">[:,</span>
+                                    <span class="n">n_loop</span><span class="p">:]</span>  <span class="c1"># For non-fuzzy trees, n_loop is exactly the number of features</span>
+                    <span class="n">y_subset_false</span> <span class="o">=</span> <span class="n">subset_false</span><span class="p">[:,</span>
+                                     <span class="n">n_loop</span><span class="p">:]</span>  <span class="c1"># For non-fuzzy trees, n_loop is exactly the number of features</span>
+
+                    <span class="n">impurity_gain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_impurity_gain_calc_func</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">y_subset_true</span><span class="p">,</span> <span class="n">y_subset_false</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">criterion_func</span><span class="p">,</span>
+                                                                  <span class="n">p_subset_true_dm</span><span class="o">=</span><span class="n">p_subset_true_dm</span><span class="p">,</span>
+                                                                  <span class="n">p_subset_false_dm</span><span class="o">=</span><span class="n">p_subset_false_dm</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">impurity_gain</span> <span class="o">&gt;</span> <span class="n">best_impurity_gain</span><span class="p">:</span>
+                        <span class="n">best_impurity_gain</span> <span class="o">=</span> <span class="n">impurity_gain</span>
+
+                        <span class="n">best_split_rule</span> <span class="o">=</span> <span class="n">SplitRule</span><span class="p">(</span><span class="n">feature_idx</span><span class="o">=</span><span class="n">feature_idx</span><span class="p">,</span> <span class="n">split_value</span><span class="o">=</span><span class="n">unique_value</span><span class="p">)</span>
+
+                        <span class="n">subset_true_X</span> <span class="o">=</span> <span class="n">subset_true</span><span class="p">[:,</span> <span class="p">:</span><span class="n">n_features</span><span class="p">]</span>
+                        <span class="n">subset_true_y</span> <span class="o">=</span> <span class="n">subset_true</span><span class="p">[:,</span> <span class="n">n_features</span><span class="p">:]</span>
+                        <span class="n">subset_false_X</span> <span class="o">=</span> <span class="n">subset_false</span><span class="p">[:,</span> <span class="p">:</span><span class="n">n_features</span><span class="p">]</span>
+                        <span class="n">subset_false_y</span> <span class="o">=</span> <span class="n">subset_false</span><span class="p">[:,</span> <span class="n">n_features</span><span class="p">:]</span>
+                        <span class="n">best_binary_subtrees</span> <span class="o">=</span> <span class="n">BinarySubtrees</span><span class="p">(</span><span class="n">subset_true_X</span><span class="o">=</span><span class="n">subset_true_X</span><span class="p">,</span>
+                                                              <span class="n">subset_true_y</span><span class="o">=</span><span class="n">subset_true_y</span><span class="p">,</span>
+                                                              <span class="n">subset_false_X</span><span class="o">=</span><span class="n">subset_false_X</span><span class="p">,</span>
+                                                              <span class="n">subset_false_y</span><span class="o">=</span><span class="n">subset_false_y</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">best_split_rule</span><span class="p">,</span> <span class="n">best_binary_subtrees</span><span class="p">,</span> <span class="n">best_impurity_gain</span>
+
+    <span class="k">def</span> <span class="nf">_predict_one</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">tree</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Recursively (in a top-to-bottom approach) search the built</span>
+<span class="sd">        decision tree and find the leaf that match the sample to be</span>
+<span class="sd">        predicted, then use the leaf value as the predicted value</span>
+<span class="sd">        for the sample.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">tree</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">tree</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span>
+
+        <span class="k">if</span> <span class="n">tree</span><span class="o">.</span><span class="n">leaf_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">tree</span><span class="o">.</span><span class="n">leaf_value</span>
+
+        <span class="n">feature_value</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">tree</span><span class="o">.</span><span class="n">split_rule</span><span class="o">.</span><span class="n">feature_idx</span><span class="p">]</span>
+        <span class="n">branch</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">branch_false</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">feature_value</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">feature_value</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">feature_value</span> <span class="o">&gt;=</span> <span class="n">tree</span><span class="o">.</span><span class="n">split_rule</span><span class="o">.</span><span class="n">split_value</span><span class="p">:</span>
+                <span class="n">branch</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">branch_true</span>
+        <span class="k">elif</span> <span class="n">feature_value</span> <span class="o">==</span> <span class="n">tree</span><span class="o">.</span><span class="n">split_rule</span><span class="o">.</span><span class="n">split_value</span><span class="p">:</span>
+            <span class="n">branch</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">branch_true</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predict_one</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">branch</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_predict_proba_one</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">tree</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Recursively (in a top-to-bottom approach) search the built</span>
+<span class="sd">        decision tree and find the leaf that match the sample to be</span>
+<span class="sd">        predicted, then use the leaf probability as the predicted</span>
+<span class="sd">        probability for the sample.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">tree</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">tree</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span>
+
+        <span class="k">if</span> <span class="n">tree</span><span class="o">.</span><span class="n">leaf_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">tree</span><span class="o">.</span><span class="n">leaf_proba</span>
+
+        <span class="n">feature_value</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">tree</span><span class="o">.</span><span class="n">split_rule</span><span class="o">.</span><span class="n">feature_idx</span><span class="p">]</span>
+        <span class="n">branch</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">branch_false</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">feature_value</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">feature_value</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">feature_value</span> <span class="o">&gt;=</span> <span class="n">tree</span><span class="o">.</span><span class="n">split_rule</span><span class="o">.</span><span class="n">split_value</span><span class="p">:</span>
+                <span class="n">branch</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">branch_true</span>
+        <span class="k">elif</span> <span class="n">feature_value</span> <span class="o">==</span> <span class="n">tree</span><span class="o">.</span><span class="n">split_rule</span><span class="o">.</span><span class="n">split_value</span><span class="p">:</span>
+            <span class="n">branch</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">branch_true</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_predict_proba_one</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">branch</span><span class="p">)</span></div>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Public wrapper class for different decision trees</span>
+<span class="c1"># =============================================================================</span>
+<div class="viewcode-block" id="FuzzyDecisionTreeWrapper"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.fdt_base.FuzzyDecisionTreeWrapper">[docs]</a><span class="k">class</span> <span class="nc">FuzzyDecisionTreeWrapper</span><span class="p">(</span><span class="n">DecisionTreeInterface</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wrapper class for different decision trees.</span>
+
+<span class="sd">    Attention</span>
+<span class="sd">    ---------</span>
+<span class="sd">    The role of this class is to unify the external calls of different</span>
+<span class="sd">    decision tree classes and implement dependency injection for those</span>
+<span class="sd">    decision tree classes.</span>
+
+<span class="sd">    The arguments of the constructors for different decision trees should</span>
+<span class="sd">    belong to a subset of the following parameters.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fdt_class : Class, default=None</span>
+<span class="sd">        The fuzzy decision tree estimator specified.</span>
+
+<span class="sd">    disable_fuzzy : bool, default=False</span>
+<span class="sd">        Set whether the specified fuzzy decision tree uses the fuzzification.</span>
+<span class="sd">        If disable_fuzzy=True, the specified fuzzy decision tree is equivalent</span>
+<span class="sd">        to a naive decision tree.</span>
+
+<span class="sd">    X_fuzzy_dms : array-like of shape (n_samples, n_features)</span>
+<span class="sd">        Three-dimensional array, and each element of the first dimension of the</span>
+<span class="sd">        array is a two-dimensional array of corresponding feature&#39;s fuzzy sets.</span>
+<span class="sd">        Each two-dimensional array is of shape of (n_samples, n_fuzzy_sets), but</span>
+<span class="sd">        has transformed membership degree of the feature values to corresponding</span>
+<span class="sd">        fuzzy sets.</span>
+
+<span class="sd">    fuzzification_options : FuzzificationOptions, default=None</span>
+<span class="sd">        Protocol message class that encapsulates all the options of the</span>
+<span class="sd">        fuzzification settings used by the specified fuzzy decision tree.</span>
+
+<span class="sd">    criterion_func : {&quot;gini&quot;, &quot;entropy&quot;} for a classifier, {&quot;mse&quot;, &quot;mae&quot;} for a regressor</span>
+<span class="sd">        The criterion function used by the function that calculates the impurity</span>
+<span class="sd">        gain of the target values.</span>
+
+<span class="sd">    max_depth : int, default=float(&quot;inf&quot;)</span>
+<span class="sd">        The maximum depth of the tree.</span>
+
+<span class="sd">    min_samples_split : int, default=2</span>
+<span class="sd">        The minimum number of samples required to split a node. If a node has a</span>
+<span class="sd">        sample number above this threshold, it will be split, otherwise it</span>
+<span class="sd">        becomes a leaf node.</span>
+
+<span class="sd">    min_impurity_split : float, default=1e-7</span>
+<span class="sd">        The minimum impurity required to split a node. If a node&#39;s impurity is</span>
+<span class="sd">        above this threshold, it will be split, otherwise it becomes a leaf node.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    root : Node</span>
+<span class="sd">        The root node of a decision tree.</span>
+
+<span class="sd">    _impurity_gain_calculation_func : function</span>
+<span class="sd">        The function to calculate the impurity gain of the target values.</span>
+
+<span class="sd">    _leaf_value_calculation_func : function</span>
+<span class="sd">        The function to calculate the predicted value if the current node is a</span>
+<span class="sd">        leaf:</span>
+<span class="sd">        In a classification tree, it gives the target value with the highest</span>
+<span class="sd">        probability.</span>
+<span class="sd">        In a regression tree, it gives the average of all the target values.</span>
+
+<span class="sd">    _is_one_dim : bool</span>
+<span class="sd">        The Boolean value that indicates whether the y is a multi-dimensional set,</span>
+<span class="sd">        which means whether y is one-hot encoded.</span>
+
+<span class="sd">    _best_split_rule : SplitRule</span>
+<span class="sd">        The split rule including the index of the best feature to be used, and</span>
+<span class="sd">        the best value in the best feature.</span>
+
+<span class="sd">    _best_binary_subtrees : BinarySubtrees</span>
+<span class="sd">        The binary subtrees including two subtrees under a node, and each subtree</span>
+<span class="sd">        is a subset of the sample that has been split. It is one of attributes of</span>
+<span class="sd">        the node (including root node) in a decision tree.</span>
+
+<span class="sd">    _best_impurity_gain : float</span>
+<span class="sd">        The best impurity gain calculated based on the current split subtrees</span>
+<span class="sd">        during a tree building process.</span>
+
+<span class="sd">    _fuzzy_sets : array-like of shape (n_features, n_coefficients)</span>
+<span class="sd">        All the coefficients of the degree of membership sets based on the</span>
+<span class="sd">        current estimator. They will be used to calculate the degree of membership</span>
+<span class="sd">        of the features of new samples before predicting those samples. Therefore,</span>
+<span class="sd">        their life cycle is consistent with that of the current estimator.</span>
+<span class="sd">        They are generated in the feature fuzzification before training the</span>
+<span class="sd">        current estimator.</span>
+<span class="sd">        NB: To be used in version 1.0.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># All parameters in this constructor should have default values.</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fdt_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">disable_fuzzy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">X_fuzzy_dms</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fuzzification_options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">criterion_func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">max_depth</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">),</span> <span class="n">min_samples_split</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">min_impurity_split</span><span class="o">=</span><span class="mf">1e-7</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># Construct a instance of the specified fuzzy decision tree.</span>
+        <span class="k">if</span> <span class="n">fdt_class</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span> <span class="o">=</span> <span class="n">fdt_class</span><span class="p">(</span><span class="n">disable_fuzzy</span><span class="o">=</span><span class="n">disable_fuzzy</span><span class="p">,</span> <span class="n">X_fuzzy_dms</span><span class="o">=</span><span class="n">X_fuzzy_dms</span><span class="p">,</span>
+                                       <span class="n">fuzzification_options</span><span class="o">=</span><span class="n">fuzzification_options</span><span class="p">,</span> <span class="n">criterion_func</span><span class="o">=</span><span class="n">criterion_func</span><span class="p">,</span>
+                                       <span class="n">max_depth</span><span class="o">=</span><span class="n">max_depth</span><span class="p">,</span> <span class="n">min_samples_split</span><span class="o">=</span><span class="n">min_samples_split</span><span class="p">,</span>
+                                       <span class="n">min_impurity_split</span><span class="o">=</span><span class="n">min_impurity_split</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fdt_class</span> <span class="o">=</span> <span class="n">fdt_class</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">disable_fuzzy</span> <span class="o">=</span> <span class="n">disable_fuzzy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">X_fuzzy_dms</span> <span class="o">=</span> <span class="n">X_fuzzy_dms</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fuzzification_options</span> <span class="o">=</span> <span class="n">fuzzification_options</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">criterion_func</span> <span class="o">=</span> <span class="n">criterion_func</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_depth</span> <span class="o">=</span> <span class="n">max_depth</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_samples_split</span> <span class="o">=</span> <span class="n">min_samples_split</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_impurity_split</span> <span class="o">=</span> <span class="n">min_impurity_split</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ds_pretrain</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># A list used to contain data generated by pretraining.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df_pretrain</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># A dataframe used to contain data generated by pretraining.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename_ds_pretrain</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># A name of the file used to save data generated by pretraining.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">enable_pkl_mdl</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Set whether enable pickling fitted models.</span>
+
+        <span class="c1"># Ensure the directories for saving files is existing.</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">DirSave</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+
+<div class="viewcode-block" id="FuzzyDecisionTreeWrapper.fit"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.fdt_base.FuzzyDecisionTreeWrapper.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Train a decision tree estimator from the training set (X_train, y_train).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X_train : array-like of shape (n_samples, n_features)</span>
+<span class="sd">            Training instances.</span>
+
+<span class="sd">        y_train : array-like of shape (n_samples,) or (n_samples, n_outputs)</span>
+<span class="sd">            Target values (class labels) as integers or strings.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Start training to get a fitted estimator.</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="FuzzyDecisionTreeWrapper.predict"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.fdt_base.FuzzyDecisionTreeWrapper.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Predict the target values of the input samples X.</span>
+
+<span class="sd">        In classification, a predicted target value is the one with the</span>
+<span class="sd">        largest number of samples of the same class in a leaf.</span>
+
+<span class="sd">        In regression, the predicted target value is the mean of the target</span>
+<span class="sd">        values in a leaf.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        -----------</span>
+<span class="sd">        X : array-like of shape (n_samples, n_features)</span>
+<span class="sd">            Input instances to be predicted.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pred_y : list of n_outputs such arrays if n_outputs &gt; 1</span>
+<span class="sd">            The target values of the input instances.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="FuzzyDecisionTreeWrapper.predict_proba"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.fdt_base.FuzzyDecisionTreeWrapper.predict_proba">[docs]</a>    <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Predict the probabilities of the target values of the input samples X.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : array-like of shape (n_samples, n_features)</span>
+<span class="sd">            Input instances to be predicted.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pred_y : list of n_outputs such arrays if n_outputs &gt; 1</span>
+<span class="sd">            The probabilities of the target values of the input instances.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="FuzzyDecisionTreeWrapper.print_tree"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.fdt_base.FuzzyDecisionTreeWrapper.print_tree">[docs]</a>    <span class="k">def</span> <span class="nf">print_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tree</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="s2">&quot;  &quot;</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;--&gt;&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Recursively (in a top-to-bottom approach) print the built decision tree.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        tree : Node</span>
+<span class="sd">            The root node of a decision tree.</span>
+
+<span class="sd">        indent : str</span>
+<span class="sd">            The indentation symbol used when printing subtrees.</span>
+
+<span class="sd">        delimiter : str</span>
+<span class="sd">            The delimiter between split rules and results.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">print_tree</span><span class="p">(</span><span class="n">tree</span><span class="o">=</span><span class="n">tree</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="n">indent</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="n">delimiter</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span></div>
+
+    <span class="c1"># =============================================================================</span>
+    <span class="c1"># Functions to search fuzzy parameters for FDTs and plot their evaluation</span>
+    <span class="c1"># =============================================================================</span>
+<div class="viewcode-block" id="FuzzyDecisionTreeWrapper.search_fuzzy_params_4_clf"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.fdt_base.FuzzyDecisionTreeWrapper.search_fuzzy_params_4_clf">[docs]</a>    <span class="k">def</span> <span class="nf">search_fuzzy_params_4_clf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds_name_list</span><span class="p">,</span> <span class="n">conv_k_lim</span><span class="p">,</span> <span class="n">fuzzy_reg_lim</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Search fuzzy parameters for evaluating and choosing through fitting</span>
+<span class="sd">        a number of groups of FDT classifiers from specified datasets in</span>
+<span class="sd">        parallel (multi-process/master-worker mode).</span>
+
+<span class="sd">        The fuzzy feature extraction before pretraining is based on specified</span>
+<span class="sd">        fuzzy regulation coefficients and a number of fuzzy clusters that each</span>
+<span class="sd">        feature belongs to.</span>
+
+<span class="sd">        Attention</span>
+<span class="sd">        ---------</span>
+<span class="sd">        Use this function to prepare evaluation and plotting data when</span>
+<span class="sd">        you need to evaluate the effect of different degrees of fuzzification</span>
+<span class="sd">        on model training in advance.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ds_name_list : array-like</span>
+
+<span class="sd">        fuzzy_reg_lim : tuple, (start, stop, step)</span>
+
+<span class="sd">        conv_k_lim : tuple, (start, stop, step)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Create a connection used to communicate between master process and its sub-processes.</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Manager</span><span class="p">()</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+
+        <span class="c1"># Create a pool for master process to manage its sub-processes in parallel.</span>
+        <span class="n">pool</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="n">NUM_CPU_CORES_REQ</span><span class="p">)</span>
+
+        <span class="c1"># Pretrain different groups of classifiers and get each group&#39;s evaluation scores in parallel.</span>
+        <span class="k">for</span> <span class="n">ds_name</span> <span class="ow">in</span> <span class="n">ds_name_list</span><span class="p">:</span>
+            <span class="c1"># Iteratively searching an optimum number of fuzzy clusters and</span>
+            <span class="c1"># fuzzy regulation coefficient by a specified stride.</span>
+            <span class="k">for</span> <span class="n">conv_k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">conv_k_lim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">conv_k_lim</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">conv_k_lim</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
+                <span class="n">fuzzy_reg</span> <span class="o">=</span> <span class="n">fuzzy_reg_lim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">while</span> <span class="n">fuzzy_reg</span> <span class="o">&lt;=</span> <span class="n">fuzzy_reg_lim</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="c1"># Start a sub-process to fit a group of classifiers on a specified dataset and</span>
+                    <span class="c1"># get the mean of their evaluation scores.</span>
+                    <span class="n">pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_one_mean_fuzzy_clf</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">ds_name</span><span class="p">,</span> <span class="n">conv_k</span><span class="p">,</span> <span class="n">fuzzy_reg</span><span class="p">,))</span>
+                    <span class="n">fuzzy_reg</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">Decimal</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">fuzzy_reg</span><span class="p">))</span> <span class="o">+</span> <span class="n">Decimal</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">fuzzy_reg_lim</span><span class="p">[</span><span class="mi">2</span><span class="p">])))</span>
+
+        <span class="n">pool</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">pool</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+
+        <span class="c1"># Encapsulate and save all data received from the sub-processes.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_encapsulate_save_data_fuzzy_clf</span><span class="p">(</span><span class="n">q</span><span class="o">=</span><span class="n">q</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_one_mean_fuzzy_clf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">ds_name</span><span class="p">,</span> <span class="n">conv_k</span><span class="p">,</span> <span class="n">fuzzy_reg</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fit a group of fuzzy classifiers on a specified dataset and get the</span>
+<span class="sd">        mean of their evaluation scores.</span>
+
+<span class="sd">        The fuzzy feature extraction before pretraining is based on specified</span>
+<span class="sd">        fuzzy regulation coefficients and numbers of fuzzy clusters that each</span>
+<span class="sd">        feature belongs to.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        q : multiprocessing.queue.Queue</span>
+
+<span class="sd">        ds_name : str</span>
+
+<span class="sd">        conv_k : int</span>
+
+<span class="sd">        fuzzy_reg : float</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">curr_pid</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;    |-- (</span><span class="si">{}</span><span class="s2"> Child-process) Pretrain a group of classifiers on: </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">curr_pid</span><span class="p">,</span> <span class="n">ds_name</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;    |-- (</span><span class="si">{}</span><span class="s2"> Child-process) Preprocess fuzzy feature extraction based on parameters: </span><span class="si">{}</span><span class="s2">, </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">curr_pid</span><span class="p">,</span> <span class="n">conv_k</span><span class="p">,</span> <span class="n">fuzzy_reg</span><span class="p">))</span>
+
+        <span class="c1"># Load data.</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">load_data_clf</span><span class="p">(</span><span class="n">ds_name</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+        <span class="c1"># Preprocess fuzzy feature extraction (only for fuzzy decision tree).</span>
+        <span class="n">X_plus_dms</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">fuzzy_reg</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">fuzzy_reg</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">disable_fuzzy</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">X_plus_dms</span> <span class="o">=</span> <span class="n">X</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="o">.</span><span class="n">disable_fuzzy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">disable_fuzzy</span>
+            <span class="n">X_fuzzy_pre</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="c1"># - Step 1: Standardise feature scaling.</span>
+            <span class="c1"># X_fuzzy_pre[:, :] -= X_fuzzy_pre[:, :].min()</span>
+            <span class="c1"># X_fuzzy_pre[:, :] /= X_fuzzy_pre[:, :].max()</span>
+            <span class="c1"># - Step 2: Extract fuzzy features.</span>
+            <span class="n">X_dms</span> <span class="o">=</span> <span class="n">extract_fuzzy_features</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">X_fuzzy_pre</span><span class="p">,</span> <span class="n">conv_k</span><span class="o">=</span><span class="n">conv_k</span><span class="p">,</span> <span class="n">fuzzy_reg</span><span class="o">=</span><span class="n">fuzzy_reg</span><span class="p">)</span>
+            <span class="n">X_plus_dms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">X</span><span class="p">,</span> <span class="n">X_dms</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="c1"># print(&quot;************* Shape before fuzzification:&quot;, np.shape(X))</span>
+            <span class="c1"># print(&quot;************* Shape after fuzzification:&quot;, np.shape(X_plus_dms))</span>
+
+        <span class="c1"># Fit a group of models, and then get the mean of their accuracy results.</span>
+        <span class="n">acc_train_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">acc_test_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">NUM_GRP_MDLS</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;        |-- (</span><span class="si">{}</span><span class="s2"> Child-process) </span><span class="si">{}</span><span class="s2">-th fitting.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">curr_pid</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+
+            <span class="c1"># Split training and test sets by hold-out partition method.</span>
+            <span class="c1"># X_train, X_test, y_train, y_test = train_test_split(X_fuzzy_pre, y, test_size=0.4)</span>
+            <span class="n">kf</span> <span class="o">=</span> <span class="n">KFold</span><span class="p">(</span><span class="n">n_splits</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">train_index</span><span class="p">,</span> <span class="n">test_index</span> <span class="ow">in</span> <span class="n">kf</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+                <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">train_index</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="n">test_index</span><span class="p">]</span>
+
+                <span class="c1"># Fit a model, and then get its evaluation scores.</span>
+                <span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span> <span class="o">=</span> <span class="n">X_plus_dms</span><span class="p">[</span><span class="n">train_index</span><span class="p">],</span> <span class="n">X_plus_dms</span><span class="p">[</span><span class="n">test_index</span><span class="p">]</span>
+                <span class="n">accuracy_train</span><span class="p">,</span> <span class="n">accuracy_test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_one_fuzzy_clf</span><span class="p">(</span><span class="n">X_train</span><span class="o">=</span><span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="o">=</span><span class="n">X_test</span><span class="p">,</span>
+                                                                        <span class="n">y_train</span><span class="o">=</span><span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span><span class="o">=</span><span class="n">y_test</span><span class="p">,</span>
+                                                                        <span class="n">ds_name</span><span class="o">=</span><span class="n">ds_name</span><span class="p">,</span> <span class="n">conv_k</span><span class="o">=</span><span class="n">conv_k</span><span class="p">,</span>
+                                                                        <span class="n">fuzzy_reg</span><span class="o">=</span><span class="n">fuzzy_reg</span><span class="p">,</span> <span class="n">sn</span><span class="o">=</span><span class="n">i</span><span class="p">)</span>
+                <span class="n">acc_train_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">accuracy_train</span><span class="p">)</span>
+                <span class="n">acc_test_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">accuracy_test</span><span class="p">)</span>
+
+        <span class="c1"># Calculate the mean of the fitted model&#39;s evaluation scores.</span>
+        <span class="n">acc_train_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">acc_train_list</span><span class="p">)</span>
+        <span class="n">err_train_mean</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">acc_train_list</span><span class="p">))</span>
+        <span class="n">std_train</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">acc_train_list</span><span class="p">)</span>
+        <span class="n">acc_test_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">acc_test_list</span><span class="p">)</span>
+        <span class="n">err_test_mean</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">acc_test_list</span><span class="p">))</span>
+        <span class="n">std_test</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">acc_test_list</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;    |-- ========================================================================================&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;    |-- (</span><span class="si">{}</span><span class="s2"> Child-process) Pretrain a group of classifiers on: </span><span class="si">{}</span><span class="s2">.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">curr_pid</span><span class="p">,</span> <span class="n">ds_name</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;    |-- Mean train acc:&quot;</span><span class="p">,</span> <span class="n">acc_train_mean</span><span class="p">,</span> <span class="s2">&quot;  std:&quot;</span><span class="p">,</span> <span class="n">std_train</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;    |-- Mean test acc:&quot;</span><span class="p">,</span> <span class="n">acc_test_mean</span><span class="p">,</span> <span class="s2">&quot;  std:&quot;</span><span class="p">,</span> <span class="n">std_test</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;    |-- ========================================================================================&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Put the data in the connection between the master process and its sub-processes.</span>
+        <span class="c1"># !!! NB: The data should be a 2-dimensional ndarray, or a dictionary with key,</span>
+        <span class="c1"># which is the dataset name, and value, which is a 2-d matrix ndarray.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">q</span><span class="o">.</span><span class="n">full</span><span class="p">():</span>
+            <span class="n">q</span><span class="o">.</span><span class="n">put</span><span class="p">([[</span><span class="n">ds_name</span><span class="p">,</span> <span class="n">conv_k</span><span class="p">,</span> <span class="n">fuzzy_reg</span><span class="p">,</span> <span class="n">err_train_mean</span><span class="p">,</span> <span class="n">std_train</span><span class="p">,</span> <span class="n">err_test_mean</span><span class="p">,</span> <span class="n">std_test</span><span class="p">]])</span>
+
+    <span class="k">def</span> <span class="nf">_fit_one_fuzzy_clf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span><span class="p">,</span> <span class="n">ds_name</span><span class="p">,</span> <span class="n">conv_k</span><span class="p">,</span> <span class="n">fuzzy_reg</span><span class="p">,</span> <span class="n">sn</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fit a fuzzy classifier and get its evaluation scores.</span>
+
+<span class="sd">        See more about evaluation scores on https://scikit-learn.org/stable/modules/model_evaluation.html</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X_train : array-like of shape (n_samples, n_features)</span>
+
+<span class="sd">        X_test : array-like of shape (n_samples, n_features)</span>
+
+<span class="sd">        y_train : array-like of shape (n_samples,)</span>
+
+<span class="sd">        y_test : array-like of shape (n_samples,)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># # Record the start time used to calculate the time spent fitting one model.</span>
+        <span class="c1"># time_start = time.time()</span>
+
+        <span class="c1"># Fit the initialised model (rebuild a new tree inside).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+        <span class="c1"># clf.print_tree()</span>
+
+        <span class="c1"># Get the evaluation scores of the fitted estimator.</span>
+        <span class="n">y_pred_train</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+        <span class="n">accuracy_train</span> <span class="o">=</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">y_train</span><span class="p">,</span> <span class="n">y_pred_train</span><span class="p">)</span>
+        <span class="c1"># balanced_accuracy_train = balanced_accuracy_score(y_train, y_pred_train)</span>
+        <span class="c1"># neg_brier_score_train = brier_score_loss(y_train, y_pred_train)</span>
+        <span class="n">y_pred_test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+        <span class="n">accuracy_test</span> <span class="o">=</span> <span class="n">accuracy_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred_test</span><span class="p">)</span>
+        <span class="c1"># balanced_accuracy_test = balanced_accuracy_score(y_test, y_pred_test)</span>
+        <span class="c1"># neg_brier_score_test = brier_score_loss(y_test, y_pred_test)</span>
+        <span class="c1"># print(&quot;    Fuzzy accuracy train:&quot;, accuracy_train)</span>
+        <span class="c1"># print(&quot;    Fuzzy accuracy test:&quot;, accuracy_test)</span>
+
+        <span class="c1"># Pickle the fitted model.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_pkl_mdl</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">DirSave</span><span class="o">.</span><span class="n">MODELS</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="n">get_today_str</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="s2">&quot;clf_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">conv_k</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span>
+                <span class="n">fuzzy_reg</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">ds_name</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">sn</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.mdl&quot;</span>
+            <span class="n">joblib</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span>
+            <span class="c1"># trained_clf = joblib.load(filename=filename)</span>
+
+        <span class="c1"># # Display the elapsed time.</span>
+        <span class="c1"># print(&quot;        |-- ({} Child-process) Time elapsed fitting one model:&quot;, time.time() - time_start, &quot;s&quot;)</span>
+
+        <span class="k">return</span> <span class="n">accuracy_train</span><span class="p">,</span> <span class="n">accuracy_test</span>
+
+    <span class="k">def</span> <span class="nf">_encapsulate_save_data_fuzzy_clf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">q</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Encapsulate and save all data received from the sub-processes when</span>
+<span class="sd">        pretraining a group of fuzzy classifiers.</span>
+
+<span class="sd">        Save the data in memory for immediate plotting, and a copy of the</span>
+<span class="sd">        data in a file for future plotting against historical data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        q : multiprocessing.queue.Queue</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get data via connection between master process and its sub-processes.</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">q</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
+            <span class="c1"># q.put([[ds_name, conv_k, fuzzy_reg, err_train_mean, std_train, err_test_mean, std_test]])</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">data</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds_pretrain</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ds_pretrain</span> <span class="o">=</span> <span class="n">data</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ds_pretrain</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">ds_pretrain</span><span class="p">,</span> <span class="n">data</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># Save the collected data into a file.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ds_pretrain</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df_pretrain</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+            <span class="n">column_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ds_name&quot;</span><span class="p">,</span> <span class="s2">&quot;conv_k&quot;</span><span class="p">,</span> <span class="s2">&quot;fuzzy_reg&quot;</span><span class="p">,</span> <span class="s2">&quot;err_train_mean&quot;</span><span class="p">,</span> <span class="s2">&quot;std_train&quot;</span><span class="p">,</span> <span class="s2">&quot;err_test_mean&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;std_test&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df_pretrain</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ds_pretrain</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">column_names</span><span class="p">)</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">DirSave</span><span class="o">.</span><span class="n">EVAL_DATA</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="n">get_today_str</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">EvaluationType</span><span class="o">.</span><span class="n">FUZZY_REG_VS_ERR_ON_CONV_K</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="s2">&quot;.csv&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df_pretrain</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Main Process </span><span class="si">{}</span><span class="s2"> saved data as the shape:&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()),</span> <span class="bp">self</span><span class="o">.</span><span class="n">df_pretrain</span><span class="p">)</span>
+
+<div class="viewcode-block" id="FuzzyDecisionTreeWrapper.plot_fuzzy_reg_vs_err"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.fdt_base.FuzzyDecisionTreeWrapper.plot_fuzzy_reg_vs_err">[docs]</a>    <span class="k">def</span> <span class="nf">plot_fuzzy_reg_vs_err</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot fuzzy regulation coefficient versus training error and</span>
+<span class="sd">        test error on each numbers of fuzzy clusters respectively.</span>
+
+<span class="sd">        Illustrate how the performance on unseen data (test data)</span>
+<span class="sd">        is different from the performance on training data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename : str, default None</span>
+<span class="sd">            Fetch the data from the specified file if filename is</span>
+<span class="sd">            not None. Otherwise try from memory and the latest file</span>
+<span class="sd">            in the default directory in turn.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Fetch data for plotting from the specified file if filename is not None.</span>
+        <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df_pretrain</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+        <span class="c1"># Otherwise fetch data from memory and the latest file in the default directory in turn.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">df_pretrain</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># NB: The list returned by listdir() is in arbitrary order.</span>
+            <span class="n">filename_list</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">DirSave</span><span class="o">.</span><span class="n">EVAL_DATA</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">filename_list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">filename_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">filename_list</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">df_pretrain</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">DirSave</span><span class="o">.</span><span class="n">EVAL_DATA</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="n">filename_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">df_pretrain</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Not any data for plotting. Please execute the function pretrain() first.&quot;</span>
+        <span class="c1"># q.put([[ds_name, conv_k, fuzzy_reg, err_train_mean, std_train, err_test_mean, std_test]])</span>
+        <span class="n">ds_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df_pretrain</span><span class="p">[</span><span class="s2">&quot;ds_name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">ds_name</span> <span class="ow">in</span> <span class="n">ds_names</span><span class="p">:</span>
+            <span class="n">df_4_ds_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df_pretrain</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">df_pretrain</span><span class="p">[</span><span class="s2">&quot;ds_name&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">ds_name</span><span class="p">]</span>
+            <span class="n">conv_ks</span> <span class="o">=</span> <span class="n">df_4_ds_name</span><span class="p">[</span><span class="s2">&quot;conv_k&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+            <span class="c1"># conv_ks = sorted(conv_ks)  # It doesn&#39;t matter if it&#39;s drawn in ascending order from conv_k.</span>
+            <span class="k">for</span> <span class="n">conv_k</span> <span class="ow">in</span> <span class="n">conv_ks</span><span class="p">:</span>
+                <span class="n">df_4_conv_k</span> <span class="o">=</span> <span class="n">df_4_ds_name</span><span class="p">[</span><span class="n">df_4_ds_name</span><span class="p">[</span><span class="s2">&quot;conv_k&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">conv_k</span><span class="p">]</span>
+                <span class="n">df_4_conv_k</span> <span class="o">=</span> <span class="n">df_4_conv_k</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;fuzzy_reg&quot;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># ascending is True by default.</span>
+                <span class="n">coordinates</span> <span class="o">=</span> <span class="n">df_4_conv_k</span><span class="p">[[</span><span class="s2">&quot;fuzzy_reg&quot;</span><span class="p">,</span> <span class="s2">&quot;err_train_mean&quot;</span><span class="p">,</span> <span class="s2">&quot;err_test_mean&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+                <span class="c1"># print(&quot;+++++++++++++++++++++++++++++++++++++++++++++&quot;, type(df_4_conv_k[&quot;err_train_mean&quot;].values[1]))</span>
+                <span class="c1"># x_lower_limit, x_upper_limit = np.min(df_4_conv_k[[&quot;fuzzy_reg&quot;]].values), np.max(df_4_conv_k[[&quot;fuzzy_reg&quot;]].values)</span>
+                <span class="c1"># y_lower_limit = np.min(df_4_conv_k[[&quot;err_train_mean&quot;]].values) if np.min(df_4_conv_k[[&quot;err_train_mean&quot;]].values) &lt; np.min(df_4_conv_k[[&quot;err_test_mean&quot;]].values) else np.min(df_4_conv_k[[&quot;err_test_mean&quot;]].values)</span>
+                <span class="c1"># y_upper_limit = np.max(df_4_conv_k[[&quot;err_train_mean&quot;]].values) if np.max(df_4_conv_k[[&quot;err_train_mean&quot;]].values) &gt; np.max(df_4_conv_k[[&quot;err_test_mean&quot;]].values) else np.max(df_4_conv_k[[&quot;err_test_mean&quot;]].values)</span>
+                <span class="c1"># print(&quot;x_limits and y_limits are:&quot;, x_lower_limit, x_upper_limit, y_lower_limit, y_upper_limit)</span>
+
+                <span class="n">plot_multi_lines</span><span class="p">(</span><span class="n">coordinates</span><span class="o">=</span><span class="n">coordinates</span><span class="p">,</span>
+                                 <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Fuzzy Reg Coeff vs Error - conv_k </span><span class="si">{}</span><span class="s2"> - </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">conv_k</span><span class="p">,</span> <span class="n">ds_name</span><span class="p">),</span>
+                                 <span class="n">x_label</span><span class="o">=</span><span class="s2">&quot;Fuzzy Regulation Coefficient&quot;</span><span class="p">,</span>
+                                 <span class="n">y_label</span><span class="o">=</span><span class="s2">&quot;Error Rate&quot;</span><span class="p">,</span>
+                                 <span class="n">legends</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Train&quot;</span><span class="p">,</span> <span class="s2">&quot;Test&quot;</span><span class="p">],</span>
+                                 <span class="n">fig_name</span><span class="o">=</span><span class="n">DirSave</span><span class="o">.</span><span class="n">EVAL_FIGURES</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="n">get_today_str</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">EvaluationType</span><span class="o">.</span><span class="n">FUZZY_REG_VS_ERR_ON_CONV_K</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span>
+                                     <span class="n">conv_k</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">ds_name</span> <span class="o">+</span> <span class="s2">&quot;.png&quot;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_fit_one_fuzzy_regr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fit a fuzzy regressor and get its evaluation scores.</span>
+
+<span class="sd">        See more about evaluation scores on https://scikit-learn.org/stable/modules/model_evaluation.html</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X_train : array-like of shape (n_samples, n_features)</span>
+
+<span class="sd">        X_test : array-like of shape (n_samples, n_features)</span>
+
+<span class="sd">        y_train : array-like of shape (n_samples,)</span>
+
+<span class="sd">        y_test : array-like of shape (n_samples,)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, UTS Australian Artificial Intelligence Institute.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

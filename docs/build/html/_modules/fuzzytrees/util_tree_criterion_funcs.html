@@ -1,0 +1,595 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>fuzzytrees.util_tree_criterion_funcs &mdash; FuzzyTrees 0.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> FuzzyTrees
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">fuzzytrees</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">FuzzyTrees</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>fuzzytrees.util_tree_criterion_funcs</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for fuzzytrees.util_tree_criterion_funcs</h1><div class="highlight"><pre>
+<span></span><span class="c1"># _*_coding:utf-8_*_</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">@author : Zhaoqing Liu</span>
+<span class="sd">@email  : Zhaoqing.Liu-1@student.uts.edu.au</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span><span class="p">,</span> <span class="n">abstractmethod</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Functions for Classification</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="c1"># # For non-fuzzy decision trees</span>
+<span class="c1"># def calculate_entropy(y):</span>
+<span class="c1">#     &quot;&quot;&quot;</span>
+<span class="c1">#     Calculate the entropy of y.</span>
+<span class="c1">#     &quot;&quot;&quot;</span>
+<span class="c1">#     entropy = 0</span>
+<span class="c1">#</span>
+<span class="c1">#     log2 = lambda x: math.log(x) / math.log(2)</span>
+<span class="c1">#</span>
+<span class="c1">#     unique_labels = np.unique(y)</span>
+<span class="c1">#     for label in unique_labels:</span>
+<span class="c1">#         count = len(y[y == label])</span>
+<span class="c1">#         p = count / len(y)</span>
+<span class="c1">#         entropy += -p * log2(p)</span>
+<span class="c1">#</span>
+<span class="c1">#     return entropy</span>
+<span class="c1">#</span>
+<span class="c1">#</span>
+<span class="c1"># # For non-fuzzy decision trees</span>
+<span class="c1"># def calculate_gini_index(y):</span>
+<span class="c1">#     &quot;&quot;&quot;</span>
+<span class="c1">#     Calculate the Gini index of y.</span>
+<span class="c1">#     &quot;&quot;&quot;</span>
+<span class="c1">#     diffsum = 0</span>
+<span class="c1">#     for i, yi in enumerate(y[:-1], 1):</span>
+<span class="c1">#         diffsum += np.sum(np.abs(yi - y[i:]))</span>
+<span class="c1">#     return diffsum / (len(y) ** 2 * np.mean(y))</span>
+<span class="c1">#</span>
+<span class="c1">#</span>
+<span class="c1"># # For non-fuzzy decision trees</span>
+<span class="c1"># def calculate_gini(y):</span>
+<span class="c1">#     &quot;&quot;&quot;</span>
+<span class="c1">#     Calculate the Gini impurity of y.</span>
+<span class="c1">#     &quot;&quot;&quot;</span>
+<span class="c1">#     # Implementation based on the 1st Formula:</span>
+<span class="c1">#     # diff = 0</span>
+<span class="c1">#     # unique_labels = np.unique(y)</span>
+<span class="c1">#     # for label in unique_labels:</span>
+<span class="c1">#     #     count = len(y[y == label])</span>
+<span class="c1">#     #     p = count / len(y)</span>
+<span class="c1">#     #     diff += p * p</span>
+<span class="c1">#     #</span>
+<span class="c1">#     # return 1 - diff</span>
+<span class="c1">#</span>
+<span class="c1">#     # Implementation based on the 2nd Formula:</span>
+<span class="c1">#     gini = 0</span>
+<span class="c1">#     unique_labels = np.unique(y)</span>
+<span class="c1">#     for label in unique_labels:</span>
+<span class="c1">#         count = len(y[y == label])</span>
+<span class="c1">#         p = count / len(y)</span>
+<span class="c1">#         gini += p * (1 - p)</span>
+<span class="c1">#</span>
+<span class="c1">#     return gini</span>
+
+
+<span class="c1"># For fuzzy decision trees</span>
+<div class="viewcode-block" id="calculate_entropy"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.util_tree_criterion_funcs.calculate_entropy">[docs]</a><span class="k">def</span> <span class="nf">calculate_entropy</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">dm</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the entropy of y.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">entropy</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="n">log2</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="n">unique_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">unique_labels</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">dm</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">sum_sub_dm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dm</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">y</span> <span class="o">==</span> <span class="n">label</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="p">:])</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">sum_sub_dm</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dm</span><span class="p">)</span>
+            <span class="n">entropy</span> <span class="o">+=</span> <span class="o">-</span><span class="n">p</span> <span class="o">*</span> <span class="n">log2</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">y</span> <span class="o">==</span> <span class="n">label</span><span class="p">])</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">count</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+            <span class="n">entropy</span> <span class="o">+=</span> <span class="o">-</span><span class="n">p</span> <span class="o">*</span> <span class="n">log2</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">entropy</span></div>
+
+
+<span class="c1"># For fuzzy decision trees</span>
+<div class="viewcode-block" id="calculate_gini"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.util_tree_criterion_funcs.calculate_gini">[docs]</a><span class="k">def</span> <span class="nf">calculate_gini</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">dm</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the Gini impurity of y.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Implementation based on the 1st Formula:</span>
+    <span class="c1"># diff = 0</span>
+    <span class="c1"># unique_labels = np.unique(y)</span>
+    <span class="c1"># for label in unique_labels:</span>
+    <span class="c1">#     count = len(y[y == label])</span>
+    <span class="c1">#     p = count / len(y)</span>
+    <span class="c1">#     diff += p * p</span>
+    <span class="c1">#</span>
+    <span class="c1"># return 1 - diff</span>
+
+    <span class="c1"># Implementation based on the 2nd Formula:</span>
+    <span class="n">gini</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">unique_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">unique_labels</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">dm</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">sum_sub_dm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dm</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">y</span> <span class="o">==</span> <span class="n">label</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="p">:])</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">sum_sub_dm</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dm</span><span class="p">)</span>
+            <span class="n">gini</span> <span class="o">+=</span> <span class="n">p</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">p</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">y</span> <span class="o">==</span> <span class="n">label</span><span class="p">])</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">count</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+            <span class="n">gini</span> <span class="o">+=</span> <span class="n">p</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">p</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">gini</span></div>
+
+
+<div class="viewcode-block" id="calculate_impurity_gain"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.util_tree_criterion_funcs.calculate_impurity_gain">[docs]</a><span class="k">def</span> <span class="nf">calculate_impurity_gain</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">sub_y_1</span><span class="p">,</span> <span class="n">sub_y_2</span><span class="p">,</span> <span class="n">criterion_func</span><span class="p">,</span> <span class="n">p_subset_true_dm</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">p_subset_false_dm</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the impurity gain, which is equal to the</span>
+<span class="sd">    impurity of y minus the entropy of sub_y_1 and sub_y_2.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">impurity</span> <span class="o">=</span> <span class="n">criterion_func</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">p_subset_true_dm</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">p_subset_false_dm</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">information_gain</span> <span class="o">=</span> <span class="n">impurity</span> <span class="o">-</span> <span class="p">(</span><span class="n">p_subset_true_dm</span> <span class="o">*</span> <span class="n">criterion_func</span><span class="p">(</span><span class="n">sub_y_1</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">sub_y_1</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span> <span class="o">-</span> <span class="p">(</span><span class="n">p_subset_false_dm</span> <span class="o">*</span> <span class="n">criterion_func</span><span class="p">(</span><span class="n">sub_y_2</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">sub_y_2</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">p_1</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sub_y_1</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">p_2</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sub_y_2</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">information_gain</span> <span class="o">=</span> <span class="n">impurity</span> <span class="o">-</span> <span class="p">(</span><span class="n">p_1</span> <span class="o">*</span> <span class="n">criterion_func</span><span class="p">(</span><span class="n">sub_y_1</span><span class="p">))</span> <span class="o">-</span> <span class="p">(</span><span class="n">p_2</span> <span class="o">*</span> <span class="n">criterion_func</span><span class="p">(</span><span class="n">sub_y_2</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">information_gain</span></div>
+
+
+<div class="viewcode-block" id="calculate_impurity_gain_ratio"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.util_tree_criterion_funcs.calculate_impurity_gain_ratio">[docs]</a><span class="k">def</span> <span class="nf">calculate_impurity_gain_ratio</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">sub_y_1</span><span class="p">,</span> <span class="n">sub_y_2</span><span class="p">,</span> <span class="n">X_sub</span><span class="p">,</span> <span class="n">criterion_func</span><span class="p">,</span> <span class="n">p_subset_true_dm</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">p_subset_false_dm</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the impurity gain ratio.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">information_gain</span> <span class="o">=</span> <span class="n">calculate_impurity_gain</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">sub_y_1</span><span class="o">=</span><span class="n">sub_y_1</span><span class="p">,</span> <span class="n">sub_y_2</span><span class="o">=</span><span class="n">sub_y_2</span><span class="p">,</span> <span class="n">criterion_func</span><span class="o">=</span><span class="n">criterion_func</span><span class="p">,</span> <span class="n">p_subset_true_dm</span><span class="o">=</span><span class="n">p_subset_true_dm</span><span class="p">,</span> <span class="n">p_subset_false_dm</span><span class="o">=</span><span class="n">p_subset_false_dm</span><span class="p">)</span>
+    <span class="n">intrinsic_value</span> <span class="o">=</span> <span class="n">criterion_func</span><span class="p">(</span><span class="n">X_sub</span><span class="p">)</span>
+    <span class="n">information_gain_ratio</span> <span class="o">=</span> <span class="n">information_gain</span> <span class="o">/</span> <span class="n">intrinsic_value</span>
+
+    <span class="k">return</span> <span class="n">information_gain_ratio</span></div>
+
+
+<div class="viewcode-block" id="calculate_value_by_majority_vote"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.util_tree_criterion_funcs.calculate_value_by_majority_vote">[docs]</a><span class="k">def</span> <span class="nf">calculate_value_by_majority_vote</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate value by majority vote.</span>
+
+<span class="sd">    Attention</span>
+<span class="sd">    ---------</span>
+<span class="sd">    Used in classification decision tree.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">majority_value</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="n">max_count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">unique_labels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">unique_labels</span><span class="p">:</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">y</span> <span class="o">==</span> <span class="n">label</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="n">max_count</span><span class="p">:</span>
+            <span class="n">majority_value</span> <span class="o">=</span> <span class="n">label</span>
+            <span class="n">max_count</span> <span class="o">=</span> <span class="n">count</span>
+
+    <span class="k">return</span> <span class="n">majority_value</span></div>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Functions for Regression</span>
+<span class="c1"># =============================================================================</span>
+
+<div class="viewcode-block" id="calculate_mse"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.util_tree_criterion_funcs.calculate_mse">[docs]</a><span class="k">def</span> <span class="nf">calculate_mse</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the Mean Squared Error between y_true and y_pred.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mse</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">y_true</span> <span class="o">-</span> <span class="n">y_pred</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">mse</span></div>
+
+
+<div class="viewcode-block" id="calculate_mae"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.util_tree_criterion_funcs.calculate_mae">[docs]</a><span class="k">def</span> <span class="nf">calculate_mae</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the Mean Absolute Error between y_true and y_pred.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mae</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">y_true</span> <span class="o">-</span> <span class="n">y_pred</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">mae</span></div>
+
+
+<div class="viewcode-block" id="calculate_variance"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.util_tree_criterion_funcs.calculate_variance">[docs]</a><span class="k">def</span> <span class="nf">calculate_variance</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the variance of y.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">y</span><span class="p">))</span> <span class="o">*</span> <span class="n">y</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">n_samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">y</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">variance</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">n_samples</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">((</span><span class="n">y</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">mean</span><span class="p">))</span>  <span class="c1"># T means transposing a matrix.</span>
+
+    <span class="k">return</span> <span class="n">variance</span></div>
+
+
+<div class="viewcode-block" id="calculate_standard_deviation"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.util_tree_criterion_funcs.calculate_standard_deviation">[docs]</a><span class="k">def</span> <span class="nf">calculate_standard_deviation</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the standard deviation of y.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">std_dev</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">calculate_variance</span><span class="p">(</span><span class="n">y</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">std_dev</span></div>
+
+
+<div class="viewcode-block" id="calculate_variance_reduction"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.util_tree_criterion_funcs.calculate_variance_reduction">[docs]</a><span class="k">def</span> <span class="nf">calculate_variance_reduction</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">sub_y_1</span><span class="p">,</span> <span class="n">sub_y_2</span><span class="p">,</span> <span class="n">criterion_func</span><span class="p">,</span> <span class="n">p_subset_true_dm</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">p_subset_false_dm</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the variance reduction, which is equal to the</span>
+<span class="sd">    impurity of y minus the entropy of sub_y_1 and sub_y_2.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">var</span> <span class="o">=</span> <span class="n">criterion_func</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="n">var_1</span> <span class="o">=</span> <span class="n">criterion_func</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">sub_y_1</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">var_2</span> <span class="o">=</span> <span class="n">criterion_func</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">sub_y_2</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">p_subset_true_dm</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">p_subset_false_dm</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">p_1</span> <span class="o">=</span> <span class="n">p_subset_true_dm</span>
+        <span class="n">p_2</span> <span class="o">=</span> <span class="n">p_subset_false_dm</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">p_1</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sub_y_1</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="n">p_2</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sub_y_2</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="c1"># Calculate the variance reduction</span>
+    <span class="n">variance_reduction</span> <span class="o">=</span> <span class="n">var</span> <span class="o">-</span> <span class="p">(</span><span class="n">p_1</span> <span class="o">*</span> <span class="n">var_1</span> <span class="o">+</span> <span class="n">p_2</span> <span class="o">*</span> <span class="n">var_2</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">variance_reduction</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="calculate_mean_value"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.util_tree_criterion_funcs.calculate_mean_value">[docs]</a><span class="k">def</span> <span class="nf">calculate_mean_value</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the mean of y.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    y : array-like of shape (n_samples, n_labels)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    value : array-like of the shape reduced by one dimension,</span>
+<span class="sd">           at least a 0-d float number</span>
+<span class="sd">        The mean values.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">value</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Statistical functions</span>
+<span class="c1"># =============================================================================</span>
+
+<div class="viewcode-block" id="calculate_proba"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.util_tree_criterion_funcs.calculate_proba">[docs]</a><span class="k">def</span> <span class="nf">calculate_proba</span><span class="p">(</span><span class="n">y</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the probabilities of each element in the set.</span>
+
+<span class="sd">    Attention</span>
+<span class="sd">    ---------</span>
+<span class="sd">    Before counting, the elements will be reordered from smallest to largest.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    y : array-like of shape (n_samples,)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">prob_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">label_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">label_values</span><span class="p">:</span>
+        <span class="n">prob_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">y</span> <span class="o">==</span> <span class="n">label</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">y</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="c1"># If the number of dimensions of y is greater than 1,</span>
+    <span class="c1"># the following method may cause a ValueError: object too deep for desired array.</span>
+    <span class="c1"># if len(np.shape(y)) &gt; 1:</span>
+    <span class="c1">#     y = np.squeeze(y)</span>
+    <span class="c1"># dist = np.bincount(y)</span>
+    <span class="c1"># for count in dist:</span>
+    <span class="c1">#     print(count / np.shape(y)[0])</span>
+
+    <span class="k">return</span> <span class="n">prob_list</span></div>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Loss functions</span>
+<span class="c1"># =============================================================================</span>
+
+<div class="viewcode-block" id="LossFunction"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.util_tree_criterion_funcs.LossFunction">[docs]</a><span class="k">class</span> <span class="nc">LossFunction</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base loss function class that encapsulates all</span>
+<span class="sd">    base functions to be inherited by all derived</span>
+<span class="sd">    function classes.</span>
+
+<span class="sd">    Warnings</span>
+<span class="sd">    --------</span>
+<span class="sd">    This class should not be used directly.</span>
+<span class="sd">    Use derived classes instead.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="LossFunction.loss"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.util_tree_criterion_funcs.LossFunction.loss">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="LossFunction.gradient"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.util_tree_criterion_funcs.LossFunction.gradient">[docs]</a>    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">gradient</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
+        <span class="k">pass</span></div></div>
+
+
+<div class="viewcode-block" id="LeastSquaresFunction"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.util_tree_criterion_funcs.LeastSquaresFunction">[docs]</a><span class="k">class</span> <span class="nc">LeastSquaresFunction</span><span class="p">(</span><span class="n">LossFunction</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function class used in a gradient boosting regressor</span>
+<span class="sd">    (Friedman et al., 1998; Friedman 2001).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="LeastSquaresFunction.loss"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.util_tree_criterion_funcs.LeastSquaresFunction.loss">[docs]</a>    <span class="k">def</span> <span class="nf">loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Lost function is a Least-square equation: L(y, F) = (y - F) ^ 2 / 2&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">((</span><span class="n">y</span> <span class="o">-</span> <span class="n">y_pred</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="LeastSquaresFunction.gradient"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.util_tree_criterion_funcs.LeastSquaresFunction.gradient">[docs]</a>    <span class="k">def</span> <span class="nf">gradient</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
+        <span class="k">return</span> <span class="o">-</span><span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">y_pred</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="SoftLeastSquaresFunction"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.util_tree_criterion_funcs.SoftLeastSquaresFunction">[docs]</a><span class="k">class</span> <span class="nc">SoftLeastSquaresFunction</span><span class="p">(</span><span class="n">LossFunction</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function class used in a gradient boosting classifier</span>
+<span class="sd">    (Friedman et al., 1998; Friedman 2001).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SoftLeastSquaresFunction.loss"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.util_tree_criterion_funcs.SoftLeastSquaresFunction.loss">[docs]</a>    <span class="k">def</span> <span class="nf">loss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Lost function (Least-square equation: L(y, F) = (y - F) ^ 2 / 2)</span>
+<span class="sd">        is not applicable in classification.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="SoftLeastSquaresFunction.gradient"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.util_tree_criterion_funcs.SoftLeastSquaresFunction.gradient">[docs]</a>    <span class="k">def</span> <span class="nf">gradient</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">proba</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">y</span> <span class="o">-</span> <span class="n">proba</span></div></div>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Functions for Bagging Ensembles</span>
+<span class="c1"># =============================================================================</span>
+
+<div class="viewcode-block" id="majority_vote"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.util_tree_criterion_funcs.majority_vote">[docs]</a><span class="k">def</span> <span class="nf">majority_vote</span><span class="p">(</span><span class="n">y_preds</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the the final classification result by majority voting method.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    y_preds : array-like of shape (n_samples, n_estimators)</span>
+<span class="sd">        NB: The input array needs to be of integer dtype, otherwise a</span>
+<span class="sd">        TypeError is raised.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    array-like of shape (n_samples, )</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">y_pred</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">y_p</span> <span class="ow">in</span> <span class="n">y_preds</span><span class="p">:</span>
+        <span class="n">y_pred</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">y_p</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">argmax</span><span class="p">())</span>
+        <span class="c1"># np.bincount(): Count number of occurrences of each value in array of non-negative ints.</span>
+        <span class="c1"># np.argmax(): Return indices of the maximum values along the given axis.</span>
+
+    <span class="k">return</span> <span class="n">y_pred</span></div>
+
+
+<div class="viewcode-block" id="mean_value"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.util_tree_criterion_funcs.mean_value">[docs]</a><span class="k">def</span> <span class="nf">mean_value</span><span class="p">(</span><span class="n">y_preds</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the final regression result by averaging method.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    y_preds : array-like of shape (n_samples, n_estimators, n_labels)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    y_pred : array-like of the shape (n_samples, n_labels) reduced by one dimension,</span>
+<span class="sd">           at least array-like of shape (n_samples, )</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">y_pred</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">y_p</span> <span class="ow">in</span> <span class="n">y_preds</span><span class="p">:</span>
+        <span class="n">y_pred</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">calculate_mean_value</span><span class="p">(</span><span class="n">y_p</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y_pred</span><span class="p">)</span></div>
+
+
+
+
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, UTS Australian Artificial Intelligence Institute.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

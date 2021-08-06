@@ -1,0 +1,301 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>fuzzytrees.settings &mdash; FuzzyTrees 0.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> FuzzyTrees
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">fuzzytrees</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">FuzzyTrees</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>fuzzytrees.settings</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for fuzzytrees.settings</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">@author : Zhaoqing Liu</span>
+<span class="sd">@email  : Zhaoqing.Liu-1@student.uts.edu.au</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Stage 1 Experiments</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="c1"># Use Enum so that the values are not allowed to be edited and to increase the readability of the code.</span>
+<div class="viewcode-block" id="ComparisionMode"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.settings.ComparisionMode">[docs]</a><span class="k">class</span> <span class="nc">ComparisionMode</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">NAIVE</span> <span class="o">=</span> <span class="s2">&quot;my_naive_vs_sklearn_naive&quot;</span>
+    <span class="n">FF3</span> <span class="o">=</span> <span class="s2">&quot;ff3_vs_naive&quot;</span>  <span class="c1"># With only Feature Fuzzification, conv_k=3</span>
+    <span class="n">FF4</span> <span class="o">=</span> <span class="s2">&quot;ff4_vs_naive&quot;</span>  <span class="c1"># With only Feature Fuzzification, conv_k=4</span>
+    <span class="n">FF5</span> <span class="o">=</span> <span class="s2">&quot;ff5_vs_naive&quot;</span>  <span class="c1"># With only Feature Fuzzification, conv_k=5</span>
+    <span class="n">FUZZY</span> <span class="o">=</span> <span class="s2">&quot;fcart_vs_ccart&quot;</span>
+    <span class="n">BOOSTING</span> <span class="o">=</span> <span class="s2">&quot;fgbdt_vs_nfgbdt&quot;</span>
+    <span class="n">MIXED</span> <span class="o">=</span> <span class="s2">&quot;mfgbdt_vs_nfgbdt&quot;</span></div>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Stage 2 Experiments</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="c1"># Gets the maximum number of CPU cores available for the current cluster.</span>
+<span class="c1"># For example, the maximum number of available CPU cores per Mars cluster is 16 for UTS,</span>
+<span class="c1"># 30 for each Laureate cluster, 26 for each Mercury cluster, and 8 for each Venus cluster.</span>
+<span class="n">NUM_CPU_CORES_AVAL</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
+<span class="c1"># NUM_CPU_CORES_REQ = int(NUM_CPU_CORES_AVAL * 1 / 10)</span>
+<span class="n">NUM_CPU_CORES_REQ</span> <span class="o">=</span> <span class="n">NUM_CPU_CORES_AVAL</span>
+
+
+<span class="c1"># Evaluation types corresponding plotting types.</span>
+<div class="viewcode-block" id="EvaluationType"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.settings.EvaluationType">[docs]</a><span class="k">class</span> <span class="nc">EvaluationType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">FUZZY_REG_VS_ERR_ON_CONV_K</span> <span class="o">=</span> <span class="s2">&quot;fuzzy_reg_vs_err_on_conv_k&quot;</span></div>
+
+
+<span class="c1"># File paths to save evaluation data, graphs, serialised models.</span>
+<div class="viewcode-block" id="DirSave"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.settings.DirSave">[docs]</a><span class="k">class</span> <span class="nc">DirSave</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">EVAL_DATA</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;/fuzzy_trees_v001/data_gen/eval_data/&quot;</span>
+    <span class="n">EVAL_FIGURES</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;/fuzzy_trees_v001/data_gen/eval_figures/&quot;</span>
+    <span class="n">MODELS</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;/fuzzy_trees_v001/data_gen/pkl_models/&quot;</span></div>
+
+
+<span class="c1"># Number of a group of models when pretraining.</span>
+<span class="n">NUM_GRP_MDLS</span> <span class="o">=</span> <span class="mi">10</span>
+
+
+<span class="c1"># Output all of the above preset experiment configuration information before the experiment starts.</span>
+<span class="c1"># =================================================================================================</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:^100}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;Environment Configuration Information&quot;</span><span class="p">))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of CPU cores available:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:&gt;100}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">NUM_CPU_CORES_AVAL</span><span class="p">))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of CPU cores currently requested:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:&gt;100}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">NUM_CPU_CORES_REQ</span><span class="p">))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;(S1 EXP) Comparison experiments include:&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">ComparisionMode</span><span class="o">.</span><span class="n">__members__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:&gt;100}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot; -- &quot;</span> <span class="o">+</span> <span class="n">item</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;(S2 EXP) experiments include:&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">EvaluationType</span><span class="o">.</span><span class="n">__members__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:&gt;100}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot; -- &quot;</span> <span class="o">+</span> <span class="n">item</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;(S2 EXP) Current path:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:&gt;100}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;(S2 EXP) Path to save generated files:&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">DirSave</span><span class="o">.</span><span class="n">__members__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{:&gt;100}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span>
+<span class="c1"># =================================================================================================</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># For temporary use only</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="c1"># Datasets (k: dataset name, v: function for getting data) on which the model is being trained.</span>
+<span class="c1"># DS_LOAD_FUNC_CLF = {&quot;Iris&quot;: load_iris}</span>
+<span class="c1"># DS_LOAD_FUNC_CLF = {&quot;Wine&quot;: load_wine}</span>
+<span class="c1"># DS_LOAD_FUNC_CLF = {&quot;Vehicle&quot;: load_vehicle}</span>
+<span class="c1"># DS_LOAD_FUNC_CLF = {&quot;German_Credit&quot;: load_German_credit}</span>
+<span class="c1"># DS_LOAD_FUNC_CLF = {&quot;Diabetes&quot;: load_diabetes}</span>
+<span class="c1"># DS_LOAD_FUNC_CLF = {&quot;Vehicle&quot;: load_vehicle, &quot;German_Credit&quot;: load_German_credit, &quot;Diabetes&quot;: load_diabetes, &quot;Iris&quot;: load_iris, &quot;Wine&quot;: load_wine}</span>
+<span class="c1"># DS_LOAD_FUNC_REG = {}</span>
+
+<span class="c1"># Model evaluation under different fuzzy regulation coefficients.</span>
+<span class="n">FUZZY_LIM</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="n">FUZZY_STRIDE</span> <span class="o">=</span> <span class="mf">0.01</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, UTS Australian Artificial Intelligence Institute.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

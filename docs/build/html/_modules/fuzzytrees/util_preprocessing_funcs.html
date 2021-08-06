@@ -1,0 +1,496 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>fuzzytrees.util_preprocessing_funcs &mdash; FuzzyTrees 0.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> FuzzyTrees
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">fuzzytrees</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">FuzzyTrees</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>fuzzytrees.util_preprocessing_funcs</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for fuzzytrees.util_preprocessing_funcs</h1><div class="highlight"><pre>
+<span></span><span class="c1"># _*_coding:utf-8_*_</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">@author : Zhaoqing Liu</span>
+<span class="sd">@email  : Zhaoqing.Liu-1@student.uts.edu.au</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">sklearn.cluster</span> <span class="kn">import</span> <span class="n">KMeans</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">pairwise_distances</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Functions to include in this module are for preprocessing data:</span>
+<span class="sd">    1. Transform numerical variables to fuzzy degree of membership.</span>
+<span class="sd">    2. Process missing values.</span>
+<span class="sd">    3. Process outliers.</span>
+<span class="sd">    4. Transform descriptive variables to numerical variables.</span>
+<span class="sd">    5. Partitioning training sets and testing sets.</span>
+<span class="sd">    6. Normalising data.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Fuzzy-related functions</span>
+<span class="c1"># =============================================================================</span>
+
+<div class="viewcode-block" id="degree_of_membership_build"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.util_preprocessing_funcs.degree_of_membership_build">[docs]</a><span class="k">def</span> <span class="nf">degree_of_membership_build</span><span class="p">(</span><span class="n">X_df</span><span class="p">,</span> <span class="n">r_seed</span><span class="p">,</span> <span class="n">conv_k</span><span class="p">,</span> <span class="n">fuzzy_reg</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build the degree of membership set of a feature. That set maps to</span>
+<span class="sd">    the specified number of fuzzy sets of the feature.</span>
+<span class="sd">    This is the process of transforming a crisp set into a fuzzy set.</span>
+
+<span class="sd">    @author : Anjin Liu</span>
+<span class="sd">    @email : Anjin.Liu@uts.edu.au</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    X_df : DataFrame</span>
+<span class="sd">        One feature values of the training input samples.</span>
+<span class="sd">        NB: All features must be normalized by feature scaling.</span>
+
+<span class="sd">    r_seed : int</span>
+<span class="sd">        The random seed.</span>
+
+<span class="sd">    conv_k : DataFrame</span>
+<span class="sd">        The number of convolution over the input sample.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    x_new : array-like of shape (n_samples, n_fuzzy_sets)</span>
+<span class="sd">        Transformed degree of membership set.</span>
+
+<span class="sd">    centriods :</span>
+
+<span class="sd">    degree_of_membership_theta :</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x_np</span> <span class="o">=</span> <span class="n">X_df</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">x_np</span> <span class="o">=</span> <span class="n">x_np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">kmeans</span> <span class="o">=</span> <span class="n">KMeans</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="n">conv_k</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">r_seed</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_np</span><span class="p">)</span>
+    <span class="n">x_new</span> <span class="o">=</span> <span class="n">kmeans</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">x_np</span><span class="p">)</span>
+    <span class="n">centriods</span> <span class="o">=</span> <span class="n">kmeans</span><span class="o">.</span><span class="n">cluster_centers_</span>
+
+    <span class="c1"># get degree of membership distances threshold theta, DOM_theta</span>
+    <span class="n">centriods_pair_dist</span> <span class="o">=</span> <span class="n">pairwise_distances</span><span class="p">(</span><span class="n">centriods</span><span class="p">)</span>
+    <span class="c1"># to fill the diagonal</span>
+    <span class="n">centriods_pair_dist</span><span class="p">[</span><span class="n">centriods_pair_dist</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">9999</span>
+    <span class="n">degree_of_membership_theta</span> <span class="o">=</span> <span class="n">centriods_pair_dist</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># convert distance to degree of membership</span>
+    <span class="n">theta_f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">fuzzy_reg</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">fuzzy_reg</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">degree_of_membership_theta</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">fuzzy_reg</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">fuzzy_reg</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="ow">or</span> <span class="n">fuzzy_reg</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">fuzzy_reg</span> <span class="o">==</span> <span class="mf">1.0</span><span class="p">:</span>
+            <span class="n">x_new</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">x_new</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">]</span> <span class="o">/</span> <span class="n">item</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x_new</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">x_new</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">]</span> <span class="o">/</span> <span class="n">item</span> <span class="o">*</span> <span class="n">theta_f</span>
+    <span class="n">x_new</span><span class="p">[</span><span class="n">x_new</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">return</span> <span class="n">x_new</span><span class="p">,</span> <span class="n">centriods</span><span class="p">,</span> <span class="n">degree_of_membership_theta</span></div>
+
+
+<div class="viewcode-block" id="extract_fuzzy_features"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.util_preprocessing_funcs.extract_fuzzy_features">[docs]</a><span class="k">def</span> <span class="nf">extract_fuzzy_features</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">conv_k</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">fuzzy_reg</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract fuzzy features in feature fuzzification to generate degree of</span>
+<span class="sd">    membership sets of each feature.</span>
+
+<span class="sd">    Attention</span>
+<span class="sd">    ---------</span>
+<span class="sd">    Feature fuzzification must be done in the data preprocessing, that is,</span>
+<span class="sd">    before training the model and predicting new samples.</span>
+
+<span class="sd">    @author: Anjin Liu</span>
+<span class="sd">    @email: Anjin.Liu@uts.edu.au</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># print(&quot;************* X&#39;s shape:&quot;, np.shape(X))</span>
+    <span class="n">n_samples</span><span class="p">,</span> <span class="n">n_features</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="n">X_fuzzy_dms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">([</span><span class="n">n_samples</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">feature_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_features</span><span class="p">):</span>
+        <span class="n">X_fuzzy_dm</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">degree_of_membership_build</span><span class="p">(</span><span class="n">r_seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">X_df</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="n">feature_idx</span><span class="p">]),</span> <span class="n">conv_k</span><span class="o">=</span><span class="n">conv_k</span><span class="p">,</span>
+                                                      <span class="n">fuzzy_reg</span><span class="o">=</span><span class="n">fuzzy_reg</span><span class="p">)</span>
+        <span class="n">X_fuzzy_dms</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">X_fuzzy_dms</span><span class="p">,</span> <span class="n">X_fuzzy_dm</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># print(&quot;************* X_fuzzy_dms&#39;s shape:&quot;, np.shape(X_fuzzy_dms))</span>
+    <span class="k">return</span> <span class="n">X_fuzzy_dms</span></div>
+
+    <span class="c1"># X_df = pd.DataFrame(X)</span>
+    <span class="c1"># X_fuzzy_dms, _, _ = degree_of_membership_build(r_seed=0, X_df=X_df.iloc[:, 0], conv_k=5)</span>
+
+    <span class="c1"># Another try:  ====================================</span>
+    <span class="c1"># X_fuzzy_dms = []</span>
+    <span class="c1"># _, n_features = np.shape(X)</span>
+    <span class="c1"># for feature_idx in range(n_features):</span>
+    <span class="c1">#     X_fuzzy_dm, _, _ = degree_of_membership_build(r_seed=0, X_df=pd.DataFrame(X[:, feature_idx]), conv_k=5)</span>
+    <span class="c1">#     X_fuzzy_dms.append(X_fuzzy_dm)</span>
+    <span class="c1"># print(&quot;************* X_fuzzy_dms&#39;s elements:&quot;, np.asarray(X_fuzzy_dms).shape)</span>
+    <span class="c1"># return np.asarray(X_fuzzy_dms)</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Encoder</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Encoder class that encodes categorical variables.</span>
+<span class="sd">Or, use the existing encoder, sklearn.preprocessing.</span>
+<span class="sd">Feature encoding includes:</span>
+<span class="sd">    - Ordinal Encoder (OE): Label Encoder, which is used for label coding;</span>
+<span class="sd">      and Ordinal Encoder, which is used for n-dimensional feature vectors,</span>
+<span class="sd">      namely n-column feature values.</span>
+<span class="sd">    - One-Hot Encoder (OHE): encode numerical values.</span>
+<span class="sd">    - Target Encoder (Mean Encoder): is used when the cardinality of a</span>
+<span class="sd">      feature (e.g. the number of categories of this feature) is large.</span>
+<span class="sd">    - CatBoost Encoder: is similar to the Target Encoder.</span>
+<span class="sd">    - Cyclic Features: is used for uniformly cyclic features.</span>
+<span class="sd">    - Others, e.g. Feature Hashing, LeaveOut Encoder, etc.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="one_hot_encode"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.util_preprocessing_funcs.one_hot_encode">[docs]</a><span class="k">def</span> <span class="nf">one_hot_encode</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">n_ohe_col</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    One-hot encode nominal values of target values.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    y : array-like, 1-dimensional, elements must be numerical value and start from 0</span>
+
+<span class="sd">    n_ohe_col : int</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">n_ohe_col</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">n_ohe_col</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>  <span class="c1"># np.max is just an alias for np.amax.</span>
+
+    <span class="n">one_hot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">n_ohe_col</span><span class="p">))</span>  <span class="c1"># Can also use y.size instead of y.shape[0]</span>
+    <span class="n">one_hot</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">one_hot</span></div>
+
+
+<div class="viewcode-block" id="to_nominal"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.util_preprocessing_funcs.to_nominal">[docs]</a><span class="k">def</span> <span class="nf">to_nominal</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Transform values from one-hot encoding to nominal.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="make_diagonal"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.util_preprocessing_funcs.make_diagonal">[docs]</a><span class="k">def</span> <span class="nf">make_diagonal</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Transform a vector into an diagonal matrix.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">m</span><span class="p">[</span><span class="mi">0</span><span class="p">])):</span>
+        <span class="n">m</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">m</span></div>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Functions for Sampling</span>
+<span class="c1"># =============================================================================</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">## Definitions</span>
+<span class="sd">- A population can be defined as including all people or items with the </span>
+<span class="sd">  characteristic one wishes to understand.</span>
+<span class="sd">- Each observation in a population measures one or more properties (such as </span>
+<span class="sd">  weight, location, colour) of observable bodies distinguished as independent </span>
+<span class="sd">  objects or individuals.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="resample_simple_random"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.util_preprocessing_funcs.resample_simple_random">[docs]</a><span class="k">def</span> <span class="nf">resample_simple_random</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">n_subsets</span><span class="p">,</span> <span class="n">n_samples_sub</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Randomly draw a specified number of collections of independent sample</span>
+<span class="sd">    subsets from the original sample sets in the simple random sampling method.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    X : sequence of array-like of shape (n_samples, n_features)</span>
+<span class="sd">        The input samples in the format of indexable data-structure, which can</span>
+<span class="sd">        be arrays, lists, dataframes or scipy sparse matrices with consistent</span>
+<span class="sd">        first dimension.</span>
+
+<span class="sd">    y : array-like of shape (n_samples,)</span>
+<span class="sd">        The target values (class labels), which are non-negative integers in</span>
+<span class="sd">        classification and real numbers in regression. Its first dimension has</span>
+<span class="sd">        to be the same as that of X.</span>
+
+<span class="sd">    n_subsets : int</span>
+<span class="sd">        The number of collections of subsets to generate.</span>
+
+<span class="sd">    n_samples_sub : int, default=None</span>
+<span class="sd">        The sample size in each subset to generate. If left to None this is</span>
+<span class="sd">        automatically set to the first dimension of X.</span>
+
+<span class="sd">    replace : bool, default=False</span>
+<span class="sd">        Implements resampling with replacement. If False, each sampling for a</span>
+<span class="sd">        sample subset will implement (sliced) random permutations, which is a</span>
+<span class="sd">        simple sampling scheme without replacement (&#39;WOR&#39; - no element can be</span>
+<span class="sd">        selected more than once in the same sample). If True, each sampling for</span>
+<span class="sd">        a sample subset will implement a bootstrapping sampling scheme with</span>
+<span class="sd">        replacement (&#39;WR&#39; - an element may appear multiple times in the one</span>
+<span class="sd">        sample).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    X_subsets, y_subsets : tuple, where each is a sequence of array-like</span>
+<span class="sd">        The tuple of the generated lists of sample subsets. The first element</span>
+<span class="sd">        in the tuple is the list of the sample subsets from X and the second</span>
+<span class="sd">        is the list of sample subsets from y.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">n_samples_super</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">n_samples_super</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># Be equivalent to: np.expand_dims(y, axis=1)</span>
+    <span class="n">X_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># Be equivalent to: np.hstack((X, y))</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">X_y</span><span class="p">)</span>  <span class="c1"># NB: Bootstrap never uses a random_state, i.e., never np.random.seed(random_state) before.</span>
+
+    <span class="k">if</span> <span class="n">n_samples_sub</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">n_samples_sub</span> <span class="o">=</span> <span class="n">n_samples_super</span>
+    <span class="k">elif</span> <span class="n">n_samples_sub</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">n_samples_sub</span> <span class="o">&gt;</span> <span class="n">n_samples_super</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The sample is larger than the population.&quot;</span><span class="p">)</span>
+
+    <span class="n">X_subsets</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">y_subsets</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_subsets</span><span class="p">):</span>
+        <span class="c1"># The larger the sample size (starting from &gt; 10,000),</span>
+        <span class="c1"># the faster numpy.random.choice() is compared to random.sample().</span>
+        <span class="c1"># When the sample size &lt; 10,000, the reverse applies.</span>
+        <span class="n">idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">n_samples_super</span><span class="p">,</span> <span class="n">n_samples_sub</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="n">replace</span><span class="p">)</span>
+        <span class="n">X_y_bootstrap</span> <span class="o">=</span> <span class="n">X_y</span><span class="p">[</span><span class="n">idxs</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">X_bootstrap</span> <span class="o">=</span> <span class="n">X_y_bootstrap</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">y_bootstrap</span> <span class="o">=</span> <span class="n">X_y_bootstrap</span><span class="p">[:,</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">X_subsets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">X_bootstrap</span><span class="p">)</span>
+        <span class="n">y_subsets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y_bootstrap</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">X_subsets</span><span class="p">,</span> <span class="n">y_subsets</span></div>
+
+
+<div class="viewcode-block" id="resample_bootstrap"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.util_preprocessing_funcs.resample_bootstrap">[docs]</a><span class="k">def</span> <span class="nf">resample_bootstrap</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">n_subsets</span><span class="p">,</span> <span class="n">n_samples_sub</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Draw a specified number of collections of independent sample subsets from</span>
+<span class="sd">    the original sample sets in the bootstrapping sampling method.</span>
+<span class="sd">    This is a sampling scheme with replacement (&#39;WR&#39; - an element may appear</span>
+<span class="sd">    multiple times in the one sample).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    X : sequence of array-like of shape (n_samples, n_features)</span>
+<span class="sd">        The input samples in the format of indexable data-structure, which can</span>
+<span class="sd">        be arrays, lists, dataframes or scipy sparse matrices with consistent</span>
+<span class="sd">        first dimension.</span>
+
+<span class="sd">    y : array-like of shape (n_samples,)</span>
+<span class="sd">        The target values (class labels), which are non-negative integers in</span>
+<span class="sd">        classification and real numbers in regression. Its first dimension has</span>
+<span class="sd">        to be the same as that of X.</span>
+
+<span class="sd">    n_subsets : int</span>
+<span class="sd">        The number of collections of subsets to generate.</span>
+
+<span class="sd">    n_samples_sub : int, default=None</span>
+<span class="sd">        The sample size in each subset to generate. If left to None this is</span>
+<span class="sd">        automatically set to the first dimension of X.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    X_subsets, y_subsets : tuple, where each is a sequence of array-like</span>
+<span class="sd">        The tuple of the generated lists of sample subsets. The first element</span>
+<span class="sd">        in the tuple is the list of the sample subsets from X and the second</span>
+<span class="sd">        is the list of sample subsets from y.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">resample_simple_random</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">n_subsets</span><span class="o">=</span><span class="n">n_subsets</span><span class="p">,</span> <span class="n">n_samples_sub</span><span class="o">=</span><span class="n">n_samples_sub</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, UTS Australian Artificial Intelligence Institute.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,724 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>fuzzytrees.frdf &mdash; FuzzyTrees 0.0.1 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> FuzzyTrees
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">fuzzytrees</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">FuzzyTrees</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>fuzzytrees.frdf</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for fuzzytrees.frdf</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">@author : Zhaoqing Liu</span>
+<span class="sd">@email  : Zhaoqing.Liu-1@student.uts.edu.au</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">ctypes</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABCMeta</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">fuzzytrees.fdt_base</span> <span class="kn">import</span> <span class="n">FuzzyDecisionTreeWrapper</span>
+<span class="kn">from</span> <span class="nn">fuzzytrees.fdts</span> <span class="kn">import</span> <span class="n">FuzzyCARTClassifier</span><span class="p">,</span> <span class="n">FuzzyCARTRegressor</span>
+<span class="kn">from</span> <span class="nn">fuzzytrees.util_tree_criterion_funcs</span> <span class="kn">import</span> <span class="n">majority_vote</span><span class="p">,</span> <span class="n">mean_value</span>
+<span class="kn">from</span> <span class="nn">fuzzytrees.util_preprocessing_funcs</span> <span class="kn">import</span> <span class="n">resample_bootstrap</span>
+
+
+<div class="viewcode-block" id="BaseFuzzyRDF"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.frdf.BaseFuzzyRDF">[docs]</a><span class="k">class</span> <span class="nc">BaseFuzzyRDF</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base fuzzy random decision forests (RF) class that encapsulates all</span>
+<span class="sd">    base functions to be inherited by all derived classes (and attributes,</span>
+<span class="sd">    if required). This algorithm is a fuzzy extension of the random decision</span>
+<span class="sd">    forests proposed by Tin Kam Ho [1]_.</span>
+
+<span class="sd">    Warnings</span>
+<span class="sd">    --------</span>
+<span class="sd">    This class should not be used directly.</span>
+<span class="sd">    Use derived classes instead.</span>
+
+<span class="sd">    Attention</span>
+<span class="sd">    ---------</span>
+<span class="sd">    Note that sharing data between processes may not be the best option due to</span>
+<span class="sd">    various unknowable synchronisation issues, but using ``Pipe`` or ``Queue``</span>
+<span class="sd">    to communicate between multiple processes instead whenever possible. See also</span>
+<span class="sd">    Python documentation:</span>
+
+<span class="sd">    As mentioned above, when doing concurrent programming it is usually best to</span>
+<span class="sd">    avoid using shared state as far as possible. This is particularly true when</span>
+<span class="sd">    using multiple processes. However, if you really do need to use some shared</span>
+<span class="sd">    data then multiprocessing provides a couple of ways of doing so.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    disable_fuzzy : bool, default=False</span>
+<span class="sd">        Set whether the specified fuzzy decision tree uses the fuzzification.</span>
+<span class="sd">        If disable_fuzzy=True, the specified fuzzy decision tree is equivalent</span>
+<span class="sd">        to a naive decision tree.</span>
+
+<span class="sd">    fuzzification_options : FuzzificationOptions, default=None</span>
+<span class="sd">        Protocol message class that encapsulates all the options of the</span>
+<span class="sd">        fuzzification settings used by the specified fuzzy decision tree.</span>
+
+<span class="sd">    criterion_func : {&quot;gini&quot;, &quot;entropy&quot;}, default=&quot;gini&quot;, for classification; {&quot;mse&quot;, &quot;mae&quot;}, default=&quot;mse&quot;, for regression</span>
+<span class="sd">        In classification, the criterion function used by the function that</span>
+<span class="sd">        calculates the impurity gain of the target values.</span>
+<span class="sd">        In regression, the criterion function used by the function that</span>
+<span class="sd">        calculates the impurity gain of the target values.</span>
+
+<span class="sd">    n_estimators : int, default=100</span>
+<span class="sd">        The number of fuzzy decision trees to be used.</span>
+
+<span class="sd">    max_depth : int, default=3</span>
+<span class="sd">        The maximum depth of the tree to be trained.</span>
+
+<span class="sd">    min_samples_split : int, default=2</span>
+<span class="sd">        The minimum number of samples required to split a node. If a node has a</span>
+<span class="sd">        sample number above this threshold, it will be split, otherwise it</span>
+<span class="sd">        becomes a leaf node.</span>
+
+<span class="sd">    min_impurity_split : float, default=1e-7</span>
+<span class="sd">        The minimum impurity required to split a node. If a node&#39;s impurity is</span>
+<span class="sd">        above this threshold, it will be split, otherwise it becomes a leaf node.</span>
+
+<span class="sd">    max_features : int, default=None</span>
+<span class="sd">        The maximum threshold value of the qualified feature number in the</span>
+<span class="sd">        training dataset when training each fuzzy decision tree.</span>
+
+<span class="sd">    multi_process_options : MultiProcessOptions, default=None</span>
+<span class="sd">        Protocol message class that encapsulates all the options of the</span>
+<span class="sd">        multi-process settings.</span>
+<span class="sd">        If it is left as None, adopt non-parallel computing mode.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    _estimators : ndarray of FuzzyDecisionTreeClassification</span>
+<span class="sd">        The collection of sub-estimators as base learners.</span>
+
+<span class="sd">    _res_func : function, default=None</span>
+<span class="sd">        In classification, get the final result from the classes given by the</span>
+<span class="sd">        forest by majority voting method. In regression, calculate the average</span>
+<span class="sd">        of the predicted values given by the forest as the final result.</span>
+
+<span class="sd">    _n_processes : int, default=None</span>
+<span class="sd">        Number of CPU cores requested in parallel computing mode.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    About RF</span>
+<span class="sd">    The first algorithm for random decision forests was created by Tin Kam Ho [1]_</span>
+<span class="sd">    using the random subspace method [2]_, which, in Ho&#39;s formulation, is a way to</span>
+<span class="sd">    implement the &quot;stochastic discrimination&quot; approach to classification proposed</span>
+<span class="sd">    by Eugene Kleinberg.</span>
+
+<span class="sd">    An extension of the algorithm was developed by Leo Breiman [4]_ and Adele Cutler</span>
+<span class="sd">    [5]_. The extension combines Breiman&#39;s &quot;bagging&quot; idea and random selection of</span>
+<span class="sd">    features, introduced first by Ho [1]_ and later independently by Amit and</span>
+<span class="sd">    Geman [3]_ in order to construct a collection of decision trees with controlled</span>
+<span class="sd">    variance.</span>
+
+<span class="sd">    The randomness of RF is reflected in two aspects:</span>
+
+<span class="sd">    1. RF uses the bootstrapping sampling method to randomly selects n samples</span>
+<span class="sd">    from the original dataset to train each tree as the base learner,</span>
+<span class="sd">    where n is the sample size of the original dataset.</span>
+
+<span class="sd">    NB: The sample size of each training dataset is the same as that of</span>
+<span class="sd">    the original dataset, but the bootstrapping sampling method may make</span>
+<span class="sd">    the elements in the same training dataset duplicate, or the elements</span>
+<span class="sd">    in different training datasets duplicate.</span>
+
+<span class="sd">    2. During the construction of each tree, RF also randomly selects m</span>
+<span class="sd">    features of the training dataset, and then searches the optimal</span>
+<span class="sd">    features from the randomly selected features each time when splitting</span>
+<span class="sd">    a tree node to find the best splitting point.</span>
+
+<span class="sd">    Different RFs have different random feature selection methods. For</span>
+<span class="sd">    example, Tin Kam Ho&#39;s RF adopts tree-level random feature selection,</span>
+<span class="sd">    i.e. the RF randomly selects m features of the training dataset for</span>
+<span class="sd">    subsequently splitting all tree nodes. By contrast, Leo Breiman&#39;s RF</span>
+<span class="sd">    adopts node-level random feature selection, i.e. the RF randomly</span>
+<span class="sd">    selects m features of the training dataset when splitting a node</span>
+<span class="sd">    every time.</span>
+
+<span class="sd">    Let M be the total number of features of data and m be the number</span>
+<span class="sd">    of selected features. Generally, the value can be tried from the</span>
+<span class="sd">    following usual practices:</span>
+
+<span class="sd">    - For classification problems, :math:`m = 1 / 3 * M`;</span>
+<span class="sd">    - For regression problems, :math:`m = \log_{2} (M + 1)`;</span>
+<span class="sd">    - By defaults, :math:`m = \sqrt{M}`.</span>
+
+<span class="sd">    References</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    .. [1] Ho, T.K., 1995, August. Random decision forests. In Proceedings</span>
+<span class="sd">           of 3rd international conference on document analysis and</span>
+<span class="sd">           recognition (Vol. 1, pp. 278-282). IEEE.</span>
+<span class="sd">    .. [2] Ho, T.K., 1998. The random subspace method for constructing</span>
+<span class="sd">           decision forests. IEEE transactions on pattern analysis and</span>
+<span class="sd">           machine intelligence, 20(8), pp.832-844.</span>
+<span class="sd">    .. [3] Amit, Y. and Geman, D., 1997. Shape quantization and recognition</span>
+<span class="sd">           with randomized trees. Neural computation, 9(7), pp.1545-1588.</span>
+<span class="sd">    .. [4] Breiman, L., 2001. Random forests. Machine learning, 45(1),</span>
+<span class="sd">           pp.5-32.</span>
+<span class="sd">    .. [5] RColorBrewer, S. and Liaw, M.A., 2018. Package ‘randomForest’.</span>
+<span class="sd">           University of California, Berkeley: Berkeley, CA, USA.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">disable_fuzzy</span><span class="p">,</span> <span class="n">fuzzification_options</span><span class="p">,</span> <span class="n">criterion_func</span><span class="p">,</span> <span class="n">n_estimators</span><span class="p">,</span>
+                 <span class="n">max_depth</span><span class="p">,</span> <span class="n">min_samples_split</span><span class="p">,</span> <span class="n">min_impurity_split</span><span class="p">,</span> <span class="n">max_features</span><span class="p">,</span> <span class="n">multi_process_options</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">disable_fuzzy</span> <span class="o">=</span> <span class="n">disable_fuzzy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fuzzification_options</span> <span class="o">=</span> <span class="n">fuzzification_options</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">criterion_func</span> <span class="o">=</span> <span class="n">criterion_func</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_estimators</span> <span class="o">=</span> <span class="n">n_estimators</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_depth</span> <span class="o">=</span> <span class="n">max_depth</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_samples_split</span> <span class="o">=</span> <span class="n">min_samples_split</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_impurity_split</span> <span class="o">=</span> <span class="n">min_impurity_split</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_features</span> <span class="o">=</span> <span class="n">max_features</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">multi_process_options</span> <span class="o">=</span> <span class="n">multi_process_options</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_estimators</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># Forest initialised in derived classes.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_res_func</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_n_processes</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">multi_process_options</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_n_processes</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">multi_process_options</span><span class="o">.</span><span class="n">n_cpu_cores_req</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">multi_process_options</span><span class="o">.</span><span class="n">n_cpu_cores_req</span>
+
+<div class="viewcode-block" id="BaseFuzzyRDF.fit"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.frdf.BaseFuzzyRDF.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fit the fuzzy random decision forest model (in multi-process mode).</span>
+
+<span class="sd">        Process consists of:</span>
+
+<span class="sd">        St.1. Randomly resample instances through bootstrapping sampling (WR).</span>
+
+<span class="sd">        St.2. Random select features.</span>
+
+<span class="sd">        St.3. Construct trees.</span>
+
+<span class="sd">        St.4. Majority vote (classification) or simple average (regression) to</span>
+<span class="sd">        prevent overfitting and reduce variance.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X_train : array-like of shape (n_samples, n_features)</span>
+<span class="sd">            Input instances to be predicted.</span>
+
+<span class="sd">        y_train : array-like of shape (n_samples,)</span>
+<span class="sd">            Target values (non-negative integers in classification,</span>
+<span class="sd">            real numbers in regression)</span>
+<span class="sd">            NB: The input array needs to be of integer dtype, otherwise a</span>
+<span class="sd">            TypeError is raised.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Randomly select n_estimators training subsets through bootstrapping sampling.</span>
+        <span class="n">X_train_subsets</span><span class="p">,</span> <span class="n">y_train_subsets</span> <span class="o">=</span> <span class="n">resample_bootstrap</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">n_subsets</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_estimators</span><span class="p">)</span>
+
+        <span class="c1"># Get the number of the data features.</span>
+        <span class="n">n_features</span> <span class="o">=</span> <span class="n">X_train</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">disable_fuzzy</span><span class="p">:</span>
+            <span class="c1"># NB: Except the columns of fuzzy degrees of membership.</span>
+            <span class="n">n_features</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_features</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fuzzification_options</span><span class="o">.</span><span class="n">conv_k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_features</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">max_features</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">n_features</span><span class="p">))</span>
+
+        <span class="c1"># Train each tree in the forest.</span>
+        <span class="c1"># NB: Iterate the n_estimators training subsets generated above, training a tree in each iteration.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">multi_process_options</span><span class="p">:</span>  <span class="c1"># When self.multi_process_options is not None</span>
+            <span class="c1"># In multi-process mode.</span>
+            <span class="k">with</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Manager</span><span class="p">()</span> <span class="k">as</span> <span class="n">mg</span><span class="p">:</span>
+                <span class="c1"># Create a connection used to communicate between main process and its child processes.</span>
+                <span class="n">q</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Manager</span><span class="p">()</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+                <span class="c1"># Create a pool for main process to manage its child processes in parallel.</span>
+                <span class="n">pool</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="n">processes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_n_processes</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_estimators</span><span class="p">):</span>
+                    <span class="n">pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_fit_one</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">X_train_subsets</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">y_train_subsets</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">n_features</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">q</span><span class="p">,))</span>
+                <span class="n">pool</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="n">pool</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+
+                <span class="c1"># Replace all the estimators in the forest with the ones returned by the sub-processes.</span>
+                <span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">while</span> <span class="ow">not</span> <span class="n">q</span><span class="o">.</span><span class="n">empty</span><span class="p">():</span>
+                    <span class="n">estimator</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_estimators</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">estimator</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Replaced the </span><span class="si">{}</span><span class="s2">-th estimators in the forest.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">idx</span><span class="p">))</span>
+                    <span class="n">idx</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># In single-process mode.</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_estimators</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_fit_one</span><span class="p">(</span><span class="n">X_train_subsets</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">y_train_subsets</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">n_features</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_fit_one</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X_train_subset</span><span class="p">,</span> <span class="n">y_train_subset</span><span class="p">,</span> <span class="n">n_features</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># Randomly select features.</span>
+        <span class="n">idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">n_features</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_features</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">disable_fuzzy</span><span class="p">:</span>
+            <span class="c1"># Select the columns of fuzzy degrees of membership at the same time.</span>
+            <span class="n">idxs_cp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">idxs</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">idxs_cp</span><span class="p">:</span>
+                <span class="c1"># Columns of the idx-th feature&#39;s degrees of membership start from</span>
+                <span class="c1"># &quot;n_original_features + feature_idx * self.fuzzification_options.conv_k + 1&quot;, and end with</span>
+                <span class="c1"># &quot;n_original_features + (feature_idx + 1) * self.fuzzification_options.conv_k + 1&quot;.</span>
+                <span class="n">start</span> <span class="o">=</span> <span class="n">n_features</span> <span class="o">+</span> <span class="n">idx</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">fuzzification_options</span><span class="o">.</span><span class="n">conv_k</span>
+                <span class="n">stop</span> <span class="o">=</span> <span class="n">n_features</span> <span class="o">+</span> <span class="p">(</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">fuzzification_options</span><span class="o">.</span><span class="n">conv_k</span>
+                <span class="n">idxs_dm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="o">=</span><span class="n">stop</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+                <span class="n">idxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">idxs</span><span class="p">,</span> <span class="n">idxs_dm</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">X_train_subset</span> <span class="o">=</span> <span class="n">X_train_subset</span><span class="p">[:,</span> <span class="n">idxs</span><span class="p">]</span>
+
+        <span class="c1"># Fit an estimator and record the indexes of fitted features to prepare for predictions.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_estimators</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train_subset</span><span class="p">,</span> <span class="n">y_train_subset</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_estimators</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">feature_idxs</span> <span class="o">=</span> <span class="n">idxs</span>
+
+        <span class="c1"># In multi-process mode, the trained estimator needs to be passed back to the master process because</span>
+        <span class="c1"># the sub-process cannot update the global variables in the master process.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">multi_process_options</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">q</span><span class="o">.</span><span class="n">full</span><span class="p">():</span>
+                <span class="n">q</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_estimators</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">-th tree fitting is complete.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+
+<div class="viewcode-block" id="BaseFuzzyRDF.predict"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.frdf.BaseFuzzyRDF.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Predict results for X.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : array-like of shape (n_samples, n_features)</span>
+<span class="sd">            Input instances to be predicted.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        y_pred : ndarray of shape (n_samples,)</span>
+<span class="sd">            The predicted values.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        When to use multiple processes?</span>
+
+<span class="sd">        Divide a prediction calculation into subunits and run them in</span>
+<span class="sd">        multi-process mode, making sure that each subunit is sufficiently</span>
+<span class="sd">        complex. Otherwise, when the complexity of each subunit falls below</span>
+<span class="sd">        a certain threshold, depending on the hardware and software</span>
+<span class="sd">        environment, the time consumed by CPU scheduling will be greater</span>
+<span class="sd">        than the time saved by multiple processes. As an example, here is</span>
+<span class="sd">        a comparison of the elapsed times for multi-process `predict` and</span>
+<span class="sd">        non-multi-process `predict` on the dataset provided by</span>
+<span class="sd">        `sklearn.datasets.load_digits()`.</span>
+
+<span class="sd">        100 fuzzy trees with other parameters by default：</span>
+
+<span class="sd">        - Time elapsed to load data: 0.049551s;</span>
+<span class="sd">        - Time elapsed to preprocess fuzzification: 1.6184s;</span>
+<span class="sd">        - Time elapsed to partition data: 0.0041816s;</span>
+<span class="sd">        - Time elapsed to train a fuzzy classifier: 5.7213s;</span>
+<span class="sd">        - Time elapsed to predict by the fuzzy classifier:</span>
+<span class="sd">        - (Multi-process `predict`) 8.3837s;</span>
+<span class="sd">        - (Non-multi-process `predict`) 0.22926s.</span>
+
+<span class="sd">        1,000 fuzzy trees with other parameters by default:</span>
+
+<span class="sd">        - Time elapsed to load data: 0.049702s;</span>
+<span class="sd">        - Time elapsed to preprocess fuzzification: 1.6178s;</span>
+<span class="sd">        - Time elapsed to partition data: 0.0043864s;</span>
+<span class="sd">        - Time elapsed to train a fuzzy classifier: 52.689s;</span>
+<span class="sd">        - Time elapsed to predict by the fuzzy classifier:</span>
+<span class="sd">        - (Multi-process `predict`) 817.67s;</span>
+<span class="sd">        - (Non-multi-process `predict`) 2.2753s.</span>
+
+<span class="sd">        10,000 fuzzy trees with other parameters by default:</span>
+
+<span class="sd">        - Time elapsed to load data: 0.050004s;</span>
+<span class="sd">        - Time elapsed to preprocess fuzzification: 1.6821s;</span>
+<span class="sd">        - Time elapsed to partition data: 0.0041745s;</span>
+<span class="sd">        - Time elapsed to train a fuzzy classifier: 515.57s;</span>
+<span class="sd">        - Time elapsed to predict by the fuzzy classifier:</span>
+<span class="sd">        - (Multi-process `predict`) unknown (probably greater than 100 * 817.67s);</span>
+<span class="sd">        - (Non-multi-process `predict`) 23.225s.</span>
+
+<span class="sd">        As shown in the above experimental results, in multi-process mode,</span>
+<span class="sd">        :math:`WallTime_curr / WallTime_prev ≈ (NumberEstimators_curr / NumberEstimators_prev)^2`,</span>
+<span class="sd">        while in non-multi-process mode,</span>
+<span class="sd">        :math:`WallTime_curr / WallTime_prev ≈ NumberEstimators_curr / NumberEstimators_prev`.</span>
+<span class="sd">        Therefore, `predict` is not complex enough to be a subunit of</span>
+<span class="sd">        multi-process computation, and using multi-process mode on it is</span>
+<span class="sd">        usually not the best choice.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">y_preds</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_estimators</span><span class="p">):</span>
+            <span class="n">idxs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_estimators</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">feature_idxs</span>
+            <span class="n">X_subset</span> <span class="o">=</span> <span class="n">X</span><span class="p">[:,</span> <span class="n">idxs</span><span class="p">]</span>
+            <span class="n">y_pred</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_estimators</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_subset</span><span class="p">)</span>
+            <span class="n">y_preds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y_pred</span><span class="p">)</span>
+        <span class="n">y_preds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y_preds</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_res_func</span><span class="p">(</span><span class="n">y_preds</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="BaseFuzzyRDFClassifier"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.frdf.BaseFuzzyRDFClassifier">[docs]</a><span class="k">class</span> <span class="nc">BaseFuzzyRDFClassifier</span><span class="p">(</span><span class="n">BaseFuzzyRDF</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fuzzy random decision forests classifier.</span>
+
+<span class="sd">    Attention</span>
+<span class="sd">    ---------</span>
+<span class="sd">    For classification tasks, the class that is the mode of</span>
+<span class="sd">    the classes of the individual trees is returned.</span>
+
+<span class="sd">    See derived classes for descriptions of all parameters</span>
+<span class="sd">    and attributes in this class.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    disable_fuzzy : bool, default=False</span>
+<span class="sd">        Set whether the specified fuzzy decision tree uses the fuzzification.</span>
+<span class="sd">        If disable_fuzzy=True, the specified fuzzy decision tree is equivalent</span>
+<span class="sd">        to a naive decision tree.</span>
+
+<span class="sd">    fuzzification_options : FuzzificationOptions, default=None</span>
+<span class="sd">        Protocol message class that encapsulates all the options of the</span>
+<span class="sd">        fuzzification settings used by the specified fuzzy decision tree.</span>
+
+<span class="sd">    criterion_func : {&quot;gini&quot;, &quot;entropy&quot;}, default=&quot;gini&quot;</span>
+<span class="sd">        The criterion function used by the function that calculates the impurity</span>
+<span class="sd">        gain of the target values.</span>
+<span class="sd">        NB: Only use a criterion function for decision tree classifier.</span>
+
+<span class="sd">    n_estimators : int, default=100</span>
+<span class="sd">        The number of fuzzy decision trees to be used.</span>
+
+<span class="sd">    max_depth : int, default=3</span>
+<span class="sd">        The maximum depth of the tree to be trained.</span>
+
+<span class="sd">    min_samples_split : int, default=2</span>
+<span class="sd">        The minimum number of samples required to split a node. If a node has a</span>
+<span class="sd">        sample number above this threshold, it will be split, otherwise it</span>
+<span class="sd">        becomes a leaf node.</span>
+
+<span class="sd">    min_impurity_split : float, default=1e-7</span>
+<span class="sd">        The minimum impurity required to split a node. If a node&#39;s impurity is</span>
+<span class="sd">        above this threshold, it will be split, otherwise it becomes a leaf node.</span>
+
+<span class="sd">    max_features : int, default=None</span>
+<span class="sd">        The maximum threshold value of the qualified feature number in the</span>
+<span class="sd">        training dataset when training each fuzzy decision tree.</span>
+
+<span class="sd">    multi_process_options : MultiProcessOptions, default=None</span>
+<span class="sd">        Protocol message class that encapsulates all the options of the</span>
+<span class="sd">        multi-process settings.</span>
+<span class="sd">        If it is left as None, adopt non-parallel computing mode.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    _estimators : ndarray of FuzzyDecisionTreeClassification</span>
+<span class="sd">        The collection of sub-estimators as base learners.</span>
+
+<span class="sd">    _res_func : function, default=None</span>
+<span class="sd">        In classification, get the final result from the classes given by the</span>
+<span class="sd">        forest by majority voting method. In regression, calculate the average</span>
+<span class="sd">        of the predicted values given by the forest as the final result.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">disable_fuzzy</span><span class="p">,</span> <span class="n">fuzzification_options</span><span class="p">,</span> <span class="n">criterion_func</span><span class="p">,</span> <span class="n">n_estimators</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+                 <span class="n">max_depth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">min_samples_split</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">min_impurity_split</span><span class="o">=</span><span class="mf">1e-7</span><span class="p">,</span> <span class="n">max_features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">multi_process_options</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">disable_fuzzy</span><span class="o">=</span><span class="n">disable_fuzzy</span><span class="p">,</span>
+                         <span class="n">fuzzification_options</span><span class="o">=</span><span class="n">fuzzification_options</span><span class="p">,</span>
+                         <span class="n">criterion_func</span><span class="o">=</span><span class="n">criterion_func</span><span class="p">,</span>
+                         <span class="n">n_estimators</span><span class="o">=</span><span class="n">n_estimators</span><span class="p">,</span>
+                         <span class="n">max_depth</span><span class="o">=</span><span class="n">max_depth</span><span class="p">,</span>
+                         <span class="n">min_samples_split</span><span class="o">=</span><span class="n">min_samples_split</span><span class="p">,</span>
+                         <span class="n">min_impurity_split</span><span class="o">=</span><span class="n">min_impurity_split</span><span class="p">,</span>
+                         <span class="n">max_features</span><span class="o">=</span><span class="n">max_features</span><span class="p">,</span>
+                         <span class="n">multi_process_options</span><span class="o">=</span><span class="n">multi_process_options</span><span class="p">)</span>
+
+        <span class="c1"># Initialise the forest.</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_estimators</span><span class="p">):</span>
+            <span class="n">estimator</span> <span class="o">=</span> <span class="n">FuzzyDecisionTreeWrapper</span><span class="p">(</span><span class="n">fdt_class</span><span class="o">=</span><span class="n">FuzzyCARTClassifier</span><span class="p">,</span>
+                                                 <span class="n">disable_fuzzy</span><span class="o">=</span><span class="n">disable_fuzzy</span><span class="p">,</span>
+                                                 <span class="n">fuzzification_options</span><span class="o">=</span><span class="n">fuzzification_options</span><span class="p">,</span>
+                                                 <span class="n">criterion_func</span><span class="o">=</span><span class="n">criterion_func</span><span class="p">,</span>
+                                                 <span class="n">max_depth</span><span class="o">=</span><span class="n">max_depth</span><span class="p">,</span>
+                                                 <span class="n">min_samples_split</span><span class="o">=</span><span class="n">min_samples_split</span><span class="p">,</span>
+                                                 <span class="n">min_impurity_split</span><span class="o">=</span><span class="n">min_impurity_split</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_estimators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">estimator</span><span class="p">)</span>
+
+        <span class="c1"># Specify to get the final classification result by majority voting method.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_res_func</span> <span class="o">=</span> <span class="n">majority_vote</span></div>
+
+
+<div class="viewcode-block" id="BaseFuzzyRDFRegressor"><a class="viewcode-back" href="../../fuzzytrees.html#fuzzytrees.frdf.BaseFuzzyRDFRegressor">[docs]</a><span class="k">class</span> <span class="nc">BaseFuzzyRDFRegressor</span><span class="p">(</span><span class="n">BaseFuzzyRDF</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fuzzy random decision forests regressor.</span>
+
+<span class="sd">    Attention</span>
+<span class="sd">    ---------</span>
+<span class="sd">    For regression tasks, the mean or average prediction of</span>
+<span class="sd">    the individual trees is returned.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    disable_fuzzy : bool, default=False</span>
+<span class="sd">        Set whether the specified fuzzy decision tree uses the fuzzification.</span>
+<span class="sd">        If disable_fuzzy=True, the specified fuzzy decision tree is equivalent</span>
+<span class="sd">        to a naive decision tree.</span>
+
+<span class="sd">    fuzzification_options : FuzzificationOptions, default=None</span>
+<span class="sd">        Protocol message class that encapsulates all the options of the</span>
+<span class="sd">        fuzzification settings used by the specified fuzzy decision tree.</span>
+
+<span class="sd">    criterion_func : {&quot;mse&quot;, &quot;mae&quot;}, default=&quot;mse&quot;</span>
+<span class="sd">        The criterion function used by the function that calculates the impurity</span>
+<span class="sd">        gain of the target values.</span>
+<span class="sd">        NB: Only use a criterion function for decision tree regressor.</span>
+
+<span class="sd">    n_estimators : int, default=100</span>
+<span class="sd">        The number of fuzzy decision trees to be used.</span>
+
+<span class="sd">    max_depth : int, default=3</span>
+<span class="sd">        The maximum depth of the tree to be trained.</span>
+
+<span class="sd">    min_samples_split : int, default=2</span>
+<span class="sd">        The minimum number of samples required to split a node. If a node has a</span>
+<span class="sd">        sample number above this threshold, it will be split, otherwise it</span>
+<span class="sd">        becomes a leaf node.</span>
+
+<span class="sd">    min_impurity_split : float, default=1e-7</span>
+<span class="sd">        The minimum impurity required to split a node. If a node&#39;s impurity is</span>
+<span class="sd">        above this threshold, it will be split, otherwise it becomes a leaf node.</span>
+
+<span class="sd">    max_features : int, default=None</span>
+<span class="sd">        The maximum threshold value of the qualified feature number in the</span>
+<span class="sd">        training dataset when training each fuzzy decision tree.</span>
+
+<span class="sd">    multi_process_options : MultiProcessOptions, default=None</span>
+<span class="sd">        Protocol message class that encapsulates all the options of the</span>
+<span class="sd">        multi-process settings.</span>
+<span class="sd">        If it is left as None, adopt non-parallel computing mode.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    _estimators : ndarray of FuzzyDecisionTreeRegressor</span>
+<span class="sd">        The collection of sub-estimators as base learners.</span>
+
+<span class="sd">    _res_func : function, default=None</span>
+<span class="sd">        In classification, get the final result from the classes given by the</span>
+<span class="sd">        forest by majority voting method. In regression, calculate the average</span>
+<span class="sd">        of the predicted values given by the forest as the final result.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">disable_fuzzy</span><span class="p">,</span> <span class="n">fuzzification_options</span><span class="p">,</span> <span class="n">criterion_func</span><span class="p">,</span> <span class="n">n_estimators</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+                 <span class="n">max_depth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">min_samples_split</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">min_impurity_split</span><span class="o">=</span><span class="mf">1e-7</span><span class="p">,</span> <span class="n">max_features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">multi_process_options</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">disable_fuzzy</span><span class="o">=</span><span class="n">disable_fuzzy</span><span class="p">,</span>
+                         <span class="n">fuzzification_options</span><span class="o">=</span><span class="n">fuzzification_options</span><span class="p">,</span>
+                         <span class="n">criterion_func</span><span class="o">=</span><span class="n">criterion_func</span><span class="p">,</span>
+                         <span class="n">n_estimators</span><span class="o">=</span><span class="n">n_estimators</span><span class="p">,</span>
+                         <span class="n">max_depth</span><span class="o">=</span><span class="n">max_depth</span><span class="p">,</span>
+                         <span class="n">min_samples_split</span><span class="o">=</span><span class="n">min_samples_split</span><span class="p">,</span>
+                         <span class="n">min_impurity_split</span><span class="o">=</span><span class="n">min_impurity_split</span><span class="p">,</span>
+                         <span class="n">max_features</span><span class="o">=</span><span class="n">max_features</span><span class="p">,</span>
+                         <span class="n">multi_process_options</span><span class="o">=</span><span class="n">multi_process_options</span><span class="p">)</span>
+
+        <span class="c1"># Initialise forest.</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_estimators</span><span class="p">):</span>
+            <span class="n">estimator</span> <span class="o">=</span> <span class="n">FuzzyDecisionTreeWrapper</span><span class="p">(</span><span class="n">fdt_class</span><span class="o">=</span><span class="n">FuzzyCARTRegressor</span><span class="p">,</span>
+                                                 <span class="n">disable_fuzzy</span><span class="o">=</span><span class="n">disable_fuzzy</span><span class="p">,</span>
+                                                 <span class="n">fuzzification_options</span><span class="o">=</span><span class="n">fuzzification_options</span><span class="p">,</span>
+                                                 <span class="n">criterion_func</span><span class="o">=</span><span class="n">criterion_func</span><span class="p">,</span>
+                                                 <span class="n">max_depth</span><span class="o">=</span><span class="n">max_depth</span><span class="p">,</span>
+                                                 <span class="n">min_samples_split</span><span class="o">=</span><span class="n">min_samples_split</span><span class="p">,</span>
+                                                 <span class="n">min_impurity_split</span><span class="o">=</span><span class="n">min_impurity_split</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_estimators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">estimator</span><span class="p">)</span>
+
+        <span class="c1"># Specify to get the final regression result by averaging method.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_res_func</span> <span class="o">=</span> <span class="n">mean_value</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, UTS Australian Artificial Intelligence Institute.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
