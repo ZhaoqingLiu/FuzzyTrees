@@ -22,8 +22,8 @@ def use_fuzzy_cart_clf():
     # 2. Preprocess the dataset.
     # 2.1. Do fuzzification preprocessing.
     X_fuzzy_pre = X.copy()
-    fuzzification_options = FuzzificationOptions(conv_k=5)
-    X_dms = extract_fuzzy_features(X_fuzzy_pre, conv_k=fuzzification_options.conv_k)
+    fuzzification_options = FuzzificationOptions(n_conv=5)
+    X_dms = extract_fuzzy_features(X_fuzzy_pre, n_conv=fuzzification_options.n_conv)
     X_plus_dms = np.concatenate((X, X_dms), axis=1)
 
     # 2.2. Do your other data preprocessing, e.g. identifying the feature values and target values, processing the missing values, etc.
@@ -75,8 +75,8 @@ def use_fuzzy_cart_reg():
     # 2. Preprocess the dataset.
     # 2.1. Do fuzzification preprocessing.
     X_fuzzy_pre = X.copy()
-    fuzzification_options = FuzzificationOptions(conv_k=5)
-    X_dms = extract_fuzzy_features(X_fuzzy_pre, conv_k=fuzzification_options.conv_k)
+    fuzzification_options = FuzzificationOptions(n_conv=5)
+    X_dms = extract_fuzzy_features(X_fuzzy_pre, n_conv=fuzzification_options.n_conv)
     X_plus_dms = np.concatenate((X, X_dms), axis=1)
 
     # 2.2. Do your other data preprocessing, e.g. identifying the feature values and target values, processing the missing values, etc.

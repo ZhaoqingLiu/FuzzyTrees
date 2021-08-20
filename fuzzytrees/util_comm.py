@@ -16,7 +16,7 @@ def get_today_str():
 
 
 def get_now_str(tim_str):
-    return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(tim_str)/1000))
+    return time.strftime('%Y-%m-%d-%H-%M-%S', time.localtime(int(tim_str)/1000))
 
 
 def get_cwd_as_prefix():

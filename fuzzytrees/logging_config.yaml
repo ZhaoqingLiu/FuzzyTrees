@@ -10,7 +10,7 @@ handlers:
   console:
     class : logging.StreamHandler
     formatter: brief
-    level   : INFO
+    level   : DEBUG  # In development, set it to DEBUG; In production, set it to INFO.
     stream  : ext://sys.stdout  # default=sys.stderr
   file:
     class : logging.FileHandler

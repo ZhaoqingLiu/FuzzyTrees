@@ -130,7 +130,8 @@ def calculate_impurity_gain(y, sub_y_1, sub_y_2, criterion_func, p_subset_true_d
     impurity = criterion_func(y)
 
     if p_subset_true_dm is not None and p_subset_false_dm is not None:
-        information_gain = impurity - (p_subset_true_dm * criterion_func(sub_y_1[:, -1], sub_y_1[:, :-1])) - (p_subset_false_dm * criterion_func(sub_y_2[:, -1], sub_y_2[:, :-1]))
+        information_gain = impurity - (p_subset_true_dm * criterion_func(sub_y_1[:, -1], sub_y_1[:, :-1])) - (
+                    p_subset_false_dm * criterion_func(sub_y_2[:, -1], sub_y_2[:, :-1]))
     else:
         p_1 = len(sub_y_1) / len(y)
         p_2 = len(sub_y_2) / len(y)
@@ -139,11 +140,13 @@ def calculate_impurity_gain(y, sub_y_1, sub_y_2, criterion_func, p_subset_true_d
     return information_gain
 
 
-def calculate_impurity_gain_ratio(y, sub_y_1, sub_y_2, X_sub, criterion_func, p_subset_true_dm=None, p_subset_false_dm=None):
+def calculate_impurity_gain_ratio(y, sub_y_1, sub_y_2, X_sub, criterion_func, p_subset_true_dm=None,
+                                  p_subset_false_dm=None):
     """
     Calculate the impurity gain ratio.
     """
-    information_gain = calculate_impurity_gain(y=y, sub_y_1=sub_y_1, sub_y_2=sub_y_2, criterion_func=criterion_func, p_subset_true_dm=p_subset_true_dm, p_subset_false_dm=p_subset_false_dm)
+    information_gain = calculate_impurity_gain(y=y, sub_y_1=sub_y_1, sub_y_2=sub_y_2, criterion_func=criterion_func,
+                                               p_subset_true_dm=p_subset_true_dm, p_subset_false_dm=p_subset_false_dm)
     intrinsic_value = criterion_func(X_sub)
     information_gain_ratio = information_gain / intrinsic_value
 
@@ -342,6 +345,43 @@ class SoftLeastSquaresFunction(LossFunction):
 
 
 # =============================================================================
+# Functions for Boosting Ensembles
+# =============================================================================
+def sigmoid(y_preds):
+    """Sigmoid nonlinear transformation.
+
+    Parameters
+    ----------
+    y_preds : array-like of one-hot-encoding array
+        NB: The input array needs to be of integer dtype, otherwise a
+        TypeError is raised.
+
+    Returns
+    -------
+    array-like of shape (n_samples, )
+    """
+    return 1 / (1 + np.exp(-y_preds))
+
+
+def softmax(y_preds):
+    """Softmax nonlinear transformation.
+
+    Parameters
+    ----------
+    y_preds : array-like of one-hot-encoding array
+        NB: The input array needs to be of integer dtype, otherwise a
+        TypeError is raised.
+
+    Returns
+    -------
+    array-like of shape (n_samples, )
+    """
+    dummy = np.exp(y_preds)
+    sums = np.sum(dummy, axis=1, keepdims=True)
+    return dummy / sums
+
+
+# =============================================================================
 # Functions for Bagging Ensembles
 # =============================================================================
 
@@ -386,8 +426,3 @@ def mean_value(y_preds):
         y_pred.append(calculate_mean_value(y_p))
 
     return np.array(y_pred)
-
-
-
-
-

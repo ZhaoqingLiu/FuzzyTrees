@@ -125,14 +125,14 @@ def by_LightGBM(X_train, X_test, y_train, y_test):
 
 def by_XGBoost(X_train, X_test, y_train, y_test):
     clf = XGBClassifier(learning_rate=0.01,
-                        n_estimators=1,  # 树的个数-10棵树建立xgboost
-                        max_depth=5,  # 树的深度
-                        min_child_weight=1,  # 叶子节点最小权重
-                        gamma=0,  # 惩罚项中叶子结点个数前的参数
-                        subsample=0.7,  # 所有样本建立决策树
-                        colsample_btree=0.7,  # 所有特征建立决策树
-                        scale_pos_weight=1,  # 解决样本个数不平衡的问题
-                        random_state=2021,  # 随机数
+                        n_estimators=1,
+                        max_depth=5,
+                        min_child_weight=1,
+                        gamma=0,
+                        subsample=0.7,
+                        colsample_btree=0.7,
+                        scale_pos_weight=1,
+                        random_state=2021,
                         slient=1
                         )
     clf.fit(X_train, y_train)

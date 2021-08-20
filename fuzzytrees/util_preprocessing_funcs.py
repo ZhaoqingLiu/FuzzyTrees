@@ -23,7 +23,7 @@ Functions to include in this module are for preprocessing data:
 # Fuzzy-related functions
 # =============================================================================
 
-def degree_of_membership_build(X_df, r_seed, conv_k, fuzzy_reg):
+def degree_of_membership_build(X_df, r_seed, n_conv, fuzzy_reg):
     """
     Build the degree of membership set of a feature. That set maps to
     the specified number of fuzzy sets of the feature.
@@ -41,7 +41,7 @@ def degree_of_membership_build(X_df, r_seed, conv_k, fuzzy_reg):
     r_seed : int
         The random seed.
 
-    conv_k : DataFrame
+    n_conv : int
         The number of convolution over the input sample.
 
     Returns
@@ -57,7 +57,7 @@ def degree_of_membership_build(X_df, r_seed, conv_k, fuzzy_reg):
     x_np = X_df.values
     x_np = x_np.reshape(-1, 1)
 
-    kmeans = KMeans(n_clusters=conv_k, random_state=r_seed).fit(x_np)
+    kmeans = KMeans(n_clusters=n_conv, random_state=r_seed).fit(x_np)
     x_new = kmeans.transform(x_np)
     centriods = kmeans.cluster_centers_
 
@@ -68,18 +68,22 @@ def degree_of_membership_build(X_df, r_seed, conv_k, fuzzy_reg):
     degree_of_membership_theta = centriods_pair_dist.min(axis=1)
 
     # convert distance to degree of membership
-    theta_f = np.log(fuzzy_reg) - np.log(1 - fuzzy_reg)
     for idx, item in enumerate(degree_of_membership_theta):
-        if fuzzy_reg == 0 or fuzzy_reg == 0.0 or fuzzy_reg == 1 or fuzzy_reg == 1.0:
-            x_new[:, idx] = 1 - x_new[:, idx] / item
-        else:
-            x_new[:, idx] = 1 - x_new[:, idx] / item * theta_f
+        x_new[:, idx] = 1 - x_new[:, idx] / item
     x_new[x_new < 0] = 0
+    # Followed by an alternative to the above three lines of code, which supports pruning `theta`.
+    # theta_f = np.log(fuzzy_reg) - np.log(1 - fuzzy_reg)
+    # for idx, item in enumerate(degree_of_membership_theta):
+    #     if fuzzy_reg == 0 or fuzzy_reg == 0.0 or fuzzy_reg == 1 or fuzzy_reg == 1.0:
+    #         x_new[:, idx] = 1 - x_new[:, idx] / item
+    #     else:
+    #         x_new[:, idx] = 1 - x_new[:, idx] / item * theta_f
+    # x_new[x_new < 0] = 0
 
     return x_new, centriods, degree_of_membership_theta
 
 
-def extract_fuzzy_features(X, conv_k=5, fuzzy_reg=0.0):
+def extract_fuzzy_features(X, n_conv=5, fuzzy_reg=0.0):
     """
     Extract fuzzy features in feature fuzzification to generate degree of
     membership sets of each feature.
@@ -96,20 +100,20 @@ def extract_fuzzy_features(X, conv_k=5, fuzzy_reg=0.0):
     n_samples, n_features = np.shape(X)
     X_fuzzy_dms = np.empty([n_samples, 0])
     for feature_idx in range(n_features):
-        X_fuzzy_dm, _, _ = degree_of_membership_build(r_seed=0, X_df=pd.DataFrame(X[:, feature_idx]), conv_k=conv_k,
+        X_fuzzy_dm, _, _ = degree_of_membership_build(r_seed=0, X_df=pd.DataFrame(X[:, feature_idx]), n_conv=n_conv,
                                                       fuzzy_reg=fuzzy_reg)
         X_fuzzy_dms = np.concatenate((X_fuzzy_dms, X_fuzzy_dm), axis=1)
     # print("************* X_fuzzy_dms's shape:", np.shape(X_fuzzy_dms))
     return X_fuzzy_dms
 
     # X_df = pd.DataFrame(X)
-    # X_fuzzy_dms, _, _ = degree_of_membership_build(r_seed=0, X_df=X_df.iloc[:, 0], conv_k=5)
+    # X_fuzzy_dms, _, _ = degree_of_membership_build(r_seed=0, X_df=X_df.iloc[:, 0], n_conv=5)
 
     # Another try:  ====================================
     # X_fuzzy_dms = []
     # _, n_features = np.shape(X)
     # for feature_idx in range(n_features):
-    #     X_fuzzy_dm, _, _ = degree_of_membership_build(r_seed=0, X_df=pd.DataFrame(X[:, feature_idx]), conv_k=5)
+    #     X_fuzzy_dm, _, _ = degree_of_membership_build(r_seed=0, X_df=pd.DataFrame(X[:, feature_idx]), n_conv=5)
     #     X_fuzzy_dms.append(X_fuzzy_dm)
     # print("************* X_fuzzy_dms's elements:", np.asarray(X_fuzzy_dms).shape)
     # return np.asarray(X_fuzzy_dms)
@@ -154,7 +158,7 @@ def one_hot_encode(y, n_ohe_col=None):
     if n_ohe_col is None:
         n_ohe_col = np.amax(y) + 1  # np.max is just an alias for np.amax.
 
-    one_hot = np.zeros((y.shape[0], n_ohe_col))  # Can also use y.size instead of y.shape[0]
+    one_hot = np.zeros((y.shape[0], n_ohe_col))  # Or, use y.size instead of y.shape[0]
     one_hot[np.arange(y.shape[0]), y] = 1
 
     return one_hot

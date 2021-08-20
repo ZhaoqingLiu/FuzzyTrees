@@ -12,14 +12,15 @@ from enum import Enum
 # =============================================================================
 
 # Use Enum so that the values are not allowed to be edited and to increase the readability of the code.
-class ComparisionMode(Enum):
-    NAIVE = "my_naive_vs_sklearn_naive"
-    FF3 = "ff3_vs_naive"  # With only Feature Fuzzification, conv_k=3
-    FF4 = "ff4_vs_naive"  # With only Feature Fuzzification, conv_k=4
-    FF5 = "ff5_vs_naive"  # With only Feature Fuzzification, conv_k=5
-    FUZZY = "fcart_vs_ccart"
-    BOOSTING = "fgbdt_vs_nfgbdt"
-    MIXED = "mfgbdt_vs_nfgbdt"
+class ComparisonMode(Enum):
+    # NAIVE = "my_naive_vs_sklearn_naive"
+    FF3 = "f3_ds_vs_orig_ds"  # With only Feature Fuzzification, n_conv=3
+    FF4 = "f4_ds_vs_orig_ds"  # With only Feature Fuzzification, n_conv=4
+    FF5 = "f5_ds_vs_orig_ds"  # With only Feature Fuzzification, n_conv=5
+    FF6 = "f6_ds_vs_orig_ds"  # With only Feature Fuzzification, n_conv=6
+    FUZZY = "fcart_vs_nfcart"
+    # BOOSTING = "fgbdt_vs_nfgbdt"
+    # MIXED = "mfgbdt_vs_nfgbdt"
 
 
 # =============================================================================
@@ -36,7 +37,7 @@ NUM_CPU_CORES_REQ = NUM_CPU_CORES_AVAL
 
 # Evaluation types corresponding plotting types.
 class EvaluationType(Enum):
-    FUZZY_REG_VS_ERR_ON_CONV_K = "fuzzy_reg_vs_err_on_conv_k"
+    FUZZY_REG_VS_ERR_ON_N_CONV = "fuzzy_reg_vs_err_on_n_conv"
 
 
 # File paths to save evaluation data, graphs, serialised models.
@@ -63,7 +64,7 @@ print("Number of CPU cores currently requested:")
 print("{:>100}".format(NUM_CPU_CORES_REQ))
 
 print("(S1 EXP) Comparison experiments include:")
-for name, item in ComparisionMode.__members__.items():
+for name, item in ComparisonMode.__members__.items():
     print("{:>100}".format(name + " -- " + item.value))
 
 print("(S2 EXP) experiments include:")

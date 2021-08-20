@@ -2,12 +2,9 @@
 @author : Zhaoqing Liu
 @email  : Zhaoqing.Liu-1@student.uts.edu.au
 """
-import datetime
-import errno
 import logging
 import logging.config
 import os
-from logging import FileHandler
 
 import yaml
 
@@ -18,21 +15,6 @@ import yaml
 def setup_logging(default_path='logging_config.yaml', default_level=logging.INFO):
     """
     Configure the logging module.
-
-    How to enable global configuration for logging?
-
-    Call this function at the beginning of the program's main function, and then
-    use `logging` to get a logger wherever you need to log.
-
-    How to log?
-
-    In development, set the `level` of all handlers, e.g., `console`, `file`,
-    `error`, etc., in the log configuration file to `DEBUG` for debugging
-    purposes.
-
-    Production systems, set the `level` of each handler in the log
-    configuration file back to the levels appropriate for production systems,
-    e.g., `console` to `INFO`, `file` to `DEBUG`, and `error` to `ERROR`.
 
     Parameters
     ----------
@@ -51,6 +33,33 @@ def setup_logging(default_path='logging_config.yaml', default_level=logging.INFO
     References
     ----------
     .. [6] https://github.com/yaml/pyyaml/wiki/PyYAML-yaml.load(input)-Deprecation
+
+    Examples
+    --------
+    How to enable global configuration for logging?
+
+    Call this function at the beginning of the program's main function, and then
+    use `logging` to get a logger wherever you need to log.
+
+    >>>filepath = "fuzzytrees/logging_config.yaml"
+    >>>setup_logging(filepath)
+
+    How to log?
+
+    The root logger `root` in the log configuration file 'logging_config.yaml'
+    is applicable to development debugging, and all logger within `loggers`,
+    e.g., `main.core`, are applicable to production. In development, set the
+    `level` of the handler `console` to `DEBUG`, and in production set it back
+    to `INFO`. Customise new loggers as needed.
+
+    For development dubugging:
+    >>>logging.debug("This is a debugging message.")
+
+    For production:
+    >>>logger = logging.getLogger("main.core")
+    >>>logger.debug("This is a debugging message.")
+    >>>logger.info("This is a info message.")
+    >>>logger.error("This is a error message.")
     """
     path = default_path
     if os.path.exists(path):

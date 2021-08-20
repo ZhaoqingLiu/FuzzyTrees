@@ -206,7 +206,7 @@ class BaseFuzzyRDF(metaclass=ABCMeta):
         n_features = X_train.shape[1]
         if not self.disable_fuzzy:
             # NB: Except the columns of fuzzy degrees of membership.
-            n_features = int(n_features / (self.fuzzification_options.conv_k + 1))
+            n_features = int(n_features / (self.fuzzification_options.n_conv + 1))
 
         if self.max_features is None:
             self.max_features = int(np.sqrt(n_features))
@@ -217,7 +217,7 @@ class BaseFuzzyRDF(metaclass=ABCMeta):
             # In multi-process mode.
             with multiprocessing.Manager() as mg:
                 # Create a connection used to communicate between main process and its child processes.
-                q = multiprocessing.Manager().Queue()
+                q = mg.Queue()
                 # Create a pool for main process to manage its child processes in parallel.
                 pool = multiprocessing.Pool(processes=self._n_processes)
                 for i in range(self.n_estimators):
@@ -245,10 +245,10 @@ class BaseFuzzyRDF(metaclass=ABCMeta):
             idxs_cp = np.copy(idxs)
             for idx in idxs_cp:
                 # Columns of the idx-th feature's degrees of membership start from
-                # "n_original_features + feature_idx * self.fuzzification_options.conv_k + 1", and end with
-                # "n_original_features + (feature_idx + 1) * self.fuzzification_options.conv_k + 1".
-                start = n_features + idx * self.fuzzification_options.conv_k
-                stop = n_features + (idx + 1) * self.fuzzification_options.conv_k
+                # "n_original_features + feature_idx * self.fuzzification_options.n_conv + 1", and end with
+                # "n_original_features + (feature_idx + 1) * self.fuzzification_options.n_conv + 1".
+                start = n_features + idx * self.fuzzification_options.n_conv
+                stop = n_features + (idx + 1) * self.fuzzification_options.n_conv
                 idxs_dm = np.arange(start=start, stop=stop, step=1, dtype=int)
                 idxs = np.concatenate((idxs, idxs_dm), axis=0)
         X_train_subset = X_train_subset[:, idxs]

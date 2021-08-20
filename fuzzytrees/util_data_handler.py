@@ -13,10 +13,74 @@ from sklearn import datasets
 # ==================================================================================
 
 # Change it to your folder path.
+from sklearn.model_selection import train_test_split
+
 DATA_FOLDER_PATH = os.path.abspath(os.path.dirname(os.getcwd())) + '/Datasets/'
 
 
 # print("+++++++++++++++++++++++++++++++++++++++++++++", DATA_FOLDER_PATH)
+
+
+def load_covertype():
+    """
+    Dua, D. & Graff, C., UCI machine learning repository [http://archive.ics.uci.edu/ml],
+    Irvine, CA: University of California, School of Information and Computer Science.
+    """
+    df = pd.read_csv(DATA_FOLDER_PATH + 'Covertype/covtype.csv', sep=',', decimal='.')
+    df.dropna(inplace=True)
+    return df
+
+
+def load_pokerhand():
+    """
+    Dua, D. & Graff, C., UCI machine learning repository [http://archive.ics.uci.edu/ml],
+    Irvine, CA: University of California, School of Information and Computer Science.
+    """
+    df = pd.read_csv(DATA_FOLDER_PATH + 'Pokerhand/poker-hand-training-true.data', sep=',', decimal='.', header=None)
+    # df = pd.read_csv(DATA_FOLDER_PATH + 'Pokerhand/poker-hand-testing.data', sep=',', decimal='.', header=None)
+    return df
+
+
+def load_mushroom():
+    """
+    Dua, D. & Graff, C., UCI machine learning repository [http://archive.ics.uci.edu/ml],
+    Irvine, CA: University of California, School of Information and Computer Science.
+    """
+    column_names = ['class',
+                    'cap-shape',
+                    'cap-surface',
+                    'cap-color',
+                    'bruises',
+                    'odor',
+                    'gill-attachment',
+                    'ill-spacing',
+                    'gill-size',
+                    'gill-color',
+                    'stalk-shape',
+                    'stalk-root',
+                    'stalk-surface-above-ring',
+                    'stalk-surface-below-ring',
+                    'stalk-color-above-ring',
+                    'stalk-color-below-ring',
+                    'veil-type',
+                    'veil-color',
+                    'ring-number',
+                    'vring-type',
+                    'spore-print-color',
+                    'population',
+                    'habitat']
+
+    df = pd.read_csv(DATA_FOLDER_PATH + 'Mushroom/agaricus-lepiota.data', sep=',', decimal='.', header=None)
+    df.columns = column_names
+
+    # (Optional for non-fuzzy FDT) Numerise all attributes.
+    for column in column_names:
+        y_flag = df[column].unique()
+        df.loc[:, column] = df.loc[:, column].apply(lambda x: y_flag.tolist().index(x))
+    class_ = df.pop('class')
+    df.insert(df.shape[1], 'class', class_)
+
+    return df
 
 
 def load_vehicle():
@@ -96,6 +160,11 @@ def load_chess():
     """
     df = pd.read_csv(DATA_FOLDER_PATH + 'Chess/kr-vs-kp.data', header=None)
 
+    # # Encode each column with Label-Encoding.
+    # columns = df.columns
+    # for column in columns:
+    #     df[column] = pd.factorize(df[column])[0].astype(np.uint16)
+
     return df
 
 
@@ -109,43 +178,45 @@ def load_diabetes():
 
 
 def load_iris():
-    # dataset = datasets.load_iris()
-    # X = dataset.data
-    # y = dataset.target
-    #
-    # y = np.expand_dims(y, axis=1)
-    # ds = np.concatenate((X, y), axis=1)
-    #
-    # return pd.DataFrame(ds)
-
-    return datasets.load_iris(as_frame=True).frame
+    X, y = datasets.load_iris(return_X_y=True)
+    y = np.expand_dims(y, axis=1)
+    ds = np.concatenate((X, y), axis=1)
+    return pd.DataFrame(ds)
 
 
 def load_wine():
-    # dataset = datasets.load_wine()
-    # X = dataset.data
-    # y = dataset.target
-    #
-    # y = np.expand_dims(y, axis=1)
-    # ds = np.concatenate((X, y), axis=1)
-    #
-    # return pd.DataFrame(ds)
-
-    return datasets.load_wine(as_frame=True).frame
+    X, y = datasets.load_wine(return_X_y=True)
+    y = np.expand_dims(y, axis=1)
+    ds = np.concatenate((X, y), axis=1)
+    return pd.DataFrame(ds)
 
 
 # ==================================================================================
-# Datasets available provided by this module.
+# Constants and functions used to get datasets for experiments.
+# Note: The following functions may select partial data to save experiment time.
 # ==================================================================================
 # Datasets (k: dataset name, v: function for getting data) on which the model is being trained.
-DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle, "German_Credit": load_German_credit, "Diabetes": load_diabetes,
-                    "Iris": load_iris, "Wine": load_wine}
-DS_LOAD_FUNC_REG = {}  # To be set when running regression experiments.
+DS_LOAD_FUNC_CLF = {"Covertype": load_covertype,
+                    "Mushroom": load_mushroom,
+                    "Vehicle": load_vehicle,
+                    "German_Credit": load_German_credit,
+                    "Diabetes": load_diabetes,
+                    "Waveform": load_waveform}
+DS_LOAD_FUNC_CLF = {"Covertype": load_covertype}
+# DS_LOAD_FUNC_CLF = {"Pokerhand": load_pokerhand}
+# DS_LOAD_FUNC_CLF = {"Mushroom": load_mushroom}
+# DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle}
+# DS_LOAD_FUNC_CLF = {"German_Credit": load_German_credit}
+# DS_LOAD_FUNC_CLF = {"Diabetes": load_diabetes}
+# DS_LOAD_FUNC_CLF = {"Waveform": load_waveform}
+
+# Datasets - only for debugging!!!
+# DS_LOAD_FUNC_CLF = {"Iris": load_iris, "Wine": load_wine}
 
 
 def load_data_clf(ds_name):
     """
-    Load a dataset by the specified name.
+    Load the data for classification by the specified dataset name.
 
     Parameters
     ----------
@@ -161,6 +232,7 @@ def load_data_clf(ds_name):
         ds_load_func = DS_LOAD_FUNC_CLF[ds_name]
 
     return None if ds_load_func is None else ds_load_func()
+
 
 # if __name__ == "__main__":
 #     print(DATA_FOLDER_PATH)

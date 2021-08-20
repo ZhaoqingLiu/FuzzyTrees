@@ -6,6 +6,7 @@
 from abc import ABCMeta
 import numpy as np
 from sklearn.preprocessing import OneHotEncoder
+from sklearn.utils.extmath import softmax
 
 from fuzzytrees.fdt_base import FuzzyDecisionTreeWrapper, CRITERIA_FUNC_REG
 from fuzzytrees.fdts import FuzzyCARTRegressor
@@ -109,12 +110,11 @@ class FuzzyGBDT(metaclass=ABCMeta):
         # the classifications of samples.
         self._estimators = []
         for i in range(self.n_estimators):
-            # self._estimators.append(
-            #     FuzzyDecisionTreeRegressor(disable_fuzzy=self.disable_fuzzy, X_fuzzy_dms=self.X_fuzzy_dms,
-            #                                fuzzification_options=self.fuzzification_options,
-            #                                criterion_func=self.criterion_func, max_depth=self.max_depth,
-            #                                min_samples_split=self.min_samples_split,
-            #                                min_impurity_split=self.min_impurity_split))
+            # self._estimators.append(FuzzyCARTRegressor(disable_fuzzy=self.disable_fuzzy, X_fuzzy_dms=self.X_fuzzy_dms,
+            #                                            fuzzification_options=self.fuzzification_options,
+            #                                            criterion_func=self.criterion_func, max_depth=self.max_depth,
+            #                                            min_samples_split=self.min_samples_split,
+            #                                            min_impurity_split=self.min_impurity_split))
             estimator = FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTRegressor,
                                                  disable_fuzzy=disable_fuzzy,
                                                  fuzzification_options=fuzzification_options,
@@ -167,22 +167,27 @@ class FuzzyGBDT(metaclass=ABCMeta):
         """
         # Use the first fitted estimator to predict values F_0(x).
         y_pred = self._estimators[0].predict(X)
+        print("++++++++++++++++++++++++++", np.asarray(y_pred, dtype="float32"))
 
         # Then use the other fitting estimators to iteratively predict
         # the residuals and add them up to the values F_0(x).
         for i in range(1, self.n_estimators):
             y_pred -= np.multiply(self.learning_rate, self._estimators[i].predict(X))
+            print("-------------------------", np.asarray(y_pred, dtype="float32"))
 
         if not self.is_regression:
-            # Use each probability distribution instead.
-            sums = np.expand_dims(np.sum(np.exp(y_pred), axis=1), axis=1)
-            if np.all(sums == 0):
-                y_pred = 0
-            else:
-                y_pred = np.exp(y_pred) / sums
-
-            # Select the classification with the highest probability as the prediction.
+            # Use softmax function for multiple-class (consider sigmoid function if binary-class).
+            y_pred = softmax(y_pred)
             y_pred = np.argmax(y_pred, axis=1)
+            # # Use each probability distribution instead.
+            # dummy = np.exp(y_pred)
+            # sums = np.expand_dims(np.sum(dummy, axis=1), axis=1)
+            # if np.all(sums == 0):
+            #     y_pred = 0
+            # else:
+            #     y_pred = np.exp(y_pred) / sums
+            # # Select the classification with the highest probability as the prediction.
+            # y_pred = np.argmax(y_pred, axis=1)
 
         return y_pred
 
@@ -263,9 +268,12 @@ class FuzzyGBDTClassifier(FuzzyGBDT):
 
     def fit(self, X_train, y_train):
         if len(np.shape(y_train)) == 1:
-            y_train = np.expand_dims(y_train, axis=1)
-        transformer = OneHotEncoder(handle_unknown='ignore')
-        y_train = transformer.fit_transform(y_train).toarray()
+            y_train = one_hot_encode(y_train)
+        # Here is an alternative, but requires an additional change of dimension.
+        # if len(np.shape(y_train)) == 1:
+        #     y_train = np.expand_dims(y_train, axis=1)
+        # transformer = OneHotEncoder(handle_unknown='ignore')
+        # y_train = transformer.fit_transform(y_train).toarray()
 
         super().fit(X_train=X_train, y_train=y_train)
 

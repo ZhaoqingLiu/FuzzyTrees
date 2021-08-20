@@ -50,11 +50,11 @@ class FuzzificationOptions:
 
     """
 
-    def __init__(self, r_seed=0, conv_size=1, conv_k=3, num_iter=1, feature_filter_func=None,
+    def __init__(self, r_seed=0, conv_size=1, n_conv=3, num_iter=1, feature_filter_func=None,
                  feature_filter_func_param=None, dataset_df=None, dataset_mms_df=None, X_fuzzy_dms=None):
         self.r_seed = r_seed
         self.conv_size = conv_size
-        self.conv_k = conv_k
+        self.n_conv = n_conv
         self.num_iter = num_iter
         self.feature_filter_func = feature_filter_func
         self.feature_filter_func_param = feature_filter_func_param
@@ -364,11 +364,11 @@ class BaseFuzzyDecisionTree(metaclass=ABCMeta):
         # Start iterating over all features to get the best split.
         n_samples, n_features = np.shape(X)
 
-        # Calculate the number of iterations over features. NB: fuzzy features have more conv_k times of original number of features.
+        # Calculate the number of iterations over features. NB: fuzzy features have more n_conv times of original number of features.
         n_loop = n_features
         if not self.disable_fuzzy:
             n_loop = int(n_features / (
-                    self.fuzzification_options.conv_k + 1))  # denominator=conv_k + 1. If the FCM algorithm selects n optimal fuzzy sets, the calculation here will be deprecated.
+                    self.fuzzification_options.n_conv + 1))  # denominator=n_conv + 1. If the FCM algorithm selects n optimal fuzzy sets, the calculation here will be deprecated.
 
         for feature_idx in range(n_loop):
             # Calculate the sum of all the membership degrees of the current feature values.
@@ -377,10 +377,10 @@ class BaseFuzzyDecisionTree(metaclass=ABCMeta):
             stop = None
             if not self.disable_fuzzy:
                 # Columns of the idx-th features's degrees of membership start from
-                # "n_loop + feature_idx * self.fuzzification_options.conv_k", and end with
-                # "n_loop + (feature_idx + 1) * self.fuzzification_options.conv_k".
-                start = n_loop + feature_idx * self.fuzzification_options.conv_k
-                stop = n_loop + (feature_idx + 1) * self.fuzzification_options.conv_k
+                # "n_loop + feature_idx * self.fuzzification_options.n_conv", and end with
+                # "n_loop + (feature_idx + 1) * self.fuzzification_options.n_conv".
+                start = n_loop + feature_idx * self.fuzzification_options.n_conv
+                stop = n_loop + (feature_idx + 1) * self.fuzzification_options.n_conv
                 total_dm = np.sum(X[:, start:stop])
                 # print(feature_idx, "-th feature: total degree of membership:", total_dm)
 
@@ -687,7 +687,7 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
     # =============================================================================
     # Functions to search fuzzy parameters for FDTs and plot their evaluation
     # =============================================================================
-    def search_fuzzy_params_4_clf(self, ds_name_list, conv_k_lim, fuzzy_reg_lim):
+    def search_fuzzy_params_4_clf(self, ds_name_list, n_conv_lim, fuzzy_reg_lim):
         """
         Search fuzzy parameters for evaluating and choosing through fitting
         a number of groups of FDT classifiers from specified datasets in
@@ -709,7 +709,7 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
 
         fuzzy_reg_lim : tuple, (start, stop, step)
 
-        conv_k_lim : tuple, (start, stop, step)
+        n_conv_lim : tuple, (start, stop, step)
         """
         # Create a connection used to communicate between master process and its sub-processes.
         q = multiprocessing.Manager().Queue()
@@ -721,12 +721,12 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
         for ds_name in ds_name_list:
             # Iteratively searching an optimum number of fuzzy clusters and
             # fuzzy regulation coefficient by a specified stride.
-            for conv_k in range(conv_k_lim[0], conv_k_lim[1] + 1, conv_k_lim[2]):
+            for n_conv in range(n_conv_lim[0], n_conv_lim[1] + 1, n_conv_lim[2]):
                 fuzzy_reg = fuzzy_reg_lim[0]
                 while fuzzy_reg <= fuzzy_reg_lim[1]:
                     # Start a sub-process to fit a group of classifiers on a specified dataset and
                     # get the mean of their evaluation scores.
-                    pool.apply_async(self._get_one_mean_fuzzy_clf, args=(q, ds_name, conv_k, fuzzy_reg,))
+                    pool.apply_async(self._get_one_mean_fuzzy_clf, args=(q, ds_name, n_conv, fuzzy_reg,))
                     fuzzy_reg = float(Decimal(str(fuzzy_reg)) + Decimal(str(fuzzy_reg_lim[2])))
 
         pool.close()
@@ -735,7 +735,7 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
         # Encapsulate and save all data received from the sub-processes.
         self._encapsulate_save_data_fuzzy_clf(q=q)
 
-    def _get_one_mean_fuzzy_clf(self, q, ds_name, conv_k, fuzzy_reg):
+    def _get_one_mean_fuzzy_clf(self, q, ds_name, n_conv, fuzzy_reg):
         """
         Fit a group of fuzzy classifiers on a specified dataset and get the
         mean of their evaluation scores.
@@ -750,7 +750,7 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
 
         ds_name : str
 
-        conv_k : int
+        n_conv : int
 
         fuzzy_reg : float
 
@@ -761,7 +761,7 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
         curr_pid = os.getpid()
         print("    |-- ({} Child-process) Pretrain a group of classifiers on: {}.".format(curr_pid, ds_name))
         print("    |-- ({} Child-process) Preprocess fuzzy feature extraction based on parameters: {}, {}.".format(
-            curr_pid, conv_k, fuzzy_reg))
+            curr_pid, n_conv, fuzzy_reg))
 
         # Load data.
         df = load_data_clf(ds_name)
@@ -780,7 +780,7 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
             # X_fuzzy_pre[:, :] -= X_fuzzy_pre[:, :].min()
             # X_fuzzy_pre[:, :] /= X_fuzzy_pre[:, :].max()
             # - Step 2: Extract fuzzy features.
-            X_dms = extract_fuzzy_features(X=X_fuzzy_pre, conv_k=conv_k, fuzzy_reg=fuzzy_reg)
+            X_dms = extract_fuzzy_features(X=X_fuzzy_pre, n_conv=n_conv, fuzzy_reg=fuzzy_reg)
             X_plus_dms = np.concatenate((X, X_dms), axis=1)
             # print("************* Shape before fuzzification:", np.shape(X))
             # print("************* Shape after fuzzification:", np.shape(X_plus_dms))
@@ -801,7 +801,7 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
                 X_train, X_test = X_plus_dms[train_index], X_plus_dms[test_index]
                 accuracy_train, accuracy_test = self._fit_one_fuzzy_clf(X_train=X_train, X_test=X_test,
                                                                         y_train=y_train, y_test=y_test,
-                                                                        ds_name=ds_name, conv_k=conv_k,
+                                                                        ds_name=ds_name, n_conv=n_conv,
                                                                         fuzzy_reg=fuzzy_reg, sn=i)
                 acc_train_list.append(accuracy_train)
                 acc_test_list.append(accuracy_test)
@@ -823,9 +823,9 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
         # !!! NB: The data should be a 2-dimensional ndarray, or a dictionary with key,
         # which is the dataset name, and value, which is a 2-d matrix ndarray.
         if not q.full():
-            q.put([[ds_name, conv_k, fuzzy_reg, err_train_mean, std_train, err_test_mean, std_test]])
+            q.put([[ds_name, n_conv, fuzzy_reg, err_train_mean, std_train, err_test_mean, std_test]])
 
-    def _fit_one_fuzzy_clf(self, X_train, X_test, y_train, y_test, ds_name, conv_k, fuzzy_reg, sn):
+    def _fit_one_fuzzy_clf(self, X_train, X_test, y_train, y_test, ds_name, n_conv, fuzzy_reg, sn):
         """
         Fit a fuzzy classifier and get its evaluation scores.
 
@@ -866,7 +866,7 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
 
         # Pickle the fitted model.
         if self.enable_pkl_mdl:
-            filename = DirSave.MODELS.value + get_today_str() + "_" + "clf_" + str(conv_k) + "_" + str(
+            filename = DirSave.MODELS.value + get_today_str() + "_" + "clf_" + str(n_conv) + "_" + str(
                 fuzzy_reg) + "_" + ds_name + "_" + str(sn) + ".mdl"
             joblib.dump(value=self.estimator, filename=filename)
             # trained_clf = joblib.load(filename=filename)
@@ -894,7 +894,7 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
         """
         # Get data via connection between master process and its sub-processes.
         while not q.empty():
-            # q.put([[ds_name, conv_k, fuzzy_reg, err_train_mean, std_train, err_test_mean, std_test]])
+            # q.put([[ds_name, n_conv, fuzzy_reg, err_train_mean, std_train, err_test_mean, std_test]])
             data = q.get()
             if len(np.shape(data)) == 1:
                 data = np.expand_dims(data, axis=0)
@@ -906,10 +906,10 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
         # Save the collected data into a file.
         if self.ds_pretrain is not None:
             self.df_pretrain = pd.DataFrame()
-            column_names = ["ds_name", "conv_k", "fuzzy_reg", "err_train_mean", "std_train", "err_test_mean",
+            column_names = ["ds_name", "n_conv", "fuzzy_reg", "err_train_mean", "std_train", "err_test_mean",
                             "std_test"]
             self.df_pretrain = pd.DataFrame(data=self.ds_pretrain, columns=column_names)
-            filename = DirSave.EVAL_DATA.value + get_today_str() + "_" + EvaluationType.FUZZY_REG_VS_ERR_ON_CONV_K.value + ".csv"
+            filename = DirSave.EVAL_DATA.value + get_today_str() + "_" + EvaluationType.FUZZY_REG_VS_ERR_ON_N_CONV.value + ".csv"
             self.df_pretrain.to_csv(filename)
         print("Main Process {} saved data as the shape:".format(os.getpid()), self.df_pretrain)
 
@@ -945,29 +945,29 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
                 self.df_pretrain = pd.read_csv(DirSave.EVAL_DATA.value + filename_list[-1])
 
         assert self.df_pretrain is not None, "Not any data for plotting. Please execute the function pretrain() first."
-        # q.put([[ds_name, conv_k, fuzzy_reg, err_train_mean, std_train, err_test_mean, std_test]])
+        # q.put([[ds_name, n_conv, fuzzy_reg, err_train_mean, std_train, err_test_mean, std_test]])
         ds_names = self.df_pretrain["ds_name"].unique()
         for ds_name in ds_names:
             df_4_ds_name = self.df_pretrain[self.df_pretrain["ds_name"] == ds_name]
-            conv_ks = df_4_ds_name["conv_k"].unique()
-            # conv_ks = sorted(conv_ks)  # It doesn't matter if it's drawn in ascending order from conv_k.
-            for conv_k in conv_ks:
-                df_4_conv_k = df_4_ds_name[df_4_ds_name["conv_k"] == conv_k]
-                df_4_conv_k = df_4_conv_k.sort_values(by="fuzzy_reg", ascending=True)  # ascending is True by default.
-                coordinates = df_4_conv_k[["fuzzy_reg", "err_train_mean", "err_test_mean"]].astype("float").values
-                # print("+++++++++++++++++++++++++++++++++++++++++++++", type(df_4_conv_k["err_train_mean"].values[1]))
-                # x_lower_limit, x_upper_limit = np.min(df_4_conv_k[["fuzzy_reg"]].values), np.max(df_4_conv_k[["fuzzy_reg"]].values)
-                # y_lower_limit = np.min(df_4_conv_k[["err_train_mean"]].values) if np.min(df_4_conv_k[["err_train_mean"]].values) < np.min(df_4_conv_k[["err_test_mean"]].values) else np.min(df_4_conv_k[["err_test_mean"]].values)
-                # y_upper_limit = np.max(df_4_conv_k[["err_train_mean"]].values) if np.max(df_4_conv_k[["err_train_mean"]].values) > np.max(df_4_conv_k[["err_test_mean"]].values) else np.max(df_4_conv_k[["err_test_mean"]].values)
+            n_convs = df_4_ds_name["n_conv"].unique()
+            # n_convs = sorted(n_convs)  # It doesn't matter if it's drawn in ascending order from n_conv.
+            for n_conv in n_convs:
+                df_4_n_conv = df_4_ds_name[df_4_ds_name["n_conv"] == n_conv]
+                df_4_n_conv = df_4_n_conv.sort_values(by="fuzzy_reg", ascending=True)  # ascending is True by default.
+                coordinates = df_4_n_conv[["fuzzy_reg", "err_train_mean", "err_test_mean"]].astype("float").values
+                # print("+++++++++++++++++++++++++++++++++++++++++++++", type(df_4_n_conv["err_train_mean"].values[1]))
+                # x_lower_limit, x_upper_limit = np.min(df_4_n_conv[["fuzzy_reg"]].values), np.max(df_4_n_conv[["fuzzy_reg"]].values)
+                # y_lower_limit = np.min(df_4_n_conv[["err_train_mean"]].values) if np.min(df_4_n_conv[["err_train_mean"]].values) < np.min(df_4_n_conv[["err_test_mean"]].values) else np.min(df_4_n_conv[["err_test_mean"]].values)
+                # y_upper_limit = np.max(df_4_n_conv[["err_train_mean"]].values) if np.max(df_4_n_conv[["err_train_mean"]].values) > np.max(df_4_n_conv[["err_test_mean"]].values) else np.max(df_4_n_conv[["err_test_mean"]].values)
                 # print("x_limits and y_limits are:", x_lower_limit, x_upper_limit, y_lower_limit, y_upper_limit)
 
                 plot_multi_lines(coordinates=coordinates,
-                                 title="Fuzzy Reg Coeff vs Error - conv_k {} - {}".format(conv_k, ds_name),
+                                 title="Fuzzy Reg Coeff vs Error - n_conv {} - {}".format(n_conv, ds_name),
                                  x_label="Fuzzy Regulation Coefficient",
                                  y_label="Error Rate",
                                  legends=["Train", "Test"],
-                                 fig_name=DirSave.EVAL_FIGURES.value + get_today_str() + "_" + EvaluationType.FUZZY_REG_VS_ERR_ON_CONV_K.value + "_" + str(
-                                     conv_k) + "_" + ds_name + ".png")
+                                 fig_name=DirSave.EVAL_FIGURES.value + get_today_str() + "_" + EvaluationType.FUZZY_REG_VS_ERR_ON_N_CONV.value + "_" + str(
+                                     n_conv) + "_" + ds_name + ".png")
 
     def _fit_one_fuzzy_regr(self, X_train, X_test, y_train, y_test):
         """
