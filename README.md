@@ -2,7 +2,7 @@
 Authors: Zhaoqing Liu, Anjin Liu, Guangquan Zhang, Jie Lu
 
 The experiment in this paper consists of four parts. 
-To run the pipeline for training and evaluation, simply use `python3 exp_s1.py` to run parts 1,2 and 3 of the experiment, and `python3 exp_s1_with_others.py` to run part 4 of the experiment.
+To run the pipeline for training and evaluation, simply use `python3 exp_s1.py` to run parts 1, 2 and 3 of the experiment, and `python3 exp_s1_with_others.py` to run part 4 of the experiment.
 
 
 
