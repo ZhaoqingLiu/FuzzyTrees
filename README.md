@@ -1,7 +1,7 @@
 # Codebase for "An Empirical Study of Fuzzy Decision Tree for Gradient Boosting Ensemble"
 Authors: Zhaoqing Liu, Anjin Liu, Guangquan Zhang, and Jie Lu
 
-The experiment in this paper consists of four parts. To run the pipeline for training and evaluation:
+The experiment in this paper consists of four parts. To run the experiment for training and evaluation:
 - First, go to the root of the project FuzzyTrees.
 - Then, simply use `python3 exp_s1.py` to run parts 1, 2 and 3 of the experiment, and `python3 exp_s1_with_others.py` to run part 4 of the experiment.
 
