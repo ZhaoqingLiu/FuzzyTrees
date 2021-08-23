@@ -5,9 +5,10 @@ The paper includes four experiments. To run them for training and evaluation:
 - First, go to the root of the project, FuzzyTrees.
 - Then, run experiments 1, 2 and 3 with `python3 exp_s1.py` and experiment 4 with `python3 exp_s1_with_others.py`.
 
-To modify the experiment to other data sets:
+To modify the experiment to other datasets:
 - Put the folder containing a new dataset's files under the directory "Datasets/".
 - Add a new function to "util_data_handler.py" to load the dataset and replace "DS_LOAD_FUNC_CLF" with a new dictionary object.
+- Rerun the experimental program.
 
 
 
