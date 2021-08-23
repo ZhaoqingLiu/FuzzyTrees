@@ -15,7 +15,10 @@ from sklearn import datasets
 # Change it to your folder path.
 from sklearn.model_selection import train_test_split
 
-DATA_FOLDER_PATH = os.path.abspath(os.path.dirname(os.getcwd())) + '/Datasets/'
+DATA_FOLDER_PATH = "Datasets/"
+
+
+# DATA_FOLDER_PATH = os.path.abspath(os.path.dirname(os.getcwd())) + '/Datasets/'
 
 
 # print("+++++++++++++++++++++++++++++++++++++++++++++", DATA_FOLDER_PATH)
@@ -196,22 +199,17 @@ def load_wine():
 # Note: The following functions may select partial data to save experiment time.
 # ==================================================================================
 # Datasets (k: dataset name, v: function for getting data) on which the model is being trained.
-DS_LOAD_FUNC_CLF = {"Covertype": load_covertype,
-                    "Mushroom": load_mushroom,
-                    "Vehicle": load_vehicle,
+DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle,
                     "German_Credit": load_German_credit,
                     "Diabetes": load_diabetes,
-                    "Waveform": load_waveform}
-DS_LOAD_FUNC_CLF = {"Covertype": load_covertype}
-# DS_LOAD_FUNC_CLF = {"Pokerhand": load_pokerhand}
-# DS_LOAD_FUNC_CLF = {"Mushroom": load_mushroom}
+                    "Iris": load_iris,
+                    "Wine": load_wine, }
 # DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle}
 # DS_LOAD_FUNC_CLF = {"German_Credit": load_German_credit}
 # DS_LOAD_FUNC_CLF = {"Diabetes": load_diabetes}
-# DS_LOAD_FUNC_CLF = {"Waveform": load_waveform}
+# DS_LOAD_FUNC_CLF = {"Iris": load_iris, "Wine": load_wine, }
 
-# Datasets - only for debugging!!!
-# DS_LOAD_FUNC_CLF = {"Iris": load_iris, "Wine": load_wine}
+DS_LOAD_FUNC_CLF = {"Covertype": load_covertype}
 
 
 def load_data_clf(ds_name):
@@ -233,13 +231,12 @@ def load_data_clf(ds_name):
 
     return None if ds_load_func is None else ds_load_func()
 
-
 # if __name__ == "__main__":
 #     print(DATA_FOLDER_PATH)
 #
-#     print('Loading Vehicle')
-#     data_vehicle = load_vehicle()
-#     print('Loading Vehicle, shape', data_vehicle.shape)
+# print('Loading Vehicle')
+# data_vehicle = load_vehicle()
+# print('Loading Vehicle, shape', data_vehicle.shape)
 #
 #     print('Loading Waveform')
 #     data_waveform = load_waveform()
