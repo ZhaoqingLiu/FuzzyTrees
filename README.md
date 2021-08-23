@@ -1,10 +1,14 @@
 # Codebase for "An Empirical Study of Fuzzy Decision Tree for Gradient Boosting Ensemble"
 Authors: Zhaoqing Liu, Anjin Liu, Guangquan Zhang, and Jie Lu
 
-The experiment in this paper consists of four parts. 
-To run the pipeline for training and evaluation, simply use `python3 exp_s1.py` to run parts 1, 2 and 3 of the experiment, and `python3 exp_s1_with_others.py` to run part 4 of the experiment.
+The experiment in this paper consists of four parts. To run the pipeline for training and evaluation:
+- First, go to the root of the project FuzzyTrees.
+- Then, simply use `python3 exp_s1.py` to run parts 1, 2 and 3 of the experiment, and `python3 exp_s1_with_others.py` to run part 4 of the experiment.
 
-
+To modify the experiment to other data sets:
+- Put the new folder(s) containing the dataset files under the directory "Datasets/".
+- Add new function(s) to "util_data_handler.py" to load the datasets and replace "DS_LOAD_FUNC_CLF" with a new dictionary object.
+- Rerun the experimental program.
 
 # FuzzyTrees ![MIT](https://img.shields.io/badge/license-MIT-brightgreen)
 FuzzyTrees is a lightweight framework designed for the rapid development of fuzzy decision tree algorithms. The FuzzyTrees framework offers a range of benefits including:
