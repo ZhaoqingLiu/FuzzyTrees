@@ -8,7 +8,6 @@ The paper includes four experiments. To run them for training and evaluation:
 To modify the experiment to other data sets:
 - Put the folder containing a new dataset's files under the directory "Datasets/".
 - Add a new function to "util_data_handler.py" to load the dataset and replace "DS_LOAD_FUNC_CLF" with a new dictionary object.
-- Rerun the experimental program.
 
 
 
