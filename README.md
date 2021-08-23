@@ -6,8 +6,8 @@ The experiment in this paper consists of four parts. To run the experiment for t
 - Then, simply use `python3 exp_s1.py` to run parts 1, 2 and 3 of the experiment, and `python3 exp_s1_with_others.py` to run part 4 of the experiment.
 
 To modify the experiment to other data sets:
-- Put the new folder(s) containing the dataset files under the directory "Datasets/".
-- Add new function(s) to "util_data_handler.py" to load the datasets and replace "DS_LOAD_FUNC_CLF" with a new dictionary object.
+- Put the folder containing a new dataset's files under the directory "Datasets/".
+- Add a new function to "util_data_handler.py" to load the dataset and replace "DS_LOAD_FUNC_CLF" with a new dictionary object.
 - Rerun the experimental program.
 
 # FuzzyTrees ![MIT](https://img.shields.io/badge/license-MIT-brightgreen)
