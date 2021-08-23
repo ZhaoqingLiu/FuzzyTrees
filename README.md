@@ -13,7 +13,7 @@ FuzzyTrees is a lightweight framework designed for the rapid development of fuzz
 
 - **Extending components with a set of APIs**: Any algorithm can be easily understood by following FuzzyTrees’ uniform APIs. To extend new components with ease, FuzzyTrees provides a set of supporting and easy-to-use utilities, e.g. the splitting and splitting criterion calculation functions available in the most widely used decision tree algorithms, CART, ID3, and C4.5.
 
-- **Examples for algorithm development**: The FuzzyTrees algorithms, [fuzzy CART](fuzzytrees/fdt_base.py), [fuzzy GBDT](fuzzytrees/fgbdt.py) and fuzzy RDF[fuzzy RDF](fuzzytrees/frdf.py) can be used as examples for developing new algorithms or for conducting a variety of empirical studies.
+- **Examples for algorithm development**: The FuzzyTrees algorithms, [FDT](fuzzytrees/fdt_base.py), [FGBDT](fuzzytrees/fgbdt.py) and [FRDF](fuzzytrees/frdf.py) can be used as examples for developing new algorithms or for conducting a variety of empirical studies.
 
 ## Installation
 ###  Getting It
@@ -29,7 +29,7 @@ $ pip install -r requirements.txt
 
 
 ## A Development Example
-For example, I'm implementing a fuzzy CART classifier.
+For example, I'm implementing a FDT classifier.
 
 ```python
 from fuzzytrees.fdt_base import BaseFuzzyDecisionTree, DecisionTreeInterface, CRITERIA_FUNC_CLF
@@ -60,7 +60,7 @@ See the [tutorials](./tutorials.md) for more details on developing based on Fuzz
 
 
 ## A Usage Example
-Let's take machine learning using the fuzzy CART classifier as an example.
+Let's take machine learning using the FDT classifier as an example.
 
 ```python
 from fuzzytrees.fdt_base import FuzzificationOptions, FuzzyDecisionTreeWrapper, CRITERIA_FUNC_CLF
@@ -131,7 +131,7 @@ See the [tutorials](./tutorials.md) for more details on using fuzzy decision tre
 
 
 ## Development Team
-- Zhaoqing Liu (FuzzyTrees framework, [fuzzy CART](fuzzytrees/fdt_base.py), [fuzzy GBDT](fuzzytrees/fgbdt.py), [fuzzy RDF](fuzzytrees/frdf.py))
+- Zhaoqing Liu (FuzzyTrees framework, [FDT](fuzzytrees/fdt_base.py), [FGBDT](fuzzytrees/fgbdt.py), [FRDF](fuzzytrees/frdf.py))
 - Dr. Anjin Liu ([Fuzzy feature extraction](fuzzytrees/util_preprocessing_funcs.py) for fuzzification in preprocessing)
 - Dist. Prof. Jie Lu
 - A/Prof. Guangquan Zhang

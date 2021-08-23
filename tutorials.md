@@ -25,7 +25,7 @@ you can follow the [API Reference](https://zhaoqingliu.github.io/FuzzyTrees/docs
 That's all.
 
 ### Development example
-For example, I'm implementing a fuzzy CART classifier.
+For example, I'm implementing a FDT classifier.
 
 ```python
 from fuzzytrees.fdt_base import BaseFuzzyDecisionTree, DecisionTreeInterface, CRITERIA_FUNC_CLF
@@ -52,7 +52,7 @@ class FuzzyCARTClassifier(BaseFuzzyDecisionTree, DecisionTreeInterface):
     # NB: The functions fit(), predict(), predict_proba() and print_tree() are already defined in the super class BaseFuzzyDecisionTree.
 ```
 
-Also, I'm developing a fuzzy CART regressor.
+Also, I'm developing a FDT regressor.
 
 ```python
 from fuzzytrees.fdt_base import BaseFuzzyDecisionTree, DecisionTreeInterface, CRITERIA_FUNC_REG
@@ -84,7 +84,7 @@ class FuzzyCARTRegressor(BaseFuzzyDecisionTree, DecisionTreeInterface):
 Here are two usage examples following a normal machine learning process, including loading the dataset, preprocessing the dataset, partitioning the dataset, training the model, looking at the model, and evaluating the model.
 
 ### Usage example
-Let's take machine learning using the fuzzy CART classifier as an example.
+Let's take machine learning using the FDT classifier as an example.
 
 ```python
 from fuzzytrees.fdt_base import FuzzificationOptions, FuzzyDecisionTreeWrapper, CRITERIA_FUNC_CLF
@@ -146,7 +146,7 @@ print("Non-fuzzy model's accuracy is:", acc)
 print("========================================================================================")
 ```
 
-Let's take machine learning using the fuzzy CART regressor as another example.
+Let's take machine learning using the FDT regressor as another example.
 
 ```python
 from fuzzytrees.fdt_base import FuzzificationOptions, FuzzyDecisionTreeWrapper, CRITERIA_FUNC_REG
