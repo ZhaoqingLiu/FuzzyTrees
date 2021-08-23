@@ -209,7 +209,7 @@ DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle,
 # DS_LOAD_FUNC_CLF = {"Diabetes": load_diabetes}
 # DS_LOAD_FUNC_CLF = {"Iris": load_iris, "Wine": load_wine, }
 
-DS_LOAD_FUNC_CLF = {"Covertype": load_covertype}
+COVERTYPE_LOAD_FUNC_CLF = {"Covertype": load_covertype}
 
 
 def load_data_clf(ds_name):
