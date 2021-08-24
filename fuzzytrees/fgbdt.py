@@ -167,13 +167,11 @@ class FuzzyGBDT(metaclass=ABCMeta):
         """
         # Use the first fitted estimator to predict values F_0(x).
         y_pred = self._estimators[0].predict(X)
-        print("++++++++++++++++++++++++++", np.asarray(y_pred, dtype="float32"))
 
         # Then use the other fitting estimators to iteratively predict
         # the residuals and add them up to the values F_0(x).
         for i in range(1, self.n_estimators):
             y_pred -= np.multiply(self.learning_rate, self._estimators[i].predict(X))
-            print("-------------------------", np.asarray(y_pred, dtype="float32"))
 
         if not self.is_regression:
             # Use softmax function for multiple-class (consider sigmoid function if binary-class).

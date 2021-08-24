@@ -407,9 +407,9 @@ class BaseFuzzyDecisionTree(metaclass=ABCMeta):
                         # print("    ", count, "-th split: subset_false's degree of membership:", subset_false_dm)
 
                     y_subset_true = subset_true[:,
-                                    n_loop:]  # For non-fuzzy trees, n_loop is exactly the number of features
+                                    n_features:]  # For non-fuzzy trees, n_loop is exactly the number of features
                     y_subset_false = subset_false[:,
-                                     n_loop:]  # For non-fuzzy trees, n_loop is exactly the number of features
+                                     n_features:]  # For non-fuzzy trees, n_loop is exactly the number of features
 
                     impurity_gain = self._impurity_gain_calc_func(y, y_subset_true, y_subset_false, self.criterion_func,
                                                                   p_subset_true_dm=p_subset_true_dm,

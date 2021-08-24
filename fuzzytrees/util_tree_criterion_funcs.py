@@ -3,10 +3,19 @@
 @author : Zhaoqing Liu
 @email  : Zhaoqing.Liu-1@student.uts.edu.au
 """
+import logging
 import math
 from abc import ABCMeta, abstractmethod
 
 import numpy as np
+
+
+# =============================================================================
+# Global variables
+# =============================================================================
+# Logger used for logging in production.
+# Note: The root logger in `logging` used only for debugging in development.
+logger = logging.getLogger("main.core")
 
 
 # =============================================================================
@@ -219,9 +228,11 @@ def calculate_variance_reduction(y, sub_y_1, sub_y_2, criterion_func, p_subset_t
     Calculate the variance reduction, which is equal to the
     impurity of y minus the entropy of sub_y_1 and sub_y_2.
     """
+    logging.debug("(Shape) y's: %s; y_sub_1's: %s; y_sub_2's: %s", np.shape(y), np.shape(sub_y_1), np.shape(sub_y_2))
+
     var = criterion_func(y)
-    var_1 = criterion_func(np.expand_dims(sub_y_1[:, -1], axis=1))
-    var_2 = criterion_func(np.expand_dims(sub_y_2[:, -1], axis=1))
+    var_1 = criterion_func(sub_y_1)
+    var_2 = criterion_func(sub_y_2)
 
     if p_subset_true_dm is not None and p_subset_false_dm is not None:
         p_1 = p_subset_true_dm
