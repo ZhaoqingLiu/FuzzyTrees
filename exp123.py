@@ -161,12 +161,11 @@ def exp_one_clf(q, ds_name, comparison_mode, clf, with_fuzzy_rules, sn, X_train,
 
     elapsed_time = time.time() - time_start
 
-    # Debug message.
-    logging.debug("=" * 100)
-    logging.debug("(Dataset: '%s'; Experiment: '%s'; Fuzzy rules: '%r'; SN: '%d-th') "
-                  "Testing acc.: %f; Training acc.: %f; Elapsed time: %f(s)",
-                  ds_name, comparison_mode, with_fuzzy_rules, sn, acc_test, acc_train, elapsed_time)
-    logging.debug("=" * 100)
+    logging.info("=" * 100)
+    logging.info("(Dataset: '%s'; Experiment: '%s'; Fuzzy rules: '%r'; SN: '%d-th') "
+                 "Testing acc.: %f; Training acc.: %f; Elapsed time: %f(s)",
+                 ds_name, comparison_mode, with_fuzzy_rules, sn, acc_test, acc_train, elapsed_time)
+    logging.info("=" * 100)
 
     # Put the results into the queue to send back to main process.
     if not q.full():
@@ -191,8 +190,7 @@ def encapsulate_results(q):
         indexes_sorted = np.lexsort((exp_results[:, 3], exp_results[:, 2], exp_results[:, 1], exp_results[:, 0]))
         exp_results = exp_results[indexes_sorted]
 
-    # Debug message.
-    logging.debug("Finished encapsulation: %s", np.shape(exp_results))
+    logging.info("Finished encapsulation: %s", np.shape(exp_results))
 
 
 def output_results():
@@ -222,10 +220,10 @@ def output_results():
                                                               "with_fuzzy_rules"])["elapsed_time"].transform("mean")
         filename = DirSave.EVAL_DATA.value + get_now_str(get_timestamp_str()) + "-exp-s1.csv"
         exp_res_df.to_csv(filename)
-        # Debug message.
-        logging.debug("Finished output: %s", filename)
 
-        # 2. Output the mean-statistics of `acc_train` and `acc_train`.
+        logging.info("Finished output: %s", filename)
+
+        # 2. Output the mean-statistics.
         exp_res_mean_df = exp_res_df.groupby(["comparison_mode",
                                               "ds_name",
                                               "with_fuzzy_rules"]).agg({"acc_test": "mean",
@@ -233,11 +231,11 @@ def output_results():
                                                                         "elapsed_time": "mean"})
         filename = DirSave.EVAL_DATA.value + get_now_str(get_timestamp_str()) + "-exp-s1-mean-stat.csv"
         exp_res_mean_df.to_csv(filename)
-        # Debug message.
-        logging.debug(exp_res_mean_df.values)
-        logging.debug("Finished output: %s", filename)
 
-        # 3. Output the whole statistics of `acc_train` and `acc_train`.
+        logging.debug(exp_res_mean_df.values)
+        logging.info("Finished output: %s", filename)
+
+        # 3. Output the whole statistics.
         exp_res_stat_df = exp_res_df.groupby(["comparison_mode",
                                               "ds_name",
                                               "with_fuzzy_rules"])[["acc_test",
@@ -245,8 +243,8 @@ def output_results():
                                                                     "elapsed_time"]].describe()
         filename = DirSave.EVAL_DATA.value + get_now_str(get_timestamp_str()) + "-exp-s1-whole-stat.csv"
         exp_res_stat_df.to_csv(filename)
-        # Debug message.
-        logging.debug("Finished output: %s", filename)
+
+        logging.info("Finished output: %s", filename)
 
 
 def exp_clf():
@@ -254,8 +252,7 @@ def exp_clf():
     Main function of the experiment program that compares
     fuzzy and non-fuzzy classifiers through multiple modes.
     """
-    # Debug message.
-    logging.debug("Start master process '%s'......", os.getpid())
+    logging.info("Start master process '%s'......", os.getpid())
 
     # In multi-process mode.
     # When using Pool create processes, use multiprocessing.Manager().Queue()
@@ -278,22 +275,19 @@ def exp_clf():
                 # 2. Preprocess the dataset. ===========================================================================
                 # 2.1. Do fuzzification preprocessing.
                 X_fuzzy_pre = X.copy()
-                # Debug message.
                 logging.debug(X_fuzzy_pre.dtype)
                 # Convert dtype of X_fuzzy_pre to float.
                 if not isinstance(X_fuzzy_pre.dtype, float):
                     X_fuzzy_pre = X_fuzzy_pre.astype(float)
                     logging.debug(X_fuzzy_pre.dtype)
-                # Debug message.
-                logging.debug("Dataset: '%s'; X before fuzzification: %s", ds_name, np.shape(X_fuzzy_pre))
+                logging.info("Dataset: '%s'; X before fuzzification: %s", ds_name, np.shape(X_fuzzy_pre))
                 # 2.1.1. Standardise feature scaling.
                 X_fuzzy_pre[:, :] -= X_fuzzy_pre[:, :].min()
                 X_fuzzy_pre[:, :] /= X_fuzzy_pre[:, :].max()
                 # 2.1.2. Extract fuzzy features.
                 X_dms = extract_fuzzy_features(X_fuzzy_pre, n_conv=n_conv)
                 X_plus_dms = np.concatenate((X, X_dms), axis=1)
-                # Debug message.
-                logging.debug("Dataset: '%s'; X after fuzzification: %s", ds_name, np.shape(X_plus_dms))
+                logging.info("Dataset: '%s'; X after fuzzification: %s", ds_name, np.shape(X_plus_dms))
 
                 n_exp, n_fold = 10, 10
                 for i in range(n_exp):
@@ -332,8 +326,7 @@ def exp_clf():
     # Output the results.
     output_results()
 
-    # Debug message.
-    logging.debug("Done master process '%s'.", os.getpid())
+    logging.info("Done master process '%s'.", os.getpid())
 
 
 if __name__ == '__main__':

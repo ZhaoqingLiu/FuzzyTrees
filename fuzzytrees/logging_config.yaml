@@ -1,7 +1,7 @@
 version: 1
 formatters:
   brief:
-    format: "%(asctime)s - %(message)s"
+    format: "%(asctime)s - %(module)s - %(funcName)s - %(lineno)d - %(message)s"
   simple:
     format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
   detailed:
@@ -10,7 +10,7 @@ handlers:
   console:
     class : logging.StreamHandler
     formatter: brief
-    level   : INFO  # In development, set it to DEBUG; In production, set it to INFO.
+    level   : DEBUG  # In development, set it to DEBUG; In production, set it to INFO.
     stream  : ext://sys.stdout  # default=sys.stderr
   file:
     class : logging.FileHandler

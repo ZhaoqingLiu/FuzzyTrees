@@ -228,7 +228,7 @@ def calculate_variance_reduction(y, sub_y_1, sub_y_2, criterion_func, p_subset_t
     Calculate the variance reduction, which is equal to the
     impurity of y minus the entropy of sub_y_1 and sub_y_2.
     """
-    logging.debug("(Shape) y's: %s; y_sub_1's: %s; y_sub_2's: %s", np.shape(y), np.shape(sub_y_1), np.shape(sub_y_2))
+    logging.debug("(Shape) y: %s; y_sub_1: %s; y_sub_2: %s", np.shape(y), np.shape(sub_y_1), np.shape(sub_y_2))
 
     var = criterion_func(y)
     var_1 = criterion_func(sub_y_1)
