@@ -4,9 +4,8 @@
 
 Notes
 -----
-1. The fourth experiment:
-Compare the performance of FDT with published benchmarks, including LightGBM,
-XGBoost, CatBoost, MLP, etc. on datasets Covertype, Pokerhand, and Mushroom.
+The fourth experiment:
+Compare the performance of FDT with published algorithms on datasets "Covertype".
 """
 import logging
 import multiprocessing
@@ -382,4 +381,3 @@ if __name__ == '__main__':
 
     # Step 2: Start the main function of the experiment program.
     exp_clf()
-

@@ -6,31 +6,30 @@ Notes
 -----
 There are multiple comparison modes in the experiments and on multiple datasets.
 
-The fuzzification of the fuzzy CART proposed in this paper includes two steps.
-One is the fuzzification of the features in the data preprocessing stage
-and the other is the fuzzification of the split criteria calculation in the model training stage.
-Therefore, in the first two experiments, the first is to verify the impact of
-the first step of fuzzification on the performance of a CART classifier,
-while the second is to verify the impact of the combination of the two steps of fuzzification.
-Also, the third experiment is to see what interesting changes would be made to
-the performance of a GBDT classifier with all steps of fuzzification.
+The fuzzification of FDT proposed in this paper includes two steps.
+One is the feature fuzzification (FF) in the data preprocessing stage and the other
+is the metric fuzzification (MF) for feature selection in the tree construction stage.
+
+In the first two experiments, the first is to study the impact of FF on the performance
+of FDT, while the second is to study the impact of the combination of FF and MF.
+Also, the third experiment is to investigate what interesting changes would be made to
+the performance of FGBDT with both FF and MF.
 
 1. The first experiment includes:
 
-1.1. The comparison of two non-fuzzy CART classifiers fitted on fuzzy (n_conv=3)
-and non-fuzzy training data respectively.
+1.1. The comparison of two non-fuzzy FDT classifiers with FF (n_conv=3) and without FF, respectively.
 
-1.2. The comparison of two non-fuzzy CART classifiers fitted on fuzzy (n_conv=4)
-and non-fuzzy training data respectively.
+1.2. The comparison of two non-fuzzy FDT classifiers with FF (n_conv=4) and without FF, respectively.
 
-1.3. The comparison of two non-fuzzy CART classifiers fitted on fuzzy (n_conv=5)
-and non-fuzzy training data respectively.
+1.3. The comparison of two non-fuzzy FDT classifiers with FF (n_conv=5) and without FF, respectively.
 
-2. The second experiment is to compare a fuzzy CART classifier with a non-fuzzy one.
+2. The second experiment is to compare a FDT classifier with a non-fuzzy FDT classifier.
 
-3. The third experiment is to compare a fuzzy GBDT classifier with a non-fuzzy one.
+3. The third experiment is to compare a FGBDT classifier with a non-fuzzy FGBDT classifier.
 
-Also, see 'util_data_handler.py' for details on the datasets used in the experiments.
+4. See "exp4.py" for details on the fourth experiment.
+
+Also, see "util_data_handler.py" for details on the datasets used in the experiments.
 """
 import logging
 import multiprocessing
@@ -336,4 +335,3 @@ if __name__ == '__main__':
 
     # Step 2: Start the main function of the experiment program.
     exp_clf()
-
