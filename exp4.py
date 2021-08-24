@@ -12,28 +12,27 @@ import logging
 import multiprocessing
 import os
 import time
+import warnings
 
+import lightgbm as lgb
 import numpy as np
 import pandas as pd
-import lightgbm as lgb
 from catboost import CatBoostClassifier
-from skmultiflow.trees import HoeffdingTreeClassifier
-from skmultiflow.trees import HoeffdingAdaptiveTreeClassifier
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split, KFold
 from skmultiflow.lazy import SAMKNNClassifier
 from skmultiflow.meta import AccuracyWeightedEnsembleClassifier
-from sklearn.metrics import accuracy_score
-from sklearn.model_selection import train_test_split
+from skmultiflow.trees import HoeffdingAdaptiveTreeClassifier
+from skmultiflow.trees import HoeffdingTreeClassifier
 from xgboost import XGBClassifier
 
-from fuzzytrees.fdt_base import FuzzificationOptions, FuzzyDecisionTreeWrapper, CRITERIA_FUNC_CLF, CRITERIA_FUNC_REG
+from fuzzytrees.fdt_base import FuzzificationOptions, FuzzyDecisionTreeWrapper, CRITERIA_FUNC_CLF
 from fuzzytrees.fdts import FuzzyCARTClassifier
-from fuzzytrees.fgbdt import FuzzyGBDTClassifier
 from fuzzytrees.settings import DirSave
 from fuzzytrees.util_comm import get_now_str, get_timestamp_str
-from fuzzytrees.util_data_handler import DS_LOAD_FUNC_CLF, load_data_clf
+from fuzzytrees.util_data_handler import COVERTYPE_LOAD_FUNC_CLF
 from fuzzytrees.util_logging import setup_logging
 from fuzzytrees.util_preprocessing_funcs import extract_fuzzy_features
-import warnings
 
 # =============================================================================
 # Environment configuration
@@ -48,7 +47,9 @@ warnings.filterwarnings("ignore")
 # Note: The root logger in `logging` used only for debugging in development.
 logger = logging.getLogger("main.core")
 
+# Number of fuzzy sets to generate in feature fuzzification.
 n_conv = 3
+
 # Data container used for storing experiments' results.
 exp_results = []
 
@@ -178,17 +179,12 @@ def by_AccuracyWeightedEnsemble(X_train, X_test, y_train, y_test):
     return accuracy_score(y_pred, y_test)
 
 
-def exp_one_clf(q, ds_name, model_name, clf, with_fuzzy_rules, sn, X, y):
+def exp_one_clf(q, ds_name, model_name, clf, with_fuzzy_rules, sn, X_train, X_test, y_train, y_test):
     """Experiment with one classifier."""
     # Record the start time.
     time_start = time.time()
 
-    # 3. Partition the dataset. ====================================================================================
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=sn)
-    logging.debug("(Dataset: '%s'; Experiment: '%s'; Fuzzy rules: '%r'; SN: '%d-th') training: %s, test: %s",
-                  ds_name, model_name, with_fuzzy_rules, sn, y_train.shape, y_test.shape)
-
-    # 4. Train the models. =========================================================================================
+    # 4. Train the models. =============================================================================================
     acc_test = 0
     if model_name == "FDT":
         acc_test = by_FDT(X_train, X_test, y_train, y_test)
@@ -212,7 +208,8 @@ def exp_one_clf(q, ds_name, model_name, clf, with_fuzzy_rules, sn, X, y):
 
     # Debug message.
     logging.debug("=" * 100)
-    logging.debug("(Dataset: '%s'; Experiment: '%s'; Fuzzy rules: '%r'; SN: '%d-th') %f, %f(s)",
+    logging.debug("(Dataset: '%s'; Experiment: '%s'; Fuzzy rules: '%r'; SN: '%d-th') "
+                  "Testing acc.: %f; Elapsed time: %f(s)",
                   ds_name, model_name, with_fuzzy_rules, sn, acc_test, elapsed_time)
     logging.debug("=" * 100)
 
@@ -261,9 +258,9 @@ def output_results():
         exp_res_df["mean_acc_test"] = exp_res_df.groupby(["model_name",
                                                           "ds_name",
                                                           "with_fuzzy_rules"])["acc_test"].transform("mean")
-        exp_res_df["mean_acc_test"] = exp_res_df.groupby(["model_name",
-                                                          "ds_name",
-                                                          "with_fuzzy_rules"])["elapsed_time"].transform("mean")
+        exp_res_df["mean_elapsed_time"] = exp_res_df.groupby(["model_name",
+                                                              "ds_name",
+                                                              "with_fuzzy_rules"])["elapsed_time"].transform("mean")
         filename = DirSave.EVAL_DATA.value + get_now_str(get_timestamp_str()) + "-exp-s1.csv"
         exp_res_df.to_csv(filename)
         # Debug message.
@@ -310,20 +307,23 @@ def exp_clf():
         pool = multiprocessing.Pool()
 
         # 1. Load the dataset. =========================================================================================
-        for ds_name in DS_LOAD_FUNC_CLF.keys():
-            ds_df = load_data_clf(ds_name)
+        for ds_name, ds_load_func in COVERTYPE_LOAD_FUNC_CLF.items():
+            ds_df = ds_load_func()
             if ds_df is not None:
                 # Resample with stratified sampling method if the sample size is too large to save the experiment time.
                 shape = ds_df.shape
                 if shape[0] > 1000:
                     ds_df, _ = train_test_split(ds_df, train_size=1000, stratify=ds_df.iloc[:, [-1]])
                     # Debug message.
-                    logging.debug("(Dataset: '%s') Shape before resampling: '%s'; after: '%s'",
+                    logging.debug("(Dataset: '%s', shape changed by resampling) Before: '%s'; After: '%s'",
                                   ds_name, shape, ds_df.shape)
 
+                # Separate y from X.
                 X = ds_df.iloc[:, :-1].values
                 y = ds_df.iloc[:, -1].values
 
+                # 2. Preprocess the dataset. ===================================================================
+                # 2.1. Do fuzzification preprocessing.
                 X_fuzzy_pre = X.copy()
                 # Debug message.
                 logging.debug(X_fuzzy_pre.dtype)
@@ -331,8 +331,6 @@ def exp_clf():
                 if not isinstance(X_fuzzy_pre.dtype, float):
                     X_fuzzy_pre = X_fuzzy_pre.astype(float)
                     logging.debug(X_fuzzy_pre.dtype)
-                # 2. Preprocess the dataset. ===================================================================
-                # 2.1. Do fuzzification preprocessing.
                 # Debug message.
                 logging.debug("Dataset: '%s'; X before fuzzification: %s", ds_name, np.shape(X_fuzzy_pre))
                 # 2.1.1. Standardise feature scaling.
@@ -344,43 +342,33 @@ def exp_clf():
                 # Debug message.
                 logging.debug("Dataset: '%s'; X after fuzzification: %s", ds_name, np.shape(X_plus_dms))
 
-                n_exp = 100
+                n_exp, n_fold = 10, 10
                 for i in range(n_exp):
-                    # Experiment without fuzzy rules.
-                    for comparison_mode, clf in NON_FUZZY_CLFS.items():
-                        # 3, 4, 5 and 6 steps in sub-processes. ========================================================
-                        # pool.apply_async(exp_one_clf,
-                        #                  args=(q, ds_name, comparison_mode, clf, False, i, X, y,))
-                        # if comparison_mode == "fgbdt_vs_nfgbdt":
-                        #     if i < 10:
-                        #         pool.apply_async(exp_one_clf,
-                        #                          args=(q, ds_name, comparison_mode, clf, False, i, X, y,))
-                        # else:
-                        #     pool.apply_async(exp_one_clf,
-                        #                      args=(q, ds_name, comparison_mode, clf, False, i, X, y,))
+                    # 3. Partition the dataset. ========================================================================
+                    kf = KFold(n_splits=n_fold, random_state=i, shuffle=True)
+                    for train_index, test_index in kf.split(X):
+                        y_train, y_test = y[train_index], y[test_index]
 
-                        # Following is only used to check for possible exceptions.
-                        res = pool.apply_async(exp_one_clf,
-                                               args=(q, ds_name, comparison_mode, clf, False, i, X, y,))
-                        res.get()
+                        # Experiment with fuzzy rules.
+                        X_train, X_test = X_plus_dms[train_index], X_plus_dms[test_index]
+                        for model_name, clf in FUZZY_CLFS.items():
+                            # 4, 5 and 6 steps in sub-processes. =======================================================
+                            pool.apply_async(exp_one_clf,
+                                             args=(q, ds_name, model_name, clf, True, i,
+                                                   X_train, X_test, y_train, y_test,))
+                            # Following is only used to check for possible exceptions.
+                            # res = pool.apply_async(exp_one_clf,
+                            #                        args=(q, ds_name, model_name, clf, True, i,
+                            #                              X_train, X_test, y_train, y_test,))
+                            # res.get()
 
-                    # Experiment with fuzzy rules.
-                    for comparison_mode, clf in FUZZY_CLFS.items():
-                        # 3, 4, 5 and 6 steps in sub-processes. =====================================================
-                        pool.apply_async(exp_one_clf,
-                                         args=(q, ds_name, comparison_mode, clf, True, i, X_plus_dms, y,))
-                        # if comparison_mode == "fgbdt_vs_nfgbdt":
-                        #     if i < 10:
-                        #         pool.apply_async(exp_one_clf,
-                        #                          args=(q, ds_name, comparison_mode, clf, True, i, X_plus_dms, y,))
-                        # else:
-                        #     pool.apply_async(exp_one_clf,
-                        #                      args=(q, ds_name, comparison_mode, clf, True, i, X_plus_dms, y,))
-
-                        # Following is only used to check for possible exceptions.
-                        # res = pool.apply_async(exp_one_clf,
-                        #                        args=(q, ds_name, comparison_mode, clf, True, i, X_plus_dms, y,))
-                        # res.get()
+                        # Experiment without fuzzy rules.
+                        X_train, X_test = X[train_index], X[test_index]
+                        for model_name, clf in NON_FUZZY_CLFS.items():
+                            # 4, 5 and 6 steps in sub-processes. =======================================================
+                            pool.apply_async(exp_one_clf,
+                                             args=(q, ds_name, model_name, clf, False, i,
+                                                   X_train, X_test, y_train, y_test,))
 
         pool.close()
         pool.join()

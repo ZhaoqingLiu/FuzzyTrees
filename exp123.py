@@ -36,29 +36,27 @@ import logging
 import multiprocessing
 import os
 import time
+import warnings
 
 import numpy as np
 import pandas as pd
 from sklearn.metrics import accuracy_score
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import KFold
 
 from fuzzytrees.fdt_base import FuzzificationOptions, FuzzyDecisionTreeWrapper, CRITERIA_FUNC_CLF, CRITERIA_FUNC_REG
 from fuzzytrees.fdts import FuzzyCARTClassifier
 from fuzzytrees.fgbdt import FuzzyGBDTClassifier
 from fuzzytrees.settings import DirSave
 from fuzzytrees.util_comm import get_now_str, get_timestamp_str
-from fuzzytrees.util_data_handler import DS_LOAD_FUNC_CLF, load_data_clf
+from fuzzytrees.util_data_handler import DS_LOAD_FUNC_CLF
 from fuzzytrees.util_logging import setup_logging
 from fuzzytrees.util_preprocessing_funcs import extract_fuzzy_features
-import warnings
-
 
 # =============================================================================
 # Environment configuration
 # =============================================================================
 # Make sure you know what the possible warnings are before you ignore them.
 warnings.filterwarnings("ignore")
-
 
 # =============================================================================
 # Global variables
@@ -67,98 +65,95 @@ warnings.filterwarnings("ignore")
 # Note: The root logger in `logging` used only for debugging in development.
 logger = logging.getLogger("main.core")
 
+# Number of fuzzy sets to generate in feature fuzzification.
 n_conv = 3
+
 # Data container used for storing experiments' results.
 exp_results = []
-
-# Non-fuzzy classifiers used in comparison modes.
-# # k: comparison mode; v: fuzzy classifier instance.
-NON_FUZZY_CLFS = {
-    # "f3_ds_vs_orig_ds": FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier,
-    #                                              disable_fuzzy=True,
-    #                                              criterion_func=CRITERIA_FUNC_CLF["gini"],
-    #                                              max_depth=5),
-    # "f4_ds_vs_orig_ds": FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier,
-    #                                              disable_fuzzy=True,
-    #                                              criterion_func=CRITERIA_FUNC_CLF["gini"],
-    #                                              max_depth=5),
-    # "f5_ds_vs_orig_ds": FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier,
-    #                                              disable_fuzzy=True,
-    #                                              criterion_func=CRITERIA_FUNC_CLF["gini"],
-    #                                              max_depth=5),
-    # "f6_ds_vs_orig_ds": FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier,
-    #                                              disable_fuzzy=True,
-    #                                              criterion_func=CRITERIA_FUNC_CLF["gini"],
-    #                                              max_depth=5),
-    # "fcart_vs_nfcart": FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier,
-    #                                             disable_fuzzy=True,
-    #                                             criterion_func=CRITERIA_FUNC_CLF["gini"],
-    #                                             max_depth=5),
-    # "fgbdt_vs_nfgbdt": FuzzyGBDTClassifier(disable_fuzzy=True,
-    #                                        criterion_func=CRITERIA_FUNC_REG["mse"],
-    #                                        learning_rate=0.1,
-    #                                        n_estimators=100,
-    #                                        max_depth=5),
-}
 
 # Fuzzy classifiers used in comparison modes.
 # k: comparison mode; v: fuzzy classifier instance.
 FUZZY_CLFS = {
-    # "f3_ds_vs_orig_ds": FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier,
-    #                                              disable_fuzzy=True,
-    #                                              fuzzification_options=FuzzificationOptions(n_conv=3),
-    #                                              criterion_func=CRITERIA_FUNC_CLF["gini"],
-    #                                              max_depth=5),
-    # "f4_ds_vs_orig_ds": FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier,
-    #                                              disable_fuzzy=True,
-    #                                              fuzzification_options=FuzzificationOptions(n_conv=4),
-    #                                              criterion_func=CRITERIA_FUNC_CLF["gini"],
-    #                                              max_depth=5),
-    # "f5_ds_vs_orig_ds": FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier,
-    #                                              disable_fuzzy=True,
-    #                                              fuzzification_options=FuzzificationOptions(n_conv=5),
-    #                                              criterion_func=CRITERIA_FUNC_CLF["gini"],
-    #                                              max_depth=5),
-    # "f6_ds_vs_orig_ds": FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier,
-    #                                              disable_fuzzy=True,
-    #                                              fuzzification_options=FuzzificationOptions(n_conv=6),
-    #                                              criterion_func=CRITERIA_FUNC_CLF["gini"],
-    #                                              max_depth=5),
+    "f3_ds_vs_orig_ds": FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier,
+                                                 disable_fuzzy=True,
+                                                 fuzzification_options=FuzzificationOptions(n_conv=3),
+                                                 criterion_func=CRITERIA_FUNC_CLF["gini"],
+                                                 max_depth=5),
+    "f4_ds_vs_orig_ds": FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier,
+                                                 disable_fuzzy=True,
+                                                 fuzzification_options=FuzzificationOptions(n_conv=4),
+                                                 criterion_func=CRITERIA_FUNC_CLF["gini"],
+                                                 max_depth=5),
+    "f5_ds_vs_orig_ds": FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier,
+                                                 disable_fuzzy=True,
+                                                 fuzzification_options=FuzzificationOptions(n_conv=5),
+                                                 criterion_func=CRITERIA_FUNC_CLF["gini"],
+                                                 max_depth=5),
+    "f6_ds_vs_orig_ds": FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier,
+                                                 disable_fuzzy=True,
+                                                 fuzzification_options=FuzzificationOptions(n_conv=6),
+                                                 criterion_func=CRITERIA_FUNC_CLF["gini"],
+                                                 max_depth=5),
     "fcart_vs_nfcart": FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier,
                                                 disable_fuzzy=False,
                                                 fuzzification_options=FuzzificationOptions(n_conv=n_conv),
                                                 criterion_func=CRITERIA_FUNC_CLF["gini"],
                                                 max_depth=5),
-    # "fgbdt_vs_nfgbdt": FuzzyGBDTClassifier(disable_fuzzy=False,
-    #                                        fuzzification_options=FuzzificationOptions(n_conv=3),
-    #                                        criterion_func=CRITERIA_FUNC_REG["mse"],
-    #                                        learning_rate=0.1,
-    #                                        n_estimators=100,
-    #                                        max_depth=5),
+    "fgbdt_vs_nfgbdt": FuzzyGBDTClassifier(disable_fuzzy=False,
+                                           fuzzification_options=FuzzificationOptions(n_conv=3),
+                                           criterion_func=CRITERIA_FUNC_REG["mse"],
+                                           learning_rate=0.1,
+                                           n_estimators=100,
+                                           max_depth=5),
+}
+
+# Non-fuzzy classifiers used in comparison modes.
+# # k: comparison mode; v: fuzzy classifier instance.
+NON_FUZZY_CLFS = {
+    "f3_ds_vs_orig_ds": FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier,
+                                                 disable_fuzzy=True,
+                                                 criterion_func=CRITERIA_FUNC_CLF["gini"],
+                                                 max_depth=5),
+    "f4_ds_vs_orig_ds": FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier,
+                                                 disable_fuzzy=True,
+                                                 criterion_func=CRITERIA_FUNC_CLF["gini"],
+                                                 max_depth=5),
+    "f5_ds_vs_orig_ds": FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier,
+                                                 disable_fuzzy=True,
+                                                 criterion_func=CRITERIA_FUNC_CLF["gini"],
+                                                 max_depth=5),
+    "f6_ds_vs_orig_ds": FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier,
+                                                 disable_fuzzy=True,
+                                                 criterion_func=CRITERIA_FUNC_CLF["gini"],
+                                                 max_depth=5),
+    "fcart_vs_nfcart": FuzzyDecisionTreeWrapper(fdt_class=FuzzyCARTClassifier,
+                                                disable_fuzzy=True,
+                                                criterion_func=CRITERIA_FUNC_CLF["gini"],
+                                                max_depth=5),
+    "fgbdt_vs_nfgbdt": FuzzyGBDTClassifier(disable_fuzzy=True,
+                                           criterion_func=CRITERIA_FUNC_REG["mse"],
+                                           learning_rate=0.1,
+                                           n_estimators=100,
+                                           max_depth=5),
 }
 
 
 # =============================================================================
 # Functions
 # =============================================================================
-def exp_one_clf(q, ds_name, comparison_mode, clf, with_fuzzy_rules, sn, X, y):
+def exp_one_clf(q, ds_name, comparison_mode, clf, with_fuzzy_rules, sn, X_train, X_test, y_train, y_test):
     """Experiment with one classifier."""
     # Record the start time.
     time_start = time.time()
 
-    # 3. Partition the dataset. ====================================================================================
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=sn)
-    logging.debug("(Dataset: '%s'; Experiment: '%s'; Fuzzy rules: '%r'; SN: '%d-th') training: %s, test: %s",
-                  ds_name, comparison_mode, with_fuzzy_rules, sn, y_train.shape, y_test.shape)
-
-    # 4. Train the models. =========================================================================================
+    # 4. Train the models. =============================================================================================
     clf.fit(X_train, y_train)
 
-    # 5. Look at the classifier.
+    # 5. Look at the classifier. =======================================================================================
     # clf.print_tree()
 
-    # 6. Evaluate the classifier.
-    # 6.1. Calculate the test accuracy and train accuracy.
+    # 6. Evaluate the classifier. ======================================================================================
+    # 6.1. Calculate the testing accuracy and training accuracy.
     y_pred_test = clf.predict(X_test)
     acc_test = accuracy_score(y_test, y_pred_test)
     y_pred_train = clf.predict(X_train)
@@ -168,7 +163,8 @@ def exp_one_clf(q, ds_name, comparison_mode, clf, with_fuzzy_rules, sn, X, y):
 
     # Debug message.
     logging.debug("=" * 100)
-    logging.debug("(Dataset: '%s'; Experiment: '%s'; Fuzzy rules: '%r'; SN: '%d-th') %f, %f, %f(s)",
+    logging.debug("(Dataset: '%s'; Experiment: '%s'; Fuzzy rules: '%r'; SN: '%d-th') "
+                  "Testing acc.: %f; Training acc.: %f; Elapsed time: %f(s)",
                   ds_name, comparison_mode, with_fuzzy_rules, sn, acc_test, acc_train, elapsed_time)
     logging.debug("=" * 100)
 
@@ -221,9 +217,9 @@ def output_results():
         exp_res_df["mean_acc_train"] = exp_res_df.groupby(["comparison_mode",
                                                            "ds_name",
                                                            "with_fuzzy_rules"])["acc_train"].transform("mean")
-        exp_res_df["mean_acc_test"] = exp_res_df.groupby(["comparison_mode",
-                                                          "ds_name",
-                                                          "with_fuzzy_rules"])["elapsed_time"].transform("mean")
+        exp_res_df["mean_elapsed_time"] = exp_res_df.groupby(["comparison_mode",
+                                                              "ds_name",
+                                                              "with_fuzzy_rules"])["elapsed_time"].transform("mean")
         filename = DirSave.EVAL_DATA.value + get_now_str(get_timestamp_str()) + "-exp-s1.csv"
         exp_res_df.to_csv(filename)
         # Debug message.
@@ -272,20 +268,15 @@ def exp_clf():
         pool = multiprocessing.Pool()
 
         # 1. Load the dataset. =========================================================================================
-        for ds_name in DS_LOAD_FUNC_CLF.keys():
-            ds_df = load_data_clf(ds_name)
+        for ds_name, ds_load_func in DS_LOAD_FUNC_CLF.items():
+            ds_df = ds_load_func()
             if ds_df is not None:
-                # Resample with stratified sampling method if the sample size is too large to save the experiment time.
-                shape = ds_df.shape
-                if shape[0] > 1200:
-                    ds_df, _ = train_test_split(ds_df, train_size=12000, stratify=ds_df.iloc[:, [-1]])
-                    # Debug message.
-                    logging.debug("(Dataset: '%s') Shape before resampling: '%s'; after: '%s'",
-                                  ds_name, shape, ds_df.shape)
-
+                # Separate y from X.
                 X = ds_df.iloc[:, :-1].values
                 y = ds_df.iloc[:, -1].values
 
+                # 2. Preprocess the dataset. ===========================================================================
+                # 2.1. Do fuzzification preprocessing.
                 X_fuzzy_pre = X.copy()
                 # Debug message.
                 logging.debug(X_fuzzy_pre.dtype)
@@ -293,8 +284,6 @@ def exp_clf():
                 if not isinstance(X_fuzzy_pre.dtype, float):
                     X_fuzzy_pre = X_fuzzy_pre.astype(float)
                     logging.debug(X_fuzzy_pre.dtype)
-                # 2. Preprocess the dataset. ===================================================================
-                # 2.1. Do fuzzification preprocessing.
                 # Debug message.
                 logging.debug("Dataset: '%s'; X before fuzzification: %s", ds_name, np.shape(X_fuzzy_pre))
                 # 2.1.1. Standardise feature scaling.
@@ -306,38 +295,33 @@ def exp_clf():
                 # Debug message.
                 logging.debug("Dataset: '%s'; X after fuzzification: %s", ds_name, np.shape(X_plus_dms))
 
-                n_exp = 10
+                n_exp, n_fold = 10, 10
                 for i in range(n_exp):
-                    # Experiment without fuzzy rules.
-                    for comparison_mode, clf in NON_FUZZY_CLFS.items():
-                        # 3, 4, 5 and 6 steps in sub-processes. ========================================================
-                        # pool.apply_async(exp_one_clf,
-                        #                  args=(q, ds_name, comparison_mode, clf, False, i, X, y,))
-                        if comparison_mode == "fgbdt_vs_nfgbdt":
-                            if i < 10:
-                                pool.apply_async(exp_one_clf,
-                                                 args=(q, ds_name, comparison_mode, clf, False, i, X, y,))
-                        else:
-                            pool.apply_async(exp_one_clf,
-                                             args=(q, ds_name, comparison_mode, clf, False, i, X, y,))
+                    # 3. Partition the dataset. ========================================================================
+                    kf = KFold(n_splits=n_fold, random_state=i, shuffle=True)
+                    for train_index, test_index in kf.split(X):
+                        y_train, y_test = y[train_index], y[test_index]
 
-                    # Experiment with fuzzy rules.
-                    for comparison_mode, clf in FUZZY_CLFS.items():
-                        # 3, 4, 5 and 6 steps in sub-processes. =====================================================
-                        # pool.apply_async(exp_one_clf,
-                        #                  args=(q, ds_name, comparison_mode, clf, True, i, X_plus_dms, y,))
-                        if comparison_mode == "fgbdt_vs_nfgbdt":
-                            if i < 10:
-                                pool.apply_async(exp_one_clf,
-                                                 args=(q, ds_name, comparison_mode, clf, True, i, X_plus_dms, y,))
-                        else:
+                        # Experiment with fuzzy rules.
+                        X_train, X_test = X_plus_dms[train_index], X_plus_dms[test_index]
+                        for comparison_mode, clf in FUZZY_CLFS.items():
+                            # 4, 5 and 6 steps in sub-processes. =======================================================
                             pool.apply_async(exp_one_clf,
-                                             args=(q, ds_name, comparison_mode, clf, True, i, X_plus_dms, y,))
+                                             args=(q, ds_name, comparison_mode, clf, True, i,
+                                                   X_train, X_test, y_train, y_test,))
+                            # Following is only used to check for possible exceptions.
+                            # res = pool.apply_async(exp_one_clf,
+                            #                        args=(q, ds_name, comparison_mode, clf, True, i,
+                            #                              X_train, X_test, y_train, y_test,))
+                            # res.get()
 
-                        # Following is only used to check for possible exceptions.
-                        # res = pool.apply_async(exp_one_clf,
-                        #                        args=(q, ds_name, comparison_mode, clf, True, i, X_plus_dms, y,))
-                        # res.get()
+                        # Experiment without fuzzy rules.
+                        X_train, X_test = X[train_index], X[test_index]
+                        for comparison_mode, clf in NON_FUZZY_CLFS.items():
+                            # 4, 5 and 6 steps in sub-processes. =======================================================
+                            pool.apply_async(exp_one_clf,
+                                             args=(q, ds_name, comparison_mode, clf, False, i,
+                                                   X_train, X_test, y_train, y_test,))
 
         pool.close()
         pool.join()

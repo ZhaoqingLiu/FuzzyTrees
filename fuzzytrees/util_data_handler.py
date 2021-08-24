@@ -15,7 +15,7 @@ from sklearn import datasets
 # Change it to your folder path.
 from sklearn.model_selection import train_test_split
 
-DATA_FOLDER_PATH = "Datasets/"
+DATA_FOLDER_PATH = "./Datasets/"
 
 
 # DATA_FOLDER_PATH = os.path.abspath(os.path.dirname(os.getcwd())) + '/Datasets/'
@@ -210,6 +210,12 @@ DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle,
 # DS_LOAD_FUNC_CLF = {"Iris": load_iris, "Wine": load_wine, }
 
 COVERTYPE_LOAD_FUNC_CLF = {"Covertype": load_covertype}
+
+DS_LOAD_FUNC_CLF_WHOLE = {"Covertype": load_covertype,
+                          "Pokerhand": load_pokerhand,
+                          "Mushroom": load_mushroom,
+                          "Waveform": load_waveform,
+                          }
 
 
 def load_data_clf(ds_name):
