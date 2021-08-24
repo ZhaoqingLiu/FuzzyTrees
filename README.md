@@ -3,7 +3,7 @@ Authors: Zhaoqing Liu, Anjin Liu, Guangquan Zhang, and Jie Lu
 
 The paper includes four experiments. To run them for training and evaluation:
 - First, go to the root of the project, FuzzyTrees.
-- Then, run experiments 1, 2 and 3 with `python3 exp_s1.py` and experiment 4 with `python3 exp_s1_with_others.py`.
+- Then, run experiments 1, 2 and 3 with `python3 exp123.py` and experiment 4 with `python3 exp4.py`.
 
 To modify the experiment to other datasets:
 - Put the folder containing a new dataset's files under the directory "Datasets/".
