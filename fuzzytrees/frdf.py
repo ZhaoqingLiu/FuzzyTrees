@@ -3,6 +3,7 @@
 @email  : Zhaoqing.Liu-1@student.uts.edu.au
 """
 import ctypes
+import logging
 import multiprocessing
 from abc import ABCMeta
 import numpy as np
@@ -230,7 +231,7 @@ class BaseFuzzyRDF(metaclass=ABCMeta):
                 while not q.empty():
                     estimator = q.get()
                     self._estimators[idx] = estimator
-                    print("Replaced the {}-th estimators in the forest.".format(idx))
+                    logging.info("%d-th estimator is ready.", idx)
                     idx += 1
         else:
             # In single-process mode.
@@ -238,6 +239,8 @@ class BaseFuzzyRDF(metaclass=ABCMeta):
                 self._fit_one(X_train_subsets[i], y_train_subsets[i], n_features, i)
 
     def _fit_one(self, X_train_subset, y_train_subset, n_features, i, q=None):
+        logging.debug("%d-th estimator fitting - start.", i)
+
         # Randomly select features.
         idxs = np.random.choice(n_features, self.max_features, replace=True)
         if not self.disable_fuzzy:
@@ -263,7 +266,7 @@ class BaseFuzzyRDF(metaclass=ABCMeta):
             if not q.full():
                 q.put(self._estimators[i])
 
-        print("{}-th tree fitting is complete.".format(i))
+        logging.debug("%d-th estimator fitting - done.", i)
 
     def predict(self, X):
         """

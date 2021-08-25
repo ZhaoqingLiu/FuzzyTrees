@@ -11,14 +11,6 @@ import numpy as np
 
 
 # =============================================================================
-# Global variables
-# =============================================================================
-# Logger used for logging in production.
-# Note: The root logger in `logging` used only for debugging in development.
-logger = logging.getLogger("main.core")
-
-
-# =============================================================================
 # Functions for Classification
 # =============================================================================
 
@@ -131,16 +123,18 @@ def calculate_gini(y, dm=None):
     return gini
 
 
-def calculate_impurity_gain(y, sub_y_1, sub_y_2, criterion_func, p_subset_true_dm=None, p_subset_false_dm=None):
+def calculate_impurity_gain(y, sub_y_1, sub_y_2, criterion_func,
+                            p_subset_true_dm=None, p_subset_false_dm=None, n_conv=None):
     """
     Calculate the impurity gain, which is equal to the
     impurity of y minus the entropy of sub_y_1 and sub_y_2.
     """
     impurity = criterion_func(y)
 
-    if p_subset_true_dm is not None and p_subset_false_dm is not None:
-        information_gain = impurity - (p_subset_true_dm * criterion_func(sub_y_1[:, -1], sub_y_1[:, :-1])) - (
-                    p_subset_false_dm * criterion_func(sub_y_2[:, -1], sub_y_2[:, :-1]))
+    if p_subset_true_dm is not None and p_subset_false_dm is not None and n_conv is not None:
+        impurity_sub_1 = p_subset_true_dm * criterion_func(sub_y_1[:, n_conv:], sub_y_1[:, :n_conv])
+        impurity_sub_2 = p_subset_false_dm * criterion_func(sub_y_2[:, n_conv:], sub_y_2[:, :n_conv])
+        information_gain = impurity - impurity_sub_1 - impurity_sub_2
     else:
         p_1 = len(sub_y_1) / len(y)
         p_2 = len(sub_y_2) / len(y)
@@ -149,13 +143,15 @@ def calculate_impurity_gain(y, sub_y_1, sub_y_2, criterion_func, p_subset_true_d
     return information_gain
 
 
-def calculate_impurity_gain_ratio(y, sub_y_1, sub_y_2, X_sub, criterion_func, p_subset_true_dm=None,
-                                  p_subset_false_dm=None):
+def calculate_impurity_gain_ratio(y, sub_y_1, sub_y_2, X_sub, criterion_func,
+                                  p_subset_true_dm=None, p_subset_false_dm=None, n_conv=None):
     """
     Calculate the impurity gain ratio.
     """
     information_gain = calculate_impurity_gain(y=y, sub_y_1=sub_y_1, sub_y_2=sub_y_2, criterion_func=criterion_func,
-                                               p_subset_true_dm=p_subset_true_dm, p_subset_false_dm=p_subset_false_dm)
+                                               p_subset_true_dm=p_subset_true_dm,
+                                               p_subset_false_dm=p_subset_false_dm,
+                                               n_conv=n_conv)
     intrinsic_value = criterion_func(X_sub)
     information_gain_ratio = information_gain / intrinsic_value
 
@@ -207,7 +203,7 @@ def calculate_variance(y):
     """
     Calculate the variance of y.
     """
-    mean = np.ones(np.shape(y)) * y.mean(0)
+    mean = np.ones(np.shape(y)) * np.mean(y, axis=0)
     n_samples = np.shape(y)[0]
     variance = (1 / n_samples) * np.diag((y - mean).T.dot(y - mean))  # T means transposing a matrix.
 
@@ -223,23 +219,33 @@ def calculate_standard_deviation(y):
     return std_dev
 
 
-def calculate_variance_reduction(y, sub_y_1, sub_y_2, criterion_func, p_subset_true_dm=None, p_subset_false_dm=None):
+def calculate_variance_reduction(y, y_sub_1, y_sub_2, criterion_func,
+                                 p_subset_true_dm=None, p_subset_false_dm=None, n_conv=None):
     """
     Calculate the variance reduction, which is equal to the
     impurity of y minus the entropy of sub_y_1 and sub_y_2.
     """
-    logging.debug("(Shape respectively) y: %s; y_sub_1: %s; y_sub_2: %s", np.shape(y), np.shape(sub_y_1), np.shape(sub_y_2))
-
     var = criterion_func(y)
-    var_1 = criterion_func(sub_y_1)
-    var_2 = criterion_func(sub_y_2)
 
-    if p_subset_true_dm is not None and p_subset_false_dm is not None:
+    logging.debug("**************** (Shape before) y: %s; y_sub_1: %s; y_sub_2: %s",
+                  np.shape(y), np.shape(y_sub_1), np.shape(y_sub_2))
+    if p_subset_true_dm is not None and p_subset_false_dm is not None and n_conv is not None:
+        # Select y.
+        # NB: Don't use [:, -1] because y might have been transformed with one-hot-encoding.
+        y_sub_1 = y_sub_1[:, n_conv:]
+        y_sub_2 = y_sub_2[:, n_conv:]
+    logging.debug("**************** (Shape after) y: %s; y_sub_1: %s; y_sub_2: %s",
+                  np.shape(y), np.shape(y_sub_1), np.shape(y_sub_2))
+
+    var_1 = criterion_func(y_sub_1)
+    var_2 = criterion_func(y_sub_2)
+
+    if p_subset_true_dm is not None and p_subset_false_dm is not None and n_conv is not None:
         p_1 = p_subset_true_dm
         p_2 = p_subset_false_dm
     else:
-        p_1 = len(sub_y_1) / len(y)
-        p_2 = len(sub_y_2) / len(y)
+        p_1 = len(y_sub_1) / len(y)
+        p_2 = len(y_sub_2) / len(y)
 
     # Calculate the variance reduction
     variance_reduction = var - (p_1 * var_1 + p_2 * var_2)
@@ -294,7 +300,7 @@ def calculate_proba(y):
     #     y = np.squeeze(y)
     # dist = np.bincount(y)
     # for count in dist:
-    #     print(count / np.shape(y)[0])
+    #     logging.debug(count / np.shape(y)[0])
 
     return prob_list
 

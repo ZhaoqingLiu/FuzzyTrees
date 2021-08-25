@@ -2,6 +2,7 @@
 @author : Zhaoqing Liu
 @email  : Zhaoqing.Liu-1@student.uts.edu.au
 """
+import logging
 import multiprocessing
 import os
 from enum import Enum
@@ -17,9 +18,8 @@ class ComparisonMode(Enum):
     FF3 = "f3_ds_vs_orig_ds"  # With only Feature Fuzzification, n_conv=3
     FF4 = "f4_ds_vs_orig_ds"  # With only Feature Fuzzification, n_conv=4
     FF5 = "f5_ds_vs_orig_ds"  # With only Feature Fuzzification, n_conv=5
-    FF6 = "f6_ds_vs_orig_ds"  # With only Feature Fuzzification, n_conv=6
-    FUZZY = "fcart_vs_nfcart"
-    # BOOSTING = "fgbdt_vs_nfgbdt"
+    FUZZY = "fdt_vs_nfdt"
+    BOOSTING = "fgbdt_vs_nfgbdt"
     # MIXED = "mfgbdt_vs_nfgbdt"
 
 
@@ -60,21 +60,21 @@ print("{:^100}".format("Environment Configuration Information"))
 print("Number of CPU cores available:")
 print("{:>100}".format(NUM_CPU_CORES_AVAL))
 
-print("Number of CPU cores currently requested:")
+print("Number of CPU cores requested:")
 print("{:>100}".format(NUM_CPU_CORES_REQ))
 
-print("(S1 EXP) Comparison experiments include:")
+print("(EXP) Comparison experiments:")
 for name, item in ComparisonMode.__members__.items():
     print("{:>100}".format(name + " -- " + item.value))
 
-print("(S2 EXP) experiments include:")
+print("(EXP) Search optimal parameters:")
 for name, item in EvaluationType.__members__.items():
     print("{:>100}".format(name + " -- " + item.value))
 
-print("(S2 EXP) Current path:")
+print("Current path:")
 print("{:>100}".format(os.getcwd()))
 
-print("(S2 EXP) Path to save generated files:")
+print("Path to save generated files:")
 for _, item in DirSave.__members__.items():
     print("{:>100}".format(item.value))
 

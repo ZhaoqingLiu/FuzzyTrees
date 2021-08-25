@@ -65,7 +65,7 @@ warnings.filterwarnings("ignore")
 logger = logging.getLogger("main.core")
 
 # Number of fuzzy sets to generate in feature fuzzification.
-n_conv = 3
+n_conv = 5
 
 # Data container used for storing experiments' results.
 exp_results = []
@@ -222,7 +222,7 @@ def output_results():
         filename = DirSave.EVAL_DATA.value + get_now_str(get_timestamp_str()) + "-exp-s1-mean-stat.csv"
         exp_res_mean_df.to_csv(filename)
 
-        logging.debug(exp_res_mean_df.values)
+        logging.info(exp_res_mean_df.values)
         logging.info("Finished output: %s", filename)
 
         # 3. Output the whole statistics.
@@ -265,11 +265,11 @@ def exp_clf():
                 # 2. Preprocess the dataset. ===========================================================================
                 # 2.1. Do fuzzification preprocessing.
                 X_fuzzy_pre = X.copy()
-                logging.debug(X_fuzzy_pre.dtype)
+                logging.debug("**************** dtype before: %s", X_fuzzy_pre.dtype)
                 # Convert dtype of X_fuzzy_pre to float.
                 if not isinstance(X_fuzzy_pre.dtype, float):
                     X_fuzzy_pre = X_fuzzy_pre.astype(float)
-                    logging.debug(X_fuzzy_pre.dtype)
+                    logging.debug("**************** dtype after: %s", X_fuzzy_pre.dtype)
                 logging.info("Dataset: '%s'; X before fuzzification: %s", ds_name, np.shape(X_fuzzy_pre))
                 # 2.1.1. Standardise feature scaling.
                 X_fuzzy_pre[:, :] -= X_fuzzy_pre[:, :].min()

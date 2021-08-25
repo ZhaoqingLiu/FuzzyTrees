@@ -21,7 +21,7 @@ DATA_FOLDER_PATH = "./Datasets/"
 # DATA_FOLDER_PATH = os.path.abspath(os.path.dirname(os.getcwd())) + '/Datasets/'
 
 
-# print("+++++++++++++++++++++++++++++++++++++++++++++", DATA_FOLDER_PATH)
+# logging.debug("+++++++++++++++++++++++++++++++++++++++++++++ %s", DATA_FOLDER_PATH)
 
 
 def load_covertype():
@@ -207,15 +207,17 @@ DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle,
 # DS_LOAD_FUNC_CLF = {"Vehicle": load_vehicle}
 # DS_LOAD_FUNC_CLF = {"German_Credit": load_German_credit}
 # DS_LOAD_FUNC_CLF = {"Diabetes": load_diabetes}
-# DS_LOAD_FUNC_CLF = {"Iris": load_iris, "Wine": load_wine, }
+# DS_LOAD_FUNC_CLF = {"Iris": load_iris}
+# DS_LOAD_FUNC_CLF = {"Wine": load_wine}
+# DS_LOAD_FUNC_CLF = {"Iris": load_iris, "Wine": load_wine}
 
 COVERTYPE_LOAD_FUNC_CLF = {"Covertype": load_covertype}
 
-DS_LOAD_FUNC_CLF_WHOLE = {"Covertype": load_covertype,
-                          "Pokerhand": load_pokerhand,
-                          "Mushroom": load_mushroom,
-                          "Waveform": load_waveform,
-                          }
+ALL_DS_LOAD_FUNC_CLF = {"Covertype": load_covertype,
+                        "Pokerhand": load_pokerhand,
+                        "Mushroom": load_mushroom,
+                        "Waveform": load_waveform,
+                        }
 
 
 def load_data_clf(ds_name):
@@ -236,38 +238,3 @@ def load_data_clf(ds_name):
         ds_load_func = DS_LOAD_FUNC_CLF[ds_name]
 
     return None if ds_load_func is None else ds_load_func()
-
-# if __name__ == "__main__":
-#     print(DATA_FOLDER_PATH)
-#
-# print('Loading Vehicle')
-# data_vehicle = load_vehicle()
-# print('Loading Vehicle, shape', data_vehicle.shape)
-#
-#     print('Loading Waveform')
-#     data_waveform = load_waveform()
-#     print('Loading Waveform, shape', data_waveform.shape)
-#
-#     print('Loading German_credit')
-#     data_gc = load_German_credit()
-#     print('Loading German_credit, shape', data_gc.shape)
-#
-#     print('Loading Chess')
-#     data_chess = load_chess()
-#     print('Loading Chess, shape', data_chess.shape)
-#
-#     print('Loading Diabetes')
-#     data_diabetes = load_diabetes()
-#     print('Loading Diabetes, shape', data_diabetes.shape)
-#
-#     print('Loading Iris')
-#     data_iris = load_iris()
-#     print('Loading Iris, shape', data_iris.shape)
-#
-#     print('Loading Wine')
-#     data_wine = load_wine()
-#     print('Loading Wine, shape', data_wine.shape)
-#
-#     data, target = datasets.load_boston(return_X_y=True)
-#     print(type(data))
-#     print(type(target))

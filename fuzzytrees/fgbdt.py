@@ -3,6 +3,7 @@
 @author : Zhaoqing Liu
 @email  : Zhaoqing.Liu-1@student.uts.edu.au
 """
+import logging
 from abc import ABCMeta
 import numpy as np
 from sklearn.preprocessing import OneHotEncoder
@@ -140,7 +141,7 @@ class FuzzyGBDT(metaclass=ABCMeta):
         # to predict values F_0(x).
         self._estimators[0].fit(X_train, y_train)
         y_pred = self._estimators[0].predict(X_train)
-        # print("0-th estimator produces an initialised constant: {}".format(y_pred))
+        # logging.debug("0-th estimator produces an initialised constant: %s", y_pred)
 
         # Then use the other tree iteratively to fit the other estimators by the
         # residuals of the last predictions. The first set of residuals is the
@@ -149,7 +150,7 @@ class FuzzyGBDT(metaclass=ABCMeta):
             gradient = self._loss_func.gradient(y_train, y_pred)
             self._estimators[i].fit(X_train, gradient)
             y_pred -= np.multiply(self.learning_rate, self._estimators[i].predict(X_train))
-            # print("{sn}-th estimator produces a residual: {residual}".format(sn=i, residual=y_pred))
+            # logging.debug("%d-th estimator produces a residual: %f", i, y_pred)
 
     def predict(self, X):
         """
@@ -265,9 +266,12 @@ class FuzzyGBDTClassifier(FuzzyGBDT):
                          min_impurity_split=min_impurity_split, is_regression=False)
 
     def fit(self, X_train, y_train):
+        logging.debug("**************** Shape before one-hot_encoding: %s", np.shape(y_train))
         if len(np.shape(y_train)) == 1:
             y_train = one_hot_encode(y_train)
-        # Here is an alternative, but requires an additional change of dimension.
+        logging.debug("**************** Shape after one-hot_encoding: %s", np.shape(y_train))
+
+        # Here is an alternative encoding method, but requires an additional change of dimension.
         # if len(np.shape(y_train)) == 1:
         #     y_train = np.expand_dims(y_train, axis=1)
         # transformer = OneHotEncoder(handle_unknown='ignore')

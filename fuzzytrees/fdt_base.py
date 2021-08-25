@@ -3,6 +3,7 @@
 @author : Zhaoqing Liu
 @email  : Zhaoqing.Liu-1@student.uts.edu.au
 """
+import logging
 import multiprocessing
 import os
 import traceback
@@ -22,7 +23,18 @@ from fuzzytrees.util_data_handler import load_data_clf
 from fuzzytrees.util_preprocessing_funcs import extract_fuzzy_features
 from fuzzytrees.util_plotter import plot_multi_lines
 
-warnings.filterwarnings("always")
+# =============================================================================
+# Environment configuration
+# =============================================================================
+# Make sure you know what the possible warnings are before you ignore them.
+warnings.filterwarnings("ignore")
+
+# =============================================================================
+# Global variables
+# =============================================================================
+# Logger used for logging in production.
+# Note: The root logger in `logging` used only for debugging in development.
+logger = logging.getLogger("main.core")
 
 # =============================================================================
 # Types and constants
@@ -76,6 +88,7 @@ class MultiProcessOptions:
     allow_growth : bool, default=False
         Whether to dynamically request more CPU resources.
     """
+
     def __init__(self, n_cpu_cores_req=None, allow_growth=False):
         self.n_cpu_cores_req = n_cpu_cores_req
         self.allow_growth = allow_growth
@@ -354,7 +367,7 @@ class BaseFuzzyDecisionTree(metaclass=ABCMeta):
         best_impurity_gain = 0
 
         # Join the elements in the X and Y by index.
-        # Note that both X and y must have same number of dimensions.
+        # Note that both X and y must have same number of dimensions. When after one-hot-encoding, y is already 2-D.
         if len(np.shape(y)) == 1:
             # Do ascending dimension on y, and keep the column arrangement.
             y = np.expand_dims(y, axis=1)
@@ -364,56 +377,71 @@ class BaseFuzzyDecisionTree(metaclass=ABCMeta):
         # Start iterating over all features to get the best split.
         n_samples, n_features = np.shape(X)
 
-        # Calculate the number of iterations over features. NB: fuzzy features have more n_conv times of original number of features.
-        n_loop = n_features
+        # Calculate the number of iterations over features.
+        n_loop = n_features  # For non-fuzzy trees, n_loop is exactly the number of features
+        # Fuzzy case: After feature fuzzification, have additional n_conv times of original number of features.
         if not self.disable_fuzzy:
-            n_loop = int(n_features / (
-                    self.fuzzification_options.n_conv + 1))  # denominator=n_conv + 1. If the FCM algorithm selects n optimal fuzzy sets, the calculation here will be deprecated.
+            # NB: If FCM selects n optimal fuzzy sets, the calculation here will be deprecated.
+            n_loop = int(n_features / (self.fuzzification_options.n_conv + 1))
 
         for feature_idx in range(n_loop):
-            # Calculate the sum of all the membership degrees of the current feature values.
-            total_dm = None
+            # Get all unique values of the feature with feature_idx group by value classes.
+            feature_values = np.expand_dims(X[:, feature_idx], axis=1)
+            unique_values = np.unique(feature_values)
+
+            # Fuzzy case: Calculate p_k based on the current feature's membership degrees instead of probability.
+            # Step 1: Calculate the sum of all the membership degrees of the current feature.
+            dm_sum = None
             start = None
-            stop = None
+            # stop = None
             if not self.disable_fuzzy:
                 # Columns of the idx-th features's degrees of membership start from
                 # "n_loop + feature_idx * self.fuzzification_options.n_conv", and end with
                 # "n_loop + (feature_idx + 1) * self.fuzzification_options.n_conv".
                 start = n_loop + feature_idx * self.fuzzification_options.n_conv
-                stop = n_loop + (feature_idx + 1) * self.fuzzification_options.n_conv
-                total_dm = np.sum(X[:, start:stop])
-                # print(feature_idx, "-th feature: total degree of membership:", total_dm)
+                # stop = n_loop + (feature_idx + 1) * self.fuzzification_options.n_conv
+                dm_sum = np.sum(X[:, start:(start + self.fuzzification_options.n_conv)])
 
-            # Get all unique values of the feature with feature_idx group by value classes.
-            feature_values = np.expand_dims(X[:, feature_idx], axis=1)
-
-            # Calculate impurity_gain in each iteration over all unique feature values.
-            unique_values = np.unique(feature_values)
-            count = 0
+            # Calculate each impurity_gain at each iteration over all unique feature values.
             for unique_value in unique_values:
-                count += 1
                 subset_true, subset_false = self._split_ds_func(ds_train, feature_idx, unique_value)
 
                 if len(subset_true) > 0 and len(subset_false) > 0:
-                    # Calculate the membership probability of each subset according to the fuzzy splitting criterion.
+                    # Select y.
+                    # NB: Don't use [:, -1] because y might have been transformed with one-hot-encoding.
+                    y_subset_true = subset_true[:, n_features:]
+                    y_subset_false = subset_false[:, n_features:]
+
+                    # Fuzzy case: Calculate p_k.
                     p_subset_true_dm = None
                     p_subset_false_dm = None
-                    if not self.disable_fuzzy and total_dm is not None and total_dm > 0.0:
-                        subset_true_dm = np.sum(subset_true[:, start:stop])
-                        p_subset_true_dm = subset_true_dm / total_dm
-                        # print("    ", count, "-th split: subset_true's degree of membership:", subset_true_dm)
-                        subset_false_dm = np.sum(subset_false[:, start:stop])
-                        p_subset_false_dm = subset_false_dm / total_dm
-                        # print("    ", count, "-th split: subset_false's degree of membership:", subset_false_dm)
+                    n_conv = None
+                    if not self.disable_fuzzy and dm_sum is not None and dm_sum > 0.0:
+                        logging.debug("**************** Current feature's membership degrees start from: %d", start)
+                        # Step 2: Calculate the membership degrees of each subset of the current feature.
+                        subset_true_dm = subset_true[:, start:(start + self.fuzzification_options.n_conv)]
+                        subset_true_dm_sum = np.sum(subset_true_dm)
+                        subset_false_dm = subset_false[:, start:(start + self.fuzzification_options.n_conv)]
+                        subset_false_dm_sum = np.sum(subset_false_dm)
+                        # Step 3: Calculate p_k.
+                        p_subset_true_dm = subset_true_dm_sum / dm_sum
+                        p_subset_false_dm = subset_false_dm_sum / dm_sum
 
-                    y_subset_true = subset_true[:,
-                                    n_features:]  # For non-fuzzy trees, n_loop is exactly the number of features
-                    y_subset_false = subset_false[:,
-                                     n_features:]  # For non-fuzzy trees, n_loop is exactly the number of features
+                        if len(np.shape(y_subset_true)) == 1 or len(np.shape(y_subset_false)) == 1:
+                            y_subset_true = np.expand_dims(y_subset_true, axis=1)
+                            y_subset_false = np.expand_dims(y_subset_false, axis=1)
+                        y_subset_true = np.concatenate((subset_true_dm, y_subset_true), axis=1)
+                        y_subset_false = np.concatenate((subset_false_dm, y_subset_false), axis=1)
+                        logging.debug("**************** Shape of each subset for calculating impurity gain: %s, %s",
+                                      np.shape(y_subset_true), np.shape(y_subset_false))
 
-                    impurity_gain = self._impurity_gain_calc_func(y, y_subset_true, y_subset_false, self.criterion_func,
+                        n_conv = self.fuzzification_options.n_conv
+
+                    impurity_gain = self._impurity_gain_calc_func(y, y_subset_true, y_subset_false,
+                                                                  self.criterion_func,
                                                                   p_subset_true_dm=p_subset_true_dm,
-                                                                  p_subset_false_dm=p_subset_false_dm)
+                                                                  p_subset_false_dm=p_subset_false_dm,
+                                                                  n_conv=n_conv)
                     if impurity_gain > best_impurity_gain:
                         best_impurity_gain = impurity_gain
 
@@ -618,7 +646,8 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
         try:
             self.estimator.fit(X_train, y_train)
         except Exception as e:
-            print(traceback.format_exc())
+            logger.exception("Running exception, see details:")
+            # logger.error("Running exception, see details:", exc_info=True)
 
     def predict(self, X):
         """
@@ -643,7 +672,8 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
         try:
             return self.estimator.predict(X)
         except Exception as e:
-            print(traceback.format_exc())
+            logger.exception("Running exception, see details:")
+            # logger.error("Running exception, see details:", exc_info=True)
 
     def predict_proba(self, X):
         """
@@ -662,7 +692,8 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
         try:
             return self.estimator.predict_proba(X)
         except Exception as e:
-            print(traceback.format_exc())
+            logger.exception("Running exception, see details:")
+            # logger.error("Running exception, see details:", exc_info=True)
 
     def print_tree(self, tree=None, indent="  ", delimiter="-->"):
         """
@@ -682,7 +713,8 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
         try:
             self.estimator.print_tree(tree=tree, indent=indent, delimiter=delimiter)
         except Exception as e:
-            print(traceback.format_exc())
+            logger.exception("Running exception, see details:")
+            # logger.error("Running exception, see details:", exc_info=True)
 
     # =============================================================================
     # Functions to search fuzzy parameters for FDTs and plot their evaluation
@@ -759,9 +791,9 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
 
         """
         curr_pid = os.getpid()
-        print("    |-- ({} Child-process) Pretrain a group of classifiers on: {}.".format(curr_pid, ds_name))
-        print("    |-- ({} Child-process) Preprocess fuzzy feature extraction based on parameters: {}, {}.".format(
-            curr_pid, n_conv, fuzzy_reg))
+        logging.info("    |-- (%s Child-process) Pretrain a group of classifiers on: %s.", curr_pid, ds_name)
+        logging.info("    |-- (%s Child-process) Preprocess fuzzy feature extraction based on parameters: %d, %f.",
+                     curr_pid, n_conv, fuzzy_reg)
 
         # Load data.
         df = load_data_clf(ds_name)
@@ -782,14 +814,14 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
             # - Step 2: Extract fuzzy features.
             X_dms = extract_fuzzy_features(X=X_fuzzy_pre, n_conv=n_conv, fuzzy_reg=fuzzy_reg)
             X_plus_dms = np.concatenate((X, X_dms), axis=1)
-            # print("************* Shape before fuzzification:", np.shape(X))
-            # print("************* Shape after fuzzification:", np.shape(X_plus_dms))
+            # logging.debug("************* Shape before fuzzification: %s", np.shape(X))
+            # logging.debug("************* Shape after fuzzification: %s", np.shape(X_plus_dms))
 
         # Fit a group of models, and then get the mean of their accuracy results.
         acc_train_list = []
         acc_test_list = []
         for i in range(NUM_GRP_MDLS):
-            print("        |-- ({} Child-process) {}-th fitting.".format(curr_pid, i))
+            logging.info("        |-- (%s Child-process) %d-th fitting.", curr_pid, i)
 
             # Split training and test sets by hold-out partition method.
             # X_train, X_test, y_train, y_test = train_test_split(X_fuzzy_pre, y, test_size=0.4)
@@ -813,11 +845,11 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
         acc_test_mean = np.mean(acc_test_list)
         err_test_mean = 1 - np.abs(np.mean(acc_test_list))
         std_test = np.std(acc_test_list)
-        print("    |-- ========================================================================================")
-        print("    |-- ({} Child-process) Pretrain a group of classifiers on: {}.".format(curr_pid, ds_name))
-        print("    |-- Mean train acc:", acc_train_mean, "  std:", std_train)
-        print("    |-- Mean test acc:", acc_test_mean, "  std:", std_test)
-        print("    |-- ========================================================================================")
+        logging.info("    |-- ========================================================================================")
+        logging.info("    |-- (%s Child-process) Pretrain a group of classifiers on: %s.", curr_pid, ds_name)
+        logging.info("    |-- Mean train acc: %f; std: %f", acc_train_mean, std_train)
+        logging.info("    |-- Mean test acc: %f; std: %f", acc_test_mean, std_test)
+        logging.info("    |-- ========================================================================================")
 
         # Put the data in the connection between the master process and its sub-processes.
         # !!! NB: The data should be a 2-dimensional ndarray, or a dictionary with key,
@@ -861,8 +893,8 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
         accuracy_test = accuracy_score(y_test, y_pred_test)
         # balanced_accuracy_test = balanced_accuracy_score(y_test, y_pred_test)
         # neg_brier_score_test = brier_score_loss(y_test, y_pred_test)
-        # print("    Fuzzy accuracy train:", accuracy_train)
-        # print("    Fuzzy accuracy test:", accuracy_test)
+        # logging.info("    Fuzzy accuracy train: %f", accuracy_train)
+        # logging.info("    Fuzzy accuracy test: %f", accuracy_test)
 
         # Pickle the fitted model.
         if self.enable_pkl_mdl:
@@ -872,7 +904,7 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
             # trained_clf = joblib.load(filename=filename)
 
         # # Display the elapsed time.
-        # print("        |-- ({} Child-process) Time elapsed fitting one model:", time.time() - time_start, "s")
+        # logging.info("        |-- (%s Child-process) Time elapsed fitting one model: %f(s)", time.time() - time_start)
 
         return accuracy_train, accuracy_test
 
@@ -911,7 +943,7 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
             self.df_pretrain = pd.DataFrame(data=self.ds_pretrain, columns=column_names)
             filename = DirSave.EVAL_DATA.value + get_today_str() + "_" + EvaluationType.FUZZY_REG_VS_ERR_ON_N_CONV.value + ".csv"
             self.df_pretrain.to_csv(filename)
-        print("Main Process {} saved data as the shape:".format(os.getpid()), self.df_pretrain)
+        logging.info("Main Process %s saved data as the shape: %s", os.getpid(), self.df_pretrain)
 
     def plot_fuzzy_reg_vs_err(self, filename=None):
         """
@@ -955,11 +987,11 @@ class FuzzyDecisionTreeWrapper(DecisionTreeInterface):
                 df_4_n_conv = df_4_ds_name[df_4_ds_name["n_conv"] == n_conv]
                 df_4_n_conv = df_4_n_conv.sort_values(by="fuzzy_reg", ascending=True)  # ascending is True by default.
                 coordinates = df_4_n_conv[["fuzzy_reg", "err_train_mean", "err_test_mean"]].astype("float").values
-                # print("+++++++++++++++++++++++++++++++++++++++++++++", type(df_4_n_conv["err_train_mean"].values[1]))
+                # logging.debug("+++++++++++++++++++++++++++++++++++++++++++++ %s", type(df_4_n_conv["err_train_mean"].values[1]))
                 # x_lower_limit, x_upper_limit = np.min(df_4_n_conv[["fuzzy_reg"]].values), np.max(df_4_n_conv[["fuzzy_reg"]].values)
                 # y_lower_limit = np.min(df_4_n_conv[["err_train_mean"]].values) if np.min(df_4_n_conv[["err_train_mean"]].values) < np.min(df_4_n_conv[["err_test_mean"]].values) else np.min(df_4_n_conv[["err_test_mean"]].values)
                 # y_upper_limit = np.max(df_4_n_conv[["err_train_mean"]].values) if np.max(df_4_n_conv[["err_train_mean"]].values) > np.max(df_4_n_conv[["err_test_mean"]].values) else np.max(df_4_n_conv[["err_test_mean"]].values)
-                # print("x_limits and y_limits are:", x_lower_limit, x_upper_limit, y_lower_limit, y_upper_limit)
+                # logging.debug("x_limits and y_limits are: %f, %f, %f, %f", x_lower_limit, x_upper_limit, y_lower_limit, y_upper_limit)
 
                 plot_multi_lines(coordinates=coordinates,
                                  title="Fuzzy Reg Coeff vs Error - n_conv {} - {}".format(n_conv, ds_name),

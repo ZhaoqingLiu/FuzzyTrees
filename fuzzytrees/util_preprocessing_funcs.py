@@ -96,14 +96,14 @@ def extract_fuzzy_features(X, n_conv=5, fuzzy_reg=0.0):
     @author: Anjin Liu
     @email: Anjin.Liu@uts.edu.au
     """
-    # print("************* X's shape:", np.shape(X))
+    # logging.debug("************* X's shape: %s", np.shape(X))
     n_samples, n_features = np.shape(X)
     X_fuzzy_dms = np.empty([n_samples, 0])
     for feature_idx in range(n_features):
         X_fuzzy_dm, _, _ = degree_of_membership_build(r_seed=0, X_df=pd.DataFrame(X[:, feature_idx]), n_conv=n_conv,
                                                       fuzzy_reg=fuzzy_reg)
         X_fuzzy_dms = np.concatenate((X_fuzzy_dms, X_fuzzy_dm), axis=1)
-    # print("************* X_fuzzy_dms's shape:", np.shape(X_fuzzy_dms))
+    # logging.debug("************* X_fuzzy_dms's shape: %s", np.shape(X_fuzzy_dms))
     return X_fuzzy_dms
 
     # X_df = pd.DataFrame(X)
@@ -115,7 +115,7 @@ def extract_fuzzy_features(X, n_conv=5, fuzzy_reg=0.0):
     # for feature_idx in range(n_features):
     #     X_fuzzy_dm, _, _ = degree_of_membership_build(r_seed=0, X_df=pd.DataFrame(X[:, feature_idx]), n_conv=5)
     #     X_fuzzy_dms.append(X_fuzzy_dm)
-    # print("************* X_fuzzy_dms's elements:", np.asarray(X_fuzzy_dms).shape)
+    # logging.debug("************* X_fuzzy_dms's elements: %s", np.asarray(X_fuzzy_dms).shape)
     # return np.asarray(X_fuzzy_dms)
 
 
