@@ -94,7 +94,7 @@ FUZZY_CLFS = {
                                             criterion_func=CRITERIA_FUNC_CLF["gini"],
                                             max_depth=5),
     "fgbdt_vs_nfgbdt": FuzzyGBDTClassifier(disable_fuzzy=False,
-                                           fuzzification_options=FuzzificationOptions(n_conv=3),
+                                           fuzzification_options=FuzzificationOptions(n_conv=n_conv),
                                            criterion_func=CRITERIA_FUNC_REG["mse"],
                                            learning_rate=0.1,
                                            n_estimators=100,
