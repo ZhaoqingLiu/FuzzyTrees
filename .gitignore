@@ -1,6 +1,7 @@
 # Development files
 *.csv
 *.zip
+Datasets/
 TODO/
 temp_test/
 exp/
