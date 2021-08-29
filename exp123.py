@@ -96,7 +96,7 @@ FUZZY_CLFS = {
     "fgbdt_vs_nfgbdt": FuzzyGBDTClassifier(disable_fuzzy=False,
                                            fuzzification_options=FuzzificationOptions(n_conv=n_conv),
                                            criterion_func=CRITERIA_FUNC_REG["mse"],
-                                           learning_rate=0.1,
+                                           learning_rate=0.01,
                                            n_estimators=100,
                                            max_depth=5),
 }
@@ -122,7 +122,7 @@ NON_FUZZY_CLFS = {
                                             max_depth=5),
     "fgbdt_vs_nfgbdt": FuzzyGBDTClassifier(disable_fuzzy=True,
                                            criterion_func=CRITERIA_FUNC_REG["mse"],
-                                           learning_rate=0.1,
+                                           learning_rate=0.01,
                                            n_estimators=100,
                                            max_depth=5),
 }
@@ -258,6 +258,9 @@ def exp_clf():
         for ds_name, ds_load_func in DS_LOAD_FUNC_CLF.items():
             ds_df = ds_load_func()
             if ds_df is not None:
+                # Convert `dtype` of the feature to prepare for feature fuzzification.
+                ds_df.iloc[:, :-1] = ds_df.iloc[:, :-1].astype(float)
+
                 # Separate y from X.
                 X = ds_df.iloc[:, :-1].values
                 y = ds_df.iloc[:, -1].values
@@ -265,16 +268,11 @@ def exp_clf():
                 # 2. Preprocess the dataset. ===========================================================================
                 # 2.1. Do fuzzification preprocessing.
                 X_fuzzy_pre = X.copy()
-                logging.debug("**************** dtype before: %s", X_fuzzy_pre.dtype)
-                # Convert dtype of X_fuzzy_pre to float.
-                if not isinstance(X_fuzzy_pre.dtype, float):
-                    X_fuzzy_pre = X_fuzzy_pre.astype(float)
-                    logging.debug("**************** dtype after: %s", X_fuzzy_pre.dtype)
-                logging.info("Dataset: '%s'; X before fuzzification: %s", ds_name, np.shape(X_fuzzy_pre))
                 # 2.1.1. Standardise feature scaling.
                 X_fuzzy_pre[:, :] -= X_fuzzy_pre[:, :].min()
                 X_fuzzy_pre[:, :] /= X_fuzzy_pre[:, :].max()
                 # 2.1.2. Extract fuzzy features.
+                logging.info("Dataset: '%s'; X before fuzzification: %s", ds_name, np.shape(X_fuzzy_pre))
                 X_dms = extract_fuzzy_features(X_fuzzy_pre, n_conv=n_conv)
                 X_plus_dms = np.concatenate((X, X_dms), axis=1)
                 logging.info("Dataset: '%s'; X after fuzzification: %s", ds_name, np.shape(X_plus_dms))

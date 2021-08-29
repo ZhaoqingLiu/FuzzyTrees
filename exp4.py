@@ -313,6 +313,9 @@ def exp_clf():
                     logging.info("(Dataset: '%s', shape changed by resampling) Before: '%s'; After: '%s'",
                                  ds_name, shape, ds_df.shape)
 
+                # Convert `dtype` of the feature to prepare for feature fuzzification.
+                ds_df.iloc[:, :-1] = ds_df.iloc[:, :-1].astype(float)
+
                 # Separate y from X.
                 X = ds_df.iloc[:, :-1].values
                 y = ds_df.iloc[:, -1].values
@@ -320,16 +323,11 @@ def exp_clf():
                 # 2. Preprocess the dataset. ===================================================================
                 # 2.1. Do fuzzification preprocessing.
                 X_fuzzy_pre = X.copy()
-                logging.debug("**************** dtype before: %s", X_fuzzy_pre.dtype)
-                # Convert dtype of X_fuzzy_pre to float.
-                if not isinstance(X_fuzzy_pre.dtype, float):
-                    X_fuzzy_pre = X_fuzzy_pre.astype(float)
-                    logging.debug("**************** dtype after: %s", X_fuzzy_pre.dtype)
-                logging.info("Dataset: '%s'; X before fuzzification: %s", ds_name, np.shape(X_fuzzy_pre))
                 # 2.1.1. Standardise feature scaling.
                 X_fuzzy_pre[:, :] -= X_fuzzy_pre[:, :].min()
                 X_fuzzy_pre[:, :] /= X_fuzzy_pre[:, :].max()
                 # 2.1.2. Extract fuzzy features.
+                logging.info("Dataset: '%s'; X before fuzzification: %s", ds_name, np.shape(X_fuzzy_pre))
                 X_dms = extract_fuzzy_features(X_fuzzy_pre, n_conv=n_conv)
                 X_plus_dms = np.concatenate((X, X_dms), axis=1)
                 logging.info("Dataset: '%s'; X after fuzzification: %s", ds_name, np.shape(X_plus_dms))
