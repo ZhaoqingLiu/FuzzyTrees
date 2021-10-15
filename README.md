@@ -22,17 +22,6 @@ FuzzyTrees is a lightweight framework designed for the rapid development of fuzz
 
 - **Examples for algorithm development**: The FuzzyTrees algorithms, [FDT](fuzzytrees/fdt_base.py), [FGBDT](fuzzytrees/fgbdt.py) and [FRDF](fuzzytrees/frdf.py) can be used as examples for developing new algorithms or for conducting a variety of empirical studies.
 
-## Installation
-###  Getting It
-```shell
-$ pip install fdts
-```
-
-###  Importing All Dependencies
-Go to the root directory where FuzzyTrees is installed, and then
-```shell
-$ pip install -r requirements.txt
-```
 
 
 ## A Development Example
