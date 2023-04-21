@@ -12,6 +12,19 @@ To modify the experiment to other datasets:
 - Rerun the experiments.
 
 
+## Citation
+If this code is helpful to your research, please cite our paper:
+```
+@inproceedings{liu2022empirical,
+  title={An Empirical Study of Fuzzy Decision Tree for Gradient Boosting Ensemble},
+  author={Liu, Zhaoqing and Liu, Anjin and Zhang, Guangquan and Lu, Jie},
+  booktitle={AI 2021: Advances in Artificial Intelligence: 34th Australasian Joint Conference, AI 2021, Sydney, NSW, Australia, February 2--4, 2022, Proceedings},
+  pages={716--727},
+  year={2022},
+  organization={Springer}
+}
+```
+
 
 # FuzzyTrees ![MIT](https://img.shields.io/badge/license-MIT-brightgreen)
 FuzzyTrees is a lightweight framework designed for the rapid development of fuzzy decision tree algorithms. The FuzzyTrees framework offers a range of benefits including:
