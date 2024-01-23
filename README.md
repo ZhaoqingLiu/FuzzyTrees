@@ -1,4 +1,6 @@
-# Codebase for "An Empirical Study of Fuzzy Decision Tree for Gradient Boosting Ensemble"
+# An Open-Source Software: FuzzyTrees for Development of Fuzzy Decision Trees
+
+## Codebase for "An Empirical Study of Fuzzy Decision Tree for Gradient Boosting Ensemble"
 Authors: Zhaoqing Liu, Anjin Liu, Guangquan Zhang, and Jie Lu
 
 The paper includes four experiments. To run them for training and evaluation:
