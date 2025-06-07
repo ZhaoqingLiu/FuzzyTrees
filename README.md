@@ -143,7 +143,7 @@ See the [tutorials](./tutorials.md) for more details on using fuzzy decision tre
 
 
 ## Development Team
-- Zhaoqing Liu (FuzzyTrees framework, [FDT](fuzzytrees/fdt_base.py), [FGBDT](fuzzytrees/fgbdt.py), [FRDF](fuzzytrees/frdf.py))
+- Dr. Zhaoqing Liu (FuzzyTrees framework, [FDT](fuzzytrees/fdt_base.py), [FGBDT](fuzzytrees/fgbdt.py), [FRDF](fuzzytrees/frdf.py))
 - Dr. Anjin Liu ([Fuzzy feature extraction](fuzzytrees/util_preprocessing_funcs.py) for fuzzification in preprocessing)
 - Dist. Prof. Jie Lu
 - A/Prof. Guangquan Zhang
